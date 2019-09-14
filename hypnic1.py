@@ -19,18 +19,7 @@ NUM_ITERATIONS = 1
 _________________________________________________
 TODO
 _________________________________________________
- - FIX RGB->HSV and/or HSV->RGB conversions
-     - I believe the problem lies specifically with HSV->RGB
-     - in SOME cases, converting to HSV and back leads to G being lost and set to be equal to the value of B instead
-         - CONFIRMED in the following cases:
-             - whenever R == 0 and G < B
-         - CHECK the following cases:
-             - whenever 0 < R < 255 and G < B
-             - whenever R == 255 and G < B
-             - whenever 0 < R < 255 and B < G
-             - whenever R == 255 and B < G
-     = Should write a "flagging" function and look ata outputs to determine other potential problems
-     
+ - Rewrite HSV functions to handle H/S/V as floating point numbers
  - Implement NUM_ITERATIONS variable (should be trivial)
  - Implement ability to perform operations based on neighboring pixels
 """
@@ -50,6 +39,7 @@ class Container:
         # An array of pixels representing the output image. Initialized identical to self.pixelsIn
         # Modified over time while iterating through rows/columns. Should not be used for reference.
         self.pixelsOut = self.imageOut.load()
+        self.errorCount = 0
 
     # Converts an RGB color value to an HSV color value
     # Based on algorithm (with modified domain) from:
@@ -89,7 +79,7 @@ class Container:
                 h = round(60 * (2 + ((rgb[2] - rgb[0]) / deltaRGB)))
             # Hue is between magenta and cyan
             else:
-                h = round(60 * (4 + ((rgb[0] - rgb[2]) / deltaRGB)))
+                h = round(60 * (4 + ((rgb[0] - rgb[1]) / deltaRGB)))
             # Ensure that Hue is in the 0 <= H <= 359 range
             if h < 0:
                 h += 360
@@ -249,10 +239,24 @@ class Container:
 
         rgbResult = self.modCustomDomainRGB(rgbResult)
         rgbResult = self.modFlipRotate1RGB(rgbResult)
-        print(rgbResult)
-        print(self.fromRGBtoHSV(rgbResult))
-        print(self.fromHSVtoRGB(self.fromRGBtoHSV(rgbResult)))
-        print()
+        orgb = rgbResult
+        hsv = self.fromRGBtoHSV(rgbResult)
+        nrgb = self.fromHSVtoRGB(self.fromRGBtoHSV(rgbResult))
+
+        test1 = False
+        test2 = False
+        for i in range(0,3):
+            if abs(orgb[i] - nrgb[i]) >= 3:
+                test1 = True
+
+
+        if test1:
+            self.errorCount += 1
+            print(orgb)
+            print(hsv)
+            print(nrgb)
+            print()
+
         return rgbResult
 
     # Encodes a list of integers into R/G/B pixel data of a given .png file
@@ -266,12 +270,15 @@ class Container:
 
         self.imageOut.save(OUTPUT_IMG)
 
+        print("NUM PIXELS:" + str(self.xRes * self.yRes) + "    \n")
+        print("ERROR COUNT:" + str(self.errorCount) + "    \n")
+
 
 def main():
     random.seed(1)
     cont = Container()
     cont.manipulate()
-    print("\n\n\n================ C O M P L E T E D ================\n")
+    print("\n================ C O M P L E T E D ================\n")
 
 
 main()
