@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from PIL import Image
+import imageio
 import math
 import random
 
@@ -15,14 +16,14 @@ OUTPUT_IMG_EXTENSION = ".jpg"
 MULTIPLE_RENDERS = True
 # Whether or not to generate an additional animated .gif from all rendered images
 ANIMATE = True
+# Path at which the resulting animated .gif will be saved, if ANIMATE = True
+ANIMATION_PATH = "output/animation.gif"
 
 
 """
 _________________________________________________
 TODO
 _________________________________________________
- - Add ability to generate animated GIFs when more than one output images is
-   created throughout the function application process
  - Implement ability to perform operations based on neighboring pixels
 """
 
@@ -44,6 +45,8 @@ class Container:
         self.currentY = 0
         # Suffix to apply to the filename of the current version of self.imageOut upon running self.render()
         self.currentFrame = 0
+        # List of file pathss of all rendered images
+        self.outputFileList = []
         # An array of pixels representing the input image. Used for reference but never modified.
         self.pixelsIn = self.imageIn.load()
         # An array of pixels representing the output image. Initialized identical to self.pixelsIn
@@ -248,8 +251,7 @@ class Container:
                 self.currentX = x
                 self.currentY = y
                 self.pixelsOut[self.currentX, self.currentY] = self.rgbFunc()
-                if (y % 5 == 0) and (frameRendered == False):
-                    print(y)
+                if (y % 10 == 0) and (frameRendered == False):
                     self.render()
                     frameRendered = True
         return 0
@@ -258,19 +260,31 @@ class Container:
     def render(self):
         if MULTIPLE_RENDERS:
             self.currentFrame += 1
-        self.imageOut.save(Path(OUTPUT_IMG + "_" + str(self.currentFrame) + OUTPUT_IMG_EXTENSION))
+        outputFilePath = Path(OUTPUT_IMG + "_" + str(self.currentFrame) + OUTPUT_IMG_EXTENSION)
+        self.outputFileList.append(outputFilePath)
+        self.imageOut.save(outputFilePath)
         print("Frame " + str(self.currentFrame) + " rendered.")
         return 0
 
     # Creates an animated .gif with a separate frame for each rendered image
     def animate(self):
+        images = []
+        currentFrame = 1
+        for filename in self.outputFileList:
+            images.append(imageio.imread(filename))
+            print("Frame " + str(currentFrame) + " of " + ANIMATION_PATH + " rendered.")
+            currentFrame += 1
+        imageio.mimsave(ANIMATION_PATH, images)
+        print("Animation saved.")
         return 0
 
     # Ensures that the directory specified for the output image(s) exists to avoid errors in self.render()
     @staticmethod
     def prepareDirectory():
-        directory = os.path.dirname(OUTPUT_IMG)
-        os.makedirs(directory, exist_ok=True)
+        output_image_directory = os.path.dirname(OUTPUT_IMG)
+        os.makedirs(output_image_directory, exist_ok=True)
+        animation_directory = os.path.dirname(ANIMATION_PATH)
+        os.makedirs(animation_directory, exist_ok=True)
         return 0
 
 def main():
@@ -281,6 +295,5 @@ def main():
     if ANIMATE:
         cont.animate()
     print("\n================ C O M P L E T E D ================\n")
-
 
 main()
