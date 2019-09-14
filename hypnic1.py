@@ -136,6 +136,18 @@ class Container:
         yOut = round(xIn * -0.01 + 2000)
         return yOut
 
+    def modFlipSV(self, rgbIn):
+        hsvIn = self.fromRGBtoHSV(rgbIn)
+        hsvOut = (hsvIn[0], hsvIn[2], hsvIn[1])
+        rgbOut = self.fromHSVtoRGB(hsvOut)
+        return rgbOut
+
+    def modHueShift(self, rgbIn, hueShift):
+        hsvIn = self.fromRGBtoHSV(rgbIn)
+        hsvOut = ((hsvIn[0] + hueShift) % 360, hsvIn[1], hsvIn[2])
+        rgbOut = self.fromHSVtoRGB(hsvOut)
+        return rgbOut
+
     def modRotate1RGB(self, rgbIn):
         rgbOut = (rgbIn[1],
                   rgbIn[2],
@@ -235,25 +247,7 @@ class Container:
     def rgbFunc(self):
         rgbResult = self.pixelsIn[self.currentX, self.currentY]
 
-        rgbResult = self.modCustomDomainRGB(rgbResult)
-        rgbResult = self.modFlipRotate1RGB(rgbResult)
-        orgb = rgbResult
-        hsv = self.fromRGBtoHSV(rgbResult)
-        nrgb = self.fromHSVtoRGB(self.fromRGBtoHSV(rgbResult))
-
-        test1 = False
-        test2 = False
-        for i in range(0,3):
-            if abs(orgb[i] - nrgb[i]) >= 3:
-                test1 = True
-
-
-        if test1:
-            self.errorCount += 1
-            print(orgb)
-            print(hsv)
-            print(nrgb)
-            print()
+        rgbResult = self.modHueShift(rgbResult, 60)
 
         return rgbResult
 
@@ -267,9 +261,6 @@ class Container:
                 self.pixelsOut[x, y] = self.rgbFunc()
 
         self.imageOut.save(OUTPUT_IMG)
-
-        print("NUM PIXELS:" + str(self.xRes * self.yRes) + "    \n")
-        print("ERROR COUNT:" + str(self.errorCount) + "    \n")
 
 
 def main():
