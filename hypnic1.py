@@ -19,7 +19,6 @@ NUM_ITERATIONS = 1
 _________________________________________________
 TODO
 _________________________________________________
- - Rewrite HSV functions to handle H/S/V as floating point numbers
  - Implement NUM_ITERATIONS variable (should be trivial)
  - Implement ability to perform operations based on neighboring pixels
 """
@@ -45,27 +44,26 @@ class Container:
     # Based on algorithm (with modified domain) from:
     #     http://coecsl.ece.illinois.edu/ge423/spring05/group8/finalproject/hsv_writeup.pdf
     # R, G, and B are integers from 0 to 255 inclusive
+    # H, S, and V are each measured on a continuous scale
     # H, conceptually, is measured in degrees and ranges from 0 <= H < 360
-    #   This program limits H to integers from 0 to 359 inclusive
-    #   An H of 0 represents pure red
-    # S is measured from 0 to 255 inclusive
+    # S is measured from 0 to 1 inclusive
     #   The lower S is, the more gray is present, causing it to appear faded
-    # V is measured from 0 to 255 inclusive
-    #   V represents brightness, where 0 is fully dark and 255 is fully bright
+    # V is measured from 0 to 1 inclusive
+    #   V represents brightness, where 0 is fully dark and 1 is fully bright
     #   If V is 0, then the color is always black, regardless of H or S
     @staticmethod
     def fromRGBtoHSV(rgb):
-        minRGB = min(rgb)
-        maxRGB = max(rgb)
+        minRGB = float(min(rgb))
+        maxRGB = float(max(rgb))
         deltaRGB = maxRGB - minRGB
         h = 0
         s = 0
-        v = maxRGB
+        v = maxRGB / 255
         # r == g == b == 0
         if maxRGB == 0:
             return (h, s, v)
         else:
-            s = round(255 * (deltaRGB / maxRGB))
+            s = deltaRGB / maxRGB
         # Hue is null
         if deltaRGB == 0:
             return (h, s, v)
@@ -73,29 +71,29 @@ class Container:
         else:
             # Hue is between yellow and magenta
             if rgb[0] == maxRGB:
-                h = round(60 * ((rgb[1] - rgb[2]) / deltaRGB))
+                h = round(60 * ((rgb[1] - rgb[2]) / (deltaRGB)))
             # Hue is between cyan and yellow
             elif rgb[1] == maxRGB:
-                h = round(60 * (2 + ((rgb[2] - rgb[0]) / deltaRGB)))
+                h = round(60 * (2 + ((rgb[2] - rgb[0]) / (deltaRGB))))
             # Hue is between magenta and cyan
             else:
-                h = round(60 * (4 + ((rgb[0] - rgb[1]) / deltaRGB)))
-            # Ensure that Hue is in the 0 <= H <= 359 range
-            if h < 0:
-                h += 360
+                h = round(60 * (4 + ((rgb[0] - rgb[1]) / (deltaRGB))))
+            # Ensure that Hue is in the 0 <= H < 360 range
+            h %= 360
         return (h, s, v)
 
     # Converts an HSV color value to an RGB color value
     # Based on algorithm (with modified domain) from:
     #     https://www.rapidtables.com/convert/color/hsv-to-rgb.html
-    # H is an integer from 0 to 359 inclusive
-    # S and V are integers from 0 to 255 inclusive
     # R, G, and B are integers from 0 to 255 inclusive
+    # H, S, and V are each measured on a continuous scale
+    # H is measured in degrees on the domain of 0 <= H < 360
+    # S and V range from 0 to 1 inclusive
     @staticmethod
     def fromHSVtoRGB(hsv):
-        c = (hsv[1] * hsv[2]) / (255.0 * 255.0)
+        c = hsv[1] * hsv[2]
         x = c * (1 - abs((hsv[0] / 60.0) % 2 - 1))
-        m = (hsv[2] / 255.0) - c
+        m = hsv[2] - c
 
         if hsv[0] < 180:
             if hsv[0] < 120:
@@ -120,9 +118,9 @@ class Container:
                 else:
                     rgb = [c, 0, x]
 
-        rgb[0] = math.floor(255 * (rgb[0] + m))
-        rgb[1] = math.floor(255 * (rgb[1] + m))
-        rgb[2] = math.floor(255 * (rgb[2] + m))
+        rgb[0] = int(round(255 * (rgb[0] + m)))
+        rgb[1] = int(round(255 * (rgb[1] + m)))
+        rgb[2] = int(round(255 * (rgb[2] + m)))
         return tuple(rgb)
 
     # Returns the nearest integer to the distance between two X/Y coordinate pairs
