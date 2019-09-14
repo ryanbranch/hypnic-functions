@@ -298,17 +298,17 @@ class Container:
     # Currently the only purpose is to call the desired modification function(s)
     def rgbFunc(self, manip_index):
         if manip_index == 1:
-            rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % random.randrange(90,270))
-            return rgbResult
+            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
+                                    ((self.currentX + 1) % (self.currentY + 1)) % random.randrange(90,270))
         elif manip_index == 2:
-            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % random.randrange(90,270))
-            return rgbResult
+            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
+                                    (self.currentY + 1) % random.randrange(90,270))
         elif manip_index == 3:
-            rgbResult = self.modHueShift(rgbResult, self.currentY)
-            return rgbResult
+            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
+                                    self.currentY)
         elif manip_index == 4:
-            rgbResult = self.modHueShift(rgbResult, (self.currentX + 1) % random.randrange(90,270))
-            return rgbResult
+            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
+                                    (self.currentX + 1) % random.randrange(90,270))
         else:
             print("Invalid manip_index: " + str(manip_index) + ".  No manipulation performed")
             self.manipulationComplete = True
@@ -421,7 +421,7 @@ class Container:
         return 0
 
 def main():
-    random.seed("3:33")
+    random.seed("three hundred and thirty three")
     cont = Container()
     cont.prepareDirectory()
     cont.manipulate()
