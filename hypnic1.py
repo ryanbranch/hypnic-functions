@@ -15,12 +15,20 @@ INPUT_IMG = "input3.jpg"
 # Path at which the resulting image will be saved
 OUTPUT_IMG = "output/output"
 OUTPUT_IMG_EXTENSION = ".jpg"
+# Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
+RANDOMIZE_MANIPULATION_POSITIONS = False
+# If randomizing manipulation positions, defines the minimum and maximum dimensions for a manipulation area
+# Defined as a fraction of the entire image dimension along the respective axis
+RANDOM_MANIPULATION_MIN_X_DIM = 0.2
+RANDOM_MANIPULATION_MAX_X_DIM = 0.8
+RANDOM_MANIPULATION_MIN_Y_DIM = 0.2
+RANDOM_MANIPULATION_MAX_Y_DIM = 0.8
 # Whether or not to generate a new image each time the render() function for a Container object is called
 MULTIPLE_RENDERS = True
 # How many times to repeat the entire image manipulation process
 # When a new round of manipulation begins, the final output image of the last round of manipulation is used as the base
 #    image in the new round of manipulation
-NUM_ROUNDS_OF_MANIPULATION = 5
+NUM_ROUNDS_OF_MANIPULATION = 1
 
 # GIF-RELATED VARIABLES
 # Whether or not to generate an animated .gif from all rendered images
@@ -289,11 +297,22 @@ class Container:
     # Determines the new R/G/B value of a pixel based on X/Y coordinate and existing R/G/B value
     # Currently the only purpose is to call the desired modification function(s)
     def rgbFunc(self, manip_index):
-        rgbResult = self.pixelsIn[self.currentX, self.currentY]
-        """
-        rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
-        rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % 90)
-        rgbResult = self.modHueShift(rgbResult, self.currentY)
+        if manip_index == 1:
+            rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % random.randrange(90,270))
+            return rgbResult
+        elif manip_index == 2:
+            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % random.randrange(90,270))
+            return rgbResult
+        elif manip_index == 3:
+            rgbResult = self.modHueShift(rgbResult, self.currentY)
+            return rgbResult
+        elif manip_index == 4:
+            rgbResult = self.modHueShift(rgbResult, (self.currentX + 1) % random.randrange(90,270))
+            return rgbResult
+        else:
+            print("Invalid manip_index: " + str(manip_index) + ".  No manipulation performed")
+            self.manipulationComplete = True
+            return 0
         """
         if manip_index == 1:
             rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
@@ -317,24 +336,32 @@ class Container:
             print("Invalid manip_index: " + str(manip_index) + ".  No manipulation performed")
             self.manipulationComplete = True
             return 0
+        """
         #"""
-        return rgbResult
 
     def manipulate(self):
         for n in range(NUM_ROUNDS_OF_MANIPULATION):
             self.manipulationComplete = False
             m = 1
             while self.manipulationComplete == False:
-                x_bound_diff = 0
-                y_bound_diff = 0
-                while (x_bound_diff < self.xRes * 0.2) or (x_bound_diff > self.xRes * 0.8):
-                    x_bound_1 = random.randrange(0, self.xRes)
-                    x_bound_2 = random.randrange(0, self.xRes)
-                    x_bound_diff = abs(x_bound_2 - x_bound_1)
-                while (y_bound_diff < self.yRes * 0.2) or (y_bound_diff > self.yRes * 0.8):
-                    y_bound_1 = random.randrange(0, self.yRes)
-                    y_bound_2 = random.randrange(0, self.yRes)
-                    y_bound_diff = abs(y_bound_2 - y_bound_1)
+                if RANDOMIZE_MANIPULATION_POSITIONS:
+                    x_bound_diff = 0
+                    y_bound_diff = 0
+                    while (x_bound_diff < self.xRes * RANDOM_MANIPULATION_MIN_X_DIM) or\
+                            (x_bound_diff > self.xRes * RANDOM_MANIPULATION_MAX_X_DIM):
+                        x_bound_1 = random.randrange(0, self.xRes)
+                        x_bound_2 = random.randrange(0, self.xRes)
+                        x_bound_diff = abs(x_bound_2 - x_bound_1)
+                    while (y_bound_diff < self.yRes * RANDOM_MANIPULATION_MIN_Y_DIM) or\
+                            (y_bound_diff > self.yRes * RANDOM_MANIPULATION_MAX_Y_DIM):
+                        y_bound_1 = random.randrange(0, self.yRes)
+                        y_bound_2 = random.randrange(0, self.yRes)
+                        y_bound_diff = abs(y_bound_2 - y_bound_1)
+                else:
+                    y_bound_1 = 0
+                    y_bound_2 = self.yRes - 1
+                    x_bound_1 = 0
+                    x_bound_2 = self.xRes - 1
                 for y in range(min(y_bound_1, y_bound_2), max(y_bound_1, y_bound_2)):
                     if self.manipulationComplete:
                         break
