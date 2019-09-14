@@ -2,22 +2,54 @@ import os
 from pathlib import Path
 from PIL import Image
 import imageio
+import cv2
 import math
 import random
 
 
-# Global Constants
+# GLOBAL CONSTANTS
+# ________________________________
+# GENERAL VARIABLES
 # Path to the image used as program input
-INPUT_IMG = "input.jpg"
+INPUT_IMG = "input3.jpg"
 # Path at which the resulting image will be saved
 OUTPUT_IMG = "output/output"
 OUTPUT_IMG_EXTENSION = ".jpg"
 # Whether or not to generate a new image each time the render() function for a Container object is called
 MULTIPLE_RENDERS = True
-# Whether or not to generate an additional animated .gif from all rendered images
-ANIMATE = True
-# Path at which the resulting animated .gif will be saved, if ANIMATE = True
-ANIMATION_PATH = "output/animation.gif"
+# How many times to repeat the entire image manipulation process
+# When a new round of manipulation begins, the final output image of the last round of manipulation is used as the base
+#    image in the new round of manipulation
+NUM_ROUNDS_OF_MANIPULATION = 5
+
+# GIF-RELATED VARIABLES
+# Whether or not to generate an animated .gif from all rendered images
+CREATE_GIF = True
+# Path at which the resulting animated .gif will be saved, if CREATE_GIF = True
+GIF_PATH = "output/animation2.gif"
+# Whether or not to play the .gif frames in reverse when the end is reached, transitioning back to the original source
+#    image instead of abruptly jumping right back to the start
+REVERSE_GIF_AT_END = True
+# Number of times to repeat each rendered image during forward .gif progression
+# Effectively lengthens the time for which each frame is visible in the animated .gif
+GIF_FRAMES_PER_IMAGE_FORWARD = 3
+# Number of times to repeat each rendered image during reverse .gif progression
+GIF_FRAMES_PER_IMAGE_REVERSE = 1
+# Whether or not to generate an additional video from all rendered images
+
+# VIDEO-RELATED VARIABLES
+# VIDEO RENDERING FUNCTIONALITY HAS NOT YET BEEN COMPLETED
+CREATE_VIDEO = True
+# Path at which the resulting video will be saved, if CREATE_GIF = True
+VIDEO_PATH = "output/video2.avi"
+# Whether or not to play the video frames in reverse when the end is reached, transitioning back to the original source
+#    image instead of abruptly jumping right back to the start
+REVERSE_VIDEO_AT_END = True
+# Number of times to repeat each rendered image during forward video progression
+# Effectively lengthens the time for which each frame is visible in the animated .gif
+VIDEO_FRAMES_PER_IMAGE_FORWARD = 3
+# Number of times to repeat each rendered image during reverse video progression
+VIDEO_FRAMES_PER_IMAGE_REVERSE = 1
 
 
 """
@@ -25,6 +57,9 @@ _________________________________________________
 TODO
 _________________________________________________
  - Implement ability to perform operations based on neighboring pixels
+ - Add functionality for video output instead of just .gif animations
+ - Create GUI to allow users to interactively apply filters and functions, with deep control over the underlying math
+     as well as the ability to render in various formats
 """
 
 
@@ -45,13 +80,15 @@ class Container:
         self.currentY = 0
         # Suffix to apply to the filename of the current version of self.imageOut upon running self.render()
         self.currentFrame = 0
-        # List of file pathss of all rendered images
+        # List of file paths of all rendered images
         self.outputFileList = []
         # An array of pixels representing the input image. Used for reference but never modified.
         self.pixelsIn = self.imageIn.load()
         # An array of pixels representing the output image. Initialized identical to self.pixelsIn
-        #     Modified over time while iterating through rows/columns. Should not be used for reference.
+        # Modified over time while iterating through rows/columns. Should not be used for reference.
         self.pixelsOut = self.imageOut.load()
+        # Tracks when all image manipulation routines are complete
+        self.manipulationComplete = False
         # Internal variable used to track error incidences during debugging
         self.errorCount = 0
 
@@ -158,9 +195,23 @@ class Container:
         return rgbOut
 
     # Shifts the Hue value by a given number of degrees
-    def modHueShift(self, rgbIn, hueShift):
+    def modHueShift(self, rgbIn, shift):
         hsvIn = self.fromRGBtoHSV(rgbIn)
-        hsvOut = ((hsvIn[0] + hueShift) % 360, hsvIn[1], hsvIn[2])
+        hsvOut = ((hsvIn[0] + shift) % 360, hsvIn[1], hsvIn[2])
+        rgbOut = self.fromHSVtoRGB(hsvOut)
+        return rgbOut
+
+    # Shifts the Saturation value by a given number of degrees
+    def modSaturationShift(self, rgbIn, shift):
+        hsvIn = self.fromRGBtoHSV(rgbIn)
+        hsvOut = (hsvIn[0], (hsvIn[1] + shift) % 360, hsvIn[2])
+        rgbOut = self.fromHSVtoRGB(hsvOut)
+        return rgbOut
+
+    # Shifts the Value value by a given number of degrees
+    def modValueShift(self, rgbIn, shift):
+        hsvIn = self.fromRGBtoHSV(rgbIn)
+        hsvOut = (hsvIn[0], hsvIn[1], (hsvIn[2] + shift) % 360)
         rgbOut = self.fromHSVtoRGB(hsvOut)
         return rgbOut
 
@@ -237,23 +288,64 @@ class Container:
 
     # Determines the new R/G/B value of a pixel based on X/Y coordinate and existing R/G/B value
     # Currently the only purpose is to call the desired modification function(s)
-    def rgbFunc(self):
+    def rgbFunc(self, manip_index):
         rgbResult = self.pixelsIn[self.currentX, self.currentY]
+        """
         rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
         rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % 90)
         rgbResult = self.modHueShift(rgbResult, self.currentY)
+        """
+        if manip_index == 1:
+            rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
+        elif manip_index == 2:
+            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % 90)
+        elif manip_index == 3:
+            rgbResult = self.modHueShift(rgbResult, self.currentY)
+        elif manip_index == 4:
+            rgbResult = self.modRotate1RGB(rgbResult)
+        elif manip_index == 5:
+            rgbResult = self.modHueShift(rgbResult, 69)
+        elif manip_index == 6:
+            rgbResult = self.modValueShift(rgbResult, -0.3)
+        elif manip_index == 7:
+            rgbResult = self.modValueShift(rgbResult, 0.3)
+        elif manip_index == 8:
+            rgbResult = self.modSaturationShift(rgbResult, -0.3)
+        elif manip_index == 9:
+            rgbResult = self.modSaturationShift(rgbResult, 0.3)
+        else:
+            print("Invalid manip_index: " + str(manip_index) + ".  No manipulation performed")
+            self.manipulationComplete = True
+            return 0
+        #"""
         return rgbResult
 
     def manipulate(self):
-        for y in range(self.yRes):
-            frameRendered = False
-            for x in range(self.xRes):
-                self.currentX = x
-                self.currentY = y
-                self.pixelsOut[self.currentX, self.currentY] = self.rgbFunc()
-                if (y % 10 == 0) and (frameRendered == False):
-                    self.render()
-                    frameRendered = True
+        for n in range(NUM_ROUNDS_OF_MANIPULATION):
+            self.manipulationComplete = False
+            m = 1
+            while self.manipulationComplete == False:
+                x_bound_diff = 0
+                y_bound_diff = 0
+                while (x_bound_diff < self.xRes * 0.2) or (x_bound_diff > self.xRes * 0.8):
+                    x_bound_1 = random.randrange(0, self.xRes)
+                    x_bound_2 = random.randrange(0, self.xRes)
+                    x_bound_diff = abs(x_bound_2 - x_bound_1)
+                while (y_bound_diff < self.yRes * 0.2) or (y_bound_diff > self.yRes * 0.8):
+                    y_bound_1 = random.randrange(0, self.yRes)
+                    y_bound_2 = random.randrange(0, self.yRes)
+                    y_bound_diff = abs(y_bound_2 - y_bound_1)
+                for y in range(min(y_bound_1, y_bound_2), max(y_bound_1, y_bound_2)):
+                    if self.manipulationComplete:
+                        break
+                    for x in range(min(x_bound_1, x_bound_2), max(x_bound_1, x_bound_2)):
+                        if self.manipulationComplete:
+                            break
+                        self.currentX = x
+                        self.currentY = y
+                        self.pixelsOut[self.currentX, self.currentY] = self.rgbFunc(m)
+                m += 1
+                self.render()
         return 0
 
     # Saves an output image with filename based on the current frame number
@@ -263,19 +355,31 @@ class Container:
         outputFilePath = Path(OUTPUT_IMG + "_" + str(self.currentFrame) + OUTPUT_IMG_EXTENSION)
         self.outputFileList.append(outputFilePath)
         self.imageOut.save(outputFilePath)
-        print("Frame " + str(self.currentFrame) + " rendered.")
+        print("Output image " + str(self.currentFrame) + " rendered.")
         return 0
 
-    # Creates an animated .gif with a separate frame for each rendered image
-    def animate(self):
+    # Creates a .gif animation with a separate frame for each rendered image
+    def createGIF(self):
         images = []
         currentFrame = 1
         for filename in self.outputFileList:
-            images.append(imageio.imread(filename))
-            print("Frame " + str(currentFrame) + " of " + ANIMATION_PATH + " rendered.")
-            currentFrame += 1
-        imageio.mimsave(ANIMATION_PATH, images)
-        print("Animation saved.")
+            for i in range(GIF_FRAMES_PER_IMAGE_FORWARD):
+                images.append(imageio.imread(filename))
+                print("Frame " + str(currentFrame) + " of " + GIF_PATH + " rendered.")
+                currentFrame += 1
+        if REVERSE_GIF_AT_END:
+            for filename in reversed(self.outputFileList):
+                for i in range(GIF_FRAMES_PER_IMAGE_REVERSE):
+                    images.append(imageio.imread(filename))
+                    print("Frame " + str(currentFrame) + " of " + GIF_PATH + " rendered.")
+                    currentFrame += 1
+        print("Saving .gif animation...")
+        imageio.mimsave(GIF_PATH, images)
+        print(".gif animation saved.")
+        return 0
+
+    # Creates a video animation with a separate frame for each rendered image
+    def createVideo(self):
         return 0
 
     # Ensures that the directory specified for the output image(s) exists to avoid errors in self.render()
@@ -283,17 +387,22 @@ class Container:
     def prepareDirectory():
         output_image_directory = os.path.dirname(OUTPUT_IMG)
         os.makedirs(output_image_directory, exist_ok=True)
-        animation_directory = os.path.dirname(ANIMATION_PATH)
-        os.makedirs(animation_directory, exist_ok=True)
+        gif_directory = os.path.dirname(GIF_PATH)
+        os.makedirs(gif_directory, exist_ok=True)
+        video_directory = os.path.dirname(GIF_PATH)
+        os.makedirs(video_directory, exist_ok=True)
         return 0
 
 def main():
-    random.seed(1)
+    random.seed("3:33")
     cont = Container()
     cont.prepareDirectory()
     cont.manipulate()
-    if ANIMATE:
-        cont.animate()
+    if CREATE_GIF:
+        cont.createGIF()
+    if CREATE_VIDEO:
+        cont.createVideo()
     print("\n================ C O M P L E T E D ================\n")
+    return 0
 
 main()
