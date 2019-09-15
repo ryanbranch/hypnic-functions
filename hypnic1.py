@@ -37,7 +37,7 @@ CREATE_GIF = True
 GIF_PATH = "output/animation2.gif"
 # Whether or not to play the .gif frames in reverse when the end is reached, transitioning back to the original source
 #    image instead of abruptly jumping right back to the start
-REVERSE_GIF_AT_END = True
+REVERSE_GIF_AT_END = False
 # Number of times to repeat each rendered image during forward .gif progression
 # Effectively lengthens the time for which each frame is visible in the animated .gif
 GIF_FRAMES_PER_IMAGE_FORWARD = 3
@@ -297,18 +297,16 @@ class Container:
     # Determines the new R/G/B value of a pixel based on X/Y coordinate and existing R/G/B value
     # Currently the only purpose is to call the desired modification function(s)
     def rgbFunc(self, manip_index):
+        rgbResult = self.pixelsIn[self.currentX, self.currentY]
         if manip_index == 1:
-            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
-                                    ((self.currentX + 1) % (self.currentY + 1)) % random.randrange(90,270))
+            rgbResult = self.modHueShift(rgbResult,
+                                         ((self.currentX + 1) % (self.currentY + 1)) % random.randrange(90, 270))
         elif manip_index == 2:
-            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
-                                    (self.currentY + 1) % random.randrange(90,270))
+            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % random.randrange(90, 270))
         elif manip_index == 3:
-            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
-                                    self.currentY)
+            rgbResult = self.modHueShift(rgbResult, self.currentY)
         elif manip_index == 4:
-            return self.modHueShift(self.pixelsIn[self.currentX, self.currentY],
-                                    (self.currentX + 1) % random.randrange(90,270))
+            rgbResult = self.modHueShift(rgbResult, (self.currentX + 1) % random.randrange(90, 270))
         else:
             print("Invalid manip_index: " + str(manip_index) + ".  No manipulation performed")
             self.manipulationComplete = True
@@ -337,6 +335,7 @@ class Container:
             self.manipulationComplete = True
             return 0
         """
+        return rgbResult
         #"""
 
     def manipulate(self):
@@ -344,6 +343,7 @@ class Container:
             self.manipulationComplete = False
             m = 1
             while self.manipulationComplete == False:
+                render = True
                 if RANDOMIZE_MANIPULATION_POSITIONS:
                     x_bound_diff = 0
                     y_bound_diff = 0
@@ -370,9 +370,14 @@ class Container:
                             break
                         self.currentX = x
                         self.currentY = y
-                        self.pixelsOut[self.currentX, self.currentY] = self.rgbFunc(m)
+                        result = self.rgbFunc(m)
+                        if result != 0:
+                            self.pixelsOut[self.currentX, self.currentY] = result
+                        else:
+                            render = False
                 m += 1
-                self.render()
+                if render:
+                    self.render()
         return 0
 
     # Saves an output image with filename based on the current frame number
