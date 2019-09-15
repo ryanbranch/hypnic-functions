@@ -1,6 +1,8 @@
 import os
+from tkinter import *
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageTk
+import PIL
 import imageio
 import cv2
 import math
@@ -10,8 +12,11 @@ import random
 # GLOBAL CONSTANTS
 # ________________________________
 # GENERAL VARIABLES
+# Whether or not the image should be manipulated at all
+# Can be disabled, for example, in situations when non-manipulation functionality is being tested
+MANIPULATE_IMAGE = False
 # Path to the image used as program input
-INPUT_IMG = "input3.jpg"
+INPUT_IMG = "input.jpg"
 # Path at which the resulting image will be saved
 OUTPUT_IMG = "output/output"
 OUTPUT_IMG_EXTENSION = ".jpg"
@@ -70,10 +75,67 @@ _________________________________________________
      as well as the ability to render in various formats
 """
 
+# tkinter instance for GUI display and user interaction related to manipulation of images
+# based heavily on code from http://pythonprogramming.net by Sentdex
+class Window(Frame):
 
-class Container:
+    def __init__(self, master = None):
+        Frame.__init__(self, master)
+        self.master = master
+        self.init_window()
+
+    # Creation of window
+    def init_window(self):
+        # Change the title of the master widget
+        self.master.title("hypnic-functions")
+        # Allow the widget to take the full space of the root window
+        self.pack(fill = BOTH, expand = 1)
+        # Create a button instance
+        quitButton = Button(self, text = "Quit", command = self.client_exit)
+        # Place the button on the window
+        quitButton.place(x = 0, y = 0)
+        # Create a menu instance
+        menu = Menu(self.master)
+        self.master.config(menu = menu)
+        # Create the file object
+        file = Menu(menu)
+        # Add a command called "Exit" to the menu option, which runs the function self.client_exit()
+        file.add_command(label = "Exit", command = self.client_exit)
+        # Add "File" to the menu
+        menu.add_cascade(label = "File", menu = file)
+        # Create the file object
+        edit = Menu(menu)
+        # Add a command called "Undo" to the menu option
+        edit.add_command(label="Undo")
+        # Add "Edit" to the menu
+        menu.add_cascade(label = "Edit", menu = edit)
+        # Add "Show Img" and "Show Text" commands to the menu
+        edit.add_command(label="Show Img", command=self.showImg)
+        edit.add_command(label="Show Text", command=self.showText)
+
+    # Displays an image
+    def showImg(self):
+        load = Image.open("input.jpg")
+        render = PIL.ImageTk.PhotoImage(load)
+
+        # labels can be text or images
+        img = Label(self, image=render)
+        img.image = render
+        img.place(x=0, y=0)
+
+    def showText(self):
+        text = Label(self, text="Hey there good lookin!")
+        text.pack()
+
+    # Exit of window
+    def client_exit(self):
+        exit()
+
+# Container class for holding all variables and functions related to manipulation of images
+class ImageManipulator:
 
     def __init__(self):
+        # MEMBER VARIABLES UPON INITIALIZATION
         # The image to modify
         self.imageIn = Image.open(INPUT_IMG)
         # A copy of the input image to which the functions are applied
@@ -423,17 +485,26 @@ class Container:
         os.makedirs(gif_directory, exist_ok=True)
         video_directory = os.path.dirname(GIF_PATH)
         os.makedirs(video_directory, exist_ok=True)
-        return 0
 
 def main():
     random.seed("three hundred and thirty three")
-    cont = Container()
+    cont = ImageManipulator()
     cont.prepareDirectory()
-    cont.manipulate()
-    if CREATE_GIF:
-        cont.createGIF()
-    if CREATE_VIDEO:
-        cont.createVideo()
+
+    # Creating the GUI window
+    root = Tk()
+    # Defining GUI window size
+    root.geometry("400x300")
+    # Initiating GUI window display
+    app = Window(root)
+    root.mainloop()
+
+    if MANIPULATE_IMAGE:
+        cont.manipulate()
+        if CREATE_GIF:
+            cont.createGIF()
+        if CREATE_VIDEO:
+            cont.createVideo()
     print("\n================ C O M P L E T E D ================\n")
     return 0
 
