@@ -41,15 +41,24 @@ NUM_ROUNDS_OF_MANIPULATION = 1
 CREATE_GIF = True
 # Path at which the resulting animated GIF will be saved, if CREATE_GIF = True
 GIF_PATH = "output/animation2.gif"
+# The number of seconds for which each frame of the GIF will be displayed
+GIF_SECONDS_PER_FRAME = 0.1
 # Whether or not to play the animated GIF frames in reverse when the end is reached, transitioning back to the
 #     original source image instead of abruptly jumping right back to the start
 REVERSE_GIF_AT_END = False
 # Number of times to repeat each rendered image during forward animated GIF progression
 # Effectively lengthens the time for which each frame is visible in the animated GIF
-GIF_FRAMES_PER_IMAGE_FORWARD = 3
+GIF_FRAMES_PER_IMAGE_FORWARD = 1
 # Number of times to repeat each rendered image during reverse animated GIF progression
 GIF_FRAMES_PER_IMAGE_REVERSE = 1
-# Whether or not to generate an additional video from all rendered images
+# Determines the type of GIF which will be created. Options available are as follows
+# 0: Each frame represents an image created from a given manipulation index, in order of creation
+# 1: GIF transitions from input image to final output image, wiping along the X direction
+# 2: GIF transitions from input image to final output image, wiping along the Y direction
+GIF_MODE = 2
+# The total number of frames to use in a wipe-style GIF (for example, GIF_MODE values 1 and 2)
+GIF_NUM_WIPE_FRAMES = 30
+
 
 # VIDEO-RELATED VARIABLES
 # VIDEO RENDERING FUNCTIONALITY HAS NOT YET BEEN COMPLETED
@@ -61,16 +70,23 @@ VIDEO_PATH = "output/video2.avi"
 REVERSE_VIDEO_AT_END = True
 # Number of times to repeat each rendered image during forward video progression
 # Effectively lengthens the time for which each frame is visible in the forward progression of the animated GIF
-VIDEO_FRAMES_PER_IMAGE_FORWARD = 3
+VIDEO_FRAMES_PER_IMAGE_FORWARD = 1
 # Number of times to repeat each rendered image during reverse video progression
 # Effectively lengthens the time for which each frame is visible in the reverse progression of the animated GIF
 VIDEO_FRAMES_PER_IMAGE_REVERSE = 1
 
+# GUI-RELATED VARIABLES
+# Whether or not to use the GUI at all
+# If disabled, then the program will simply create an image/gif/video based on other global variable values without
+# allowing specific control over parameters
+ENABLE_GUI = True
+
 
 """
 _________________________________________________
-TODO
+#TODO
 _________________________________________________
+ - Implement GIF_MODE global variable as-described in the comments
  - Implement ability to perform operations based on neighboring pixels
  - Add functionality for video output instead of just animated GIFs
  - Update GUI to allow users to interactively apply filters and functions, with deep control over the underlying math
@@ -86,8 +102,8 @@ class Window(Frame):
         Frame.__init__(self, master)
         self.master = master
         self.init_window()
-        # Generates an input manipulator object instance
         self.manipulator = ImageManipulator()
+
 
     # Creation of window
     def init_window(self):
@@ -193,15 +209,16 @@ class Window(Frame):
                 self.manipulator.manipulate()
                 text = Label(self, text="Generating the output image... Please wait!")
                 text.pack()
-                # Checks if the animated GIF has already been created
-                if not self.manipulator.gifReady:
-                    # Tell the ImageManipulator object to perform the animated GIF creation routine
-                    text = Label(self, text="Generating the animated GIF... Please wait!")
-                    text.pack()
-                    self.manipulator.generateGIF()
-                else:
-                    text = Label(self, text="Animated GIF has already been created!")
-                    text.pack()
+            # Checks if the animated GIF has already been created
+            if not self.manipulator.gifReady:
+                # Tell the ImageManipulator object to perform the animated GIF creation routine
+                text = Label(self, text="Generating the animated GIF... Please wait!")
+                text.pack()
+                self.manipulator.generateGIF()
+            else:
+                text = Label(self, text="Animated GIF has already been created!")
+                text.pack()
+        self.showOutputImage()
 
     def createVideo(self):
         # Checks whether image manipulation has been enabled and responds accordingly
@@ -366,14 +383,32 @@ class ImageManipulator:
     # NOTE: Currently returns an error if slope is too negative or y intercept is too low
     #       NEED TO INVESTIGATE WHY THIS HAPPENS
     @staticmethod
-    def calcCartesianFunc(xIn):
-        yOut = round(xIn * -0.01 + 2000)
+    def calcCartesianFunc(xIn, slope, yIntercept):
+        yOut = round(xIn * slope + yIntercept)
         return yOut
 
     # Swaps the Saturation and Value values for a pixel
     def modFlipSV(self, rgbIn):
         hsvIn = self.fromRGBtoHSV(rgbIn)
         hsvOut = (hsvIn[0], hsvIn[2], hsvIn[1])
+        rgbOut = self.fromHSVtoRGB(hsvOut)
+        return rgbOut
+
+    # Moves Saturation and Value values closer together by a given percentage factor of their difference
+    # A factor of 100 (100%) leads to Saturation being equal to Value, specifically the two being equal to the average
+    #     of their original values
+    # If a negative factor is provided, the two are moved away from each other by the same magnitude which would be
+    #     present if they were moving closer together
+    # To prevent results which lead to invalid output ranges, the final values have a modulus of 1 applied at the end
+    def modSlideSV(self, rgbIn, factor):
+        rgbOut = rgbIn
+        hsvIn = self.fromRGBtoHSV(rgbIn)
+        if hsvIn[1] < hsvIn[2]:
+            hsvOut = (hsvIn[0], hsvIn[1] + math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1, hsvIn[2] - math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1)
+        elif hsvIn[2] < hsvIn[1]:
+            hsvOut = (hsvIn[0], hsvIn[1] - math.fabs(hsvIn[1] - hsvIn[2]) * (float(factor) / 2) % 1, hsvIn[2] + math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1)
+        else:
+            return rgbIn
         rgbOut = self.fromHSVtoRGB(hsvOut)
         return rgbOut
 
@@ -458,24 +493,83 @@ class ImageManipulator:
     #     upper bound. Magnitude of shift is calculated based on a linear equation. Separate slope and Y-intercept
     #     values are used depending on whether the input R/G/B value falls below or above a specified bound
     @staticmethod
-    def calcColorFromCustomDomain(valIn, lowerBound, upperBound, yIntBelow, slopeBelow, yIntAbove, slopeAbove):
-        colorOut = valIn
+    def calcFromCustomDomainRGB(valIn, lowerBound, upperBound, yIntBelow, slopeBelow, yIntAbove, slopeAbove):
+        valOut = valIn
         if valIn <= lowerBound:
-            dist = colorOut - lowerBound
-            colorOut += slopeBelow * dist + yIntBelow
+            dist = valOut - lowerBound
+            valOut += slopeBelow * dist + yIntBelow
         elif valIn >= upperBound:
-            dist = upperBound - colorOut
-            colorOut += slopeAbove * dist + yIntAbove
-        colorOut %= 255
-        return colorOut
+            dist = upperBound - valOut
+            valOut += slopeAbove * dist + yIntAbove
+        valOut %= 255
+        valOut = int(round(valOut))
+        return valOut
+
+    # Allows a H value to be shifted using an algebraic function, if it falls below a lower bound or above an
+    #     upper bound. Magnitude of shift is calculated based on a linear equation. Separate slope and Y-intercept
+    #     values are used depending on whether the input H value falls below or above a specified bound
+    @staticmethod
+    def calcFromCustomDomainH(valIn, lowerBound, upperBound, yIntBelow, slopeBelow, yIntAbove, slopeAbove):
+        valOut = valIn
+        if valIn <= lowerBound:
+            dist = valOut - lowerBound
+            valOut += slopeBelow * dist + yIntBelow
+        elif valIn >= upperBound:
+            dist = upperBound - valOut
+            valOut += slopeAbove * dist + yIntAbove
+        valOut %= 360
+        valOut = int(round(valOut))
+        return valOut
+
+    # Allows a S or V value to be shifted using an algebraic function, if it falls below a lower bound or above an
+    #     upper bound. Magnitude of shift is calculated based on a linear equation. Separate slope and Y-intercept
+    #     values are used depending on whether the input S/V value falls below or above a specified bound
+    @staticmethod
+    def calcFromCustomDomainSV(valIn, lowerBound, upperBound, yIntBelow, slopeBelow, yIntAbove, slopeAbove):
+        valOut = valIn
+        if valIn <= lowerBound:
+            dist = valOut - lowerBound
+            valOut += slopeBelow * dist + yIntBelow
+        elif valIn >= upperBound:
+            dist = upperBound - valOut
+            valOut += slopeAbove * dist + yIntAbove
+        valOut %= 1
+        valOut = int(round(valOut))
+        return valOut
 
     # Determines the new R/G/B value of a pixel based on X/Y coordinate and existing R/G/B value
     # Currently the only purpose is to call the desired modification function(s)
     def rgbFunc(self, manip_index):
+
         rgbResult = self.pixelsIn[self.currentX, self.currentY]
+        rgbResultOriginal = rgbResult
         if manip_index == 1:
-            rgbResult = self.modHueShift(rgbResult,
-                                         ((self.currentX + 1) % (self.currentY + 1)) % random.randrange(90, 270))
+            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[0], 127, 128, 0, 0.5, 128, -1),
+                         self.calcFromCustomDomainRGB(rgbResult[0], 127, 128, 0, 0.5, 128, -1),
+                         self.calcFromCustomDomainRGB(rgbResult[0], 127, 128, 0, 0.5, 128, -1))
+        elif manip_index == 2:
+            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[1], 127, 128, 32, 0, 64, -1),
+                         self.calcFromCustomDomainRGB(rgbResult[1], 127, 128, 64, 0, 64, -1),
+                         self.calcFromCustomDomainRGB(rgbResult[1], 127, 128, 128, 0, 64, -1))
+        elif manip_index == 3:
+            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 64, 0, 32, -1),
+                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 128, 0, 32, -1),
+                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 255, 0, 32, -1))
+        elif manip_index == 4:
+            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[0], 127, 128, 10, 0, 128, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[0], 127, 128, 90, 0, 128, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[0], 127, 128, 50, 0, 128, 1))
+        elif manip_index == 5:
+            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[1], 127, 128, 90, 0, 64, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[1], 127, 128, 180, 0, 64, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[1], 127, 128, 45, 0, 64, 1))
+        elif manip_index == 6:
+            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 19, 0, 32, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 39, 0, 32, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 29, 0, 32, 1))
+        elif manip_index == 7:
+            rgbResult = self.modSlideSV(rgbResult, 1)
+
         else:
             print("Invalid manip_index: " + str(manip_index) + ".  No manipulation performed")
             self.manipulationComplete = True
@@ -508,6 +602,7 @@ class ImageManipulator:
         #"""
 
     def manipulate(self):
+
         for n in range(NUM_ROUNDS_OF_MANIPULATION):
             self.manipulationComplete = False
             m = 1
@@ -542,6 +637,7 @@ class ImageManipulator:
                         result = self.rgbFunc(m)
                         if result != 0:
                             self.pixelsOut[self.currentX, self.currentY] = result
+                            render = True
                         else:
                             render = False
                 m += 1
@@ -576,7 +672,8 @@ class ImageManipulator:
                     print("Frame " + str(currentFrame) + " of " + GIF_PATH + " rendered.")
                     currentFrame += 1
         print("Saving animated GIF...")
-        imageio.mimsave(GIF_PATH, images)
+        kargs = {'duration': GIF_SECONDS_PER_FRAME}
+        imageio.mimsave(GIF_PATH, images, format = "GIF", **kargs)
         print("Animated GIF saved.")
         self.gifReady = True
         return 0
@@ -605,16 +702,25 @@ def main():
     # Initializes the random number generator
     random.seed("three hundred and thirty three")
 
-    # Creating the GUI window
-    root = Tk()
+    if ENABLE_GUI:
 
-    # Creating the Window instance, and by extension the ImageManipulator instance
-    app = Window(root)
-    # Defining GUI window size
-    root.geometry(str(app.manipulator.xRes) + "x" + str(app.manipulator.yRes))
+        root = Tk()
 
-    # Initiating GUI window display
-    root.mainloop()
+        # Creating the Window instance, and by extension the ImageManipulator instance
+        app = Window(root)
+        # Defining GUI window size
+        root.geometry(str(app.manipulator.xRes) + "x" + str(app.manipulator.yRes))
+
+        # Initiating GUI window display
+        root.mainloop()
+    else:
+        manip = ImageManipulator()
+        if MANIPULATE_IMAGE:
+            manip.manipulate()
+        if CREATE_GIF:
+            manip.generateGIF()
+        if CREATE_VIDEO:
+            manip.generateVideo()
 
     print("\n================ C O M P L E T E D ================\n")
     return 0
