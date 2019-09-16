@@ -14,7 +14,7 @@ import random
 # GENERAL VARIABLES
 # Whether or not the image should be manipulated at all
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
-MANIPULATE_IMAGE = False
+MANIPULATE_IMAGE = True
 # Path to the image used as program input
 INPUT_IMG = "input.jpg"
 # Path at which the resulting image will be saved
@@ -28,7 +28,8 @@ RANDOM_MANIPULATION_MIN_X_DIM = 0.2
 RANDOM_MANIPULATION_MAX_X_DIM = 0.8
 RANDOM_MANIPULATION_MIN_Y_DIM = 0.2
 RANDOM_MANIPULATION_MAX_Y_DIM = 0.8
-# Whether or not to generate a new image each time the render() function for a Container object is called
+# Whether or not to generate a new image each time the renderOutputImage() function
+#     for an ImageManipulator object is called
 MULTIPLE_RENDERS = True
 # How many times to repeat the entire image manipulation process
 # When a new round of manipulation begins, the final output image of the last round of manipulation is used as the base
@@ -36,17 +37,17 @@ MULTIPLE_RENDERS = True
 NUM_ROUNDS_OF_MANIPULATION = 1
 
 # GIF-RELATED VARIABLES
-# Whether or not to generate an animated .gif from all rendered images
+# Whether or not to generate an animated GIF from all rendered images
 CREATE_GIF = True
-# Path at which the resulting animated .gif will be saved, if CREATE_GIF = True
+# Path at which the resulting animated GIF will be saved, if CREATE_GIF = True
 GIF_PATH = "output/animation2.gif"
-# Whether or not to play the .gif frames in reverse when the end is reached, transitioning back to the original source
-#    image instead of abruptly jumping right back to the start
+# Whether or not to play the animated GIF frames in reverse when the end is reached, transitioning back to the
+#     original source image instead of abruptly jumping right back to the start
 REVERSE_GIF_AT_END = False
-# Number of times to repeat each rendered image during forward .gif progression
-# Effectively lengthens the time for which each frame is visible in the animated .gif
+# Number of times to repeat each rendered image during forward animated GIF progression
+# Effectively lengthens the time for which each frame is visible in the animated GIF
 GIF_FRAMES_PER_IMAGE_FORWARD = 3
-# Number of times to repeat each rendered image during reverse .gif progression
+# Number of times to repeat each rendered image during reverse animated GIF progression
 GIF_FRAMES_PER_IMAGE_REVERSE = 1
 # Whether or not to generate an additional video from all rendered images
 
@@ -59,9 +60,10 @@ VIDEO_PATH = "output/video2.avi"
 #    image instead of abruptly jumping right back to the start
 REVERSE_VIDEO_AT_END = True
 # Number of times to repeat each rendered image during forward video progression
-# Effectively lengthens the time for which each frame is visible in the animated .gif
+# Effectively lengthens the time for which each frame is visible in the forward progression of the animated GIF
 VIDEO_FRAMES_PER_IMAGE_FORWARD = 3
 # Number of times to repeat each rendered image during reverse video progression
+# Effectively lengthens the time for which each frame is visible in the reverse progression of the animated GIF
 VIDEO_FRAMES_PER_IMAGE_REVERSE = 1
 
 
@@ -70,9 +72,10 @@ _________________________________________________
 TODO
 _________________________________________________
  - Implement ability to perform operations based on neighboring pixels
- - Add functionality for video output instead of just .gif animations
- - Create GUI to allow users to interactively apply filters and functions, with deep control over the underlying math
+ - Add functionality for video output instead of just animated GIFs
+ - Update GUI to allow users to interactively apply filters and functions, with deep control over the underlying math
      as well as the ability to render in various formats
+ - Condense Window class' createOutputImage(), createGif() and createVideo() code to avoid redundancy
 """
 
 # tkinter instance for GUI display and user interaction related to manipulation of images
@@ -83,9 +86,12 @@ class Window(Frame):
         Frame.__init__(self, master)
         self.master = master
         self.init_window()
+        # Generates an input manipulator object instance
+        self.manipulator = ImageManipulator()
 
     # Creation of window
     def init_window(self):
+
         # Change the title of the master widget
         self.master.title("hypnic-functions")
         # Allow the widget to take the full space of the root window
@@ -109,23 +115,120 @@ class Window(Frame):
         edit.add_command(label="Undo")
         # Add "Edit" to the menu
         menu.add_cascade(label = "Edit", menu = edit)
-        # Add "Show Img" and "Show Text" commands to the menu
-        edit.add_command(label="Show Img", command=self.showImg)
-        edit.add_command(label="Show Text", command=self.showText)
+        # Add commands to the menu for doing the following:
+        # Displaying the input image, generating/displaying the output image, showing text, creating an animated GIF,
+        # and creating a video
+        edit.add_command(label="Show Input Image", command=self.showInputImage)
+        edit.add_command(label="Show Output Image", command=self.showOutputImage)
+        edit.add_command(label="Create GIF", command=self.createGIF)
+        edit.add_command(label="Create Video", command=self.createVideo)
 
-    # Displays an image
-    def showImg(self):
-        load = Image.open("input.jpg")
+
+    # Displays the input image
+    def showInputImage(self):
+        # Load the input image
+        load = Image.open(INPUT_IMG)
         render = PIL.ImageTk.PhotoImage(load)
-
-        # labels can be text or images
+        # Display the input image
         img = Label(self, image=render)
         img.image = render
         img.place(x=0, y=0)
-
-    def showText(self):
-        text = Label(self, text="Hey there good lookin!")
+        # Display some text related to displaying the input image
+        text = Label(self, text="Input Image:")
         text.pack()
+
+    # Shows the output image
+    # If the output image hasn't already been created, creates it first
+    def showOutputImage(self):
+        if not self.manipulator.outputImageReady:
+            # Display some text related to generating the output image
+            # NOTE: This text display functionality is currently broken.
+            #     Need to research tkinter text display more in order to determine why
+            text = Label(self, text="Generating the output image... Please wait!")
+            text.pack()
+            self.createOutputImage()
+        # Load the output image
+        load = Image.open(self.manipulator.outputImagePath)
+        render = PIL.ImageTk.PhotoImage(load)
+        # Display the output image
+        img = Label(self, image=render)
+        img.image = render
+        img.place(x=0, y=0)
+        # Display some text related to displaying the output image
+        text = Label(self, text="Output Image:")
+        text.pack()
+
+    # Generates the output image if it hasn't already been created
+    def createOutputImage(self):
+        # Checks whether image manipulation has been enabled and responds accordingly
+        if not MANIPULATE_IMAGE:
+            # Display text notifying the user that image manipulation is disabled
+            text = Label(self, text="ERROR: Image manipulation is disabled!")
+            text.pack()
+        else:
+            # Checks if the output image has already been created
+            if not self.manipulator.outputImageReady:
+                # Tell the ImageManipulator object to perform the manipulation routine
+                self.manipulator.manipulate()
+                text = Label(self, text="Generating the output image... Please wait!")
+                text.pack()
+            # Displays the output image
+            self.showOutputImage()
+
+    # Generates the output image if it hasn't already been created
+    def createGIF(self):
+        # Checks whether image manipulation has been enabled and responds accordingly
+        if not MANIPULATE_IMAGE:
+            # Display text notifying the user that image manipulation is disabled
+            text = Label(self, text="ERROR: Can't create GIF because image manipulation is disabled!")
+            text.pack()
+        elif not CREATE_GIF:
+            # Display text notifying the user that animated GIF creation is disabled
+            text = Label(self, text="ERROR: Animated GIF creation is disabled!")
+            text.pack()
+        else:
+            # Checks if the output image has already been created
+            if not self.manipulator.outputImageReady:
+                # Tell the ImageManipulator object to perform the manipulation routine
+                self.manipulator.manipulate()
+                text = Label(self, text="Generating the output image... Please wait!")
+                text.pack()
+                # Checks if the animated GIF has already been created
+                if not self.manipulator.gifReady:
+                    # Tell the ImageManipulator object to perform the animated GIF creation routine
+                    text = Label(self, text="Generating the animated GIF... Please wait!")
+                    text.pack()
+                    self.manipulator.generateGIF()
+                else:
+                    text = Label(self, text="Animated GIF has already been created!")
+                    text.pack()
+
+    def createVideo(self):
+        # Checks whether image manipulation has been enabled and responds accordingly
+        if not MANIPULATE_IMAGE:
+            # Display text notifying the user that image manipulation is disabled
+            text = Label(self, text="ERROR: Can't create GIF because image manipulation is disabled!")
+            text.pack()
+        elif not CREATE_VIDEO:
+            # Display text notifying the user that video creation is disabled
+            text = Label(self, text="ERROR: Video creation is disabled!")
+            text.pack()
+        else:
+            # Checks if the output image has already been created and if not, creates it
+            if not self.manipulator.outputImageReady:
+                # Tell the ImageManipulator object to perform the manipulation routine
+                self.manipulator.manipulate()
+                text = Label(self, text="Generating the output image... Please wait!")
+                text.pack()
+                # Checks if the video has already been created
+                if not self.manipulator.videoReady:
+                    # Tell the ImageManipulator object to perform the video creation routine
+                    text = Label(self, text="Video generation has not yet been implemented!")
+                    text.pack()
+                    self.manipulator.generateGIF()
+                else:
+                    text = Label(self, text="Video has already been created!")
+                    text.pack()
 
     # Exit of window
     def client_exit(self):
@@ -148,7 +251,7 @@ class ImageManipulator:
         self.currentX = 0
         # The Y value of the current pixel being edited
         self.currentY = 0
-        # Suffix to apply to the filename of the current version of self.imageOut upon running self.render()
+        # Suffix to apply to the filename of the current version of self.imageOut upon running self.renderOutputImage()
         self.currentFrame = 0
         # List of file paths of all rendered images
         self.outputFileList = []
@@ -159,8 +262,18 @@ class ImageManipulator:
         self.pixelsOut = self.imageOut.load()
         # Tracks when all image manipulation routines are complete
         self.manipulationComplete = False
+        # Path to which the output image is saved
+        self.outputImagePath = Path("")
+        # Tracks whether or not the output image is ready to be displayed
+        self.outputImageReady = False
+        # Tracks whether or not the output animated GIF has been created
+        self.gifReady = False
+        # Tracks whether or not the output video has been created
+        self.videoReady = False
         # Internal variable used to track error incidences during debugging
         self.errorCount = 0
+
+        self.prepareDirectories()
 
     # Converts an RGB color value to an HSV color value
     # Based on algorithm (with modified domain) from:
@@ -363,12 +476,6 @@ class ImageManipulator:
         if manip_index == 1:
             rgbResult = self.modHueShift(rgbResult,
                                          ((self.currentX + 1) % (self.currentY + 1)) % random.randrange(90, 270))
-        elif manip_index == 2:
-            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % random.randrange(90, 270))
-        elif manip_index == 3:
-            rgbResult = self.modHueShift(rgbResult, self.currentY)
-        elif manip_index == 4:
-            rgbResult = self.modHueShift(rgbResult, (self.currentX + 1) % random.randrange(90, 270))
         else:
             print("Invalid manip_index: " + str(manip_index) + ".  No manipulation performed")
             self.manipulationComplete = True
@@ -377,11 +484,11 @@ class ImageManipulator:
         if manip_index == 1:
             rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
         elif manip_index == 2:
-            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % 90)
+            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % random.randrange(90, 270))
         elif manip_index == 3:
             rgbResult = self.modHueShift(rgbResult, self.currentY)
         elif manip_index == 4:
-            rgbResult = self.modRotate1RGB(rgbResult)
+            rgbResult = self.modHueShift(rgbResult, (self.currentX + 1) % random.randrange(90, 270))
         elif manip_index == 5:
             rgbResult = self.modHueShift(rgbResult, 69)
         elif manip_index == 6:
@@ -439,21 +546,22 @@ class ImageManipulator:
                             render = False
                 m += 1
                 if render:
-                    self.render()
+                    self.renderOutputImage()
         return 0
 
     # Saves an output image with filename based on the current frame number
-    def render(self):
+    def renderOutputImage(self):
         if MULTIPLE_RENDERS:
             self.currentFrame += 1
-        outputFilePath = Path(OUTPUT_IMG + "_" + str(self.currentFrame) + OUTPUT_IMG_EXTENSION)
-        self.outputFileList.append(outputFilePath)
-        self.imageOut.save(outputFilePath)
-        print("Output image " + str(self.currentFrame) + " rendered.")
+        self.outputImagePath = Path(OUTPUT_IMG + "_" + str(self.currentFrame) + OUTPUT_IMG_EXTENSION)
+        self.outputFileList.append(self.outputImagePath)
+        self.imageOut.save(self.outputImagePath)
+        print("Output image " + str(self.currentFrame) + " rendered and saved.")
+        self.outputImageReady = True
         return 0
 
-    # Creates a .gif animation with a separate frame for each rendered image
-    def createGIF(self):
+    # Creates an animated GIF with a separate frame for each rendered image
+    def generateGIF(self):
         images = []
         currentFrame = 1
         for filename in self.outputFileList:
@@ -467,44 +575,47 @@ class ImageManipulator:
                     images.append(imageio.imread(filename))
                     print("Frame " + str(currentFrame) + " of " + GIF_PATH + " rendered.")
                     currentFrame += 1
-        print("Saving .gif animation...")
+        print("Saving animated GIF...")
         imageio.mimsave(GIF_PATH, images)
-        print(".gif animation saved.")
+        print("Animated GIF saved.")
+        self.gifReady = True
         return 0
 
     # Creates a video animation with a separate frame for each rendered image
-    def createVideo(self):
+    def generateVideo(self):
+        print("Video generation has not yet been implemented!")
+        #self.videoReady = True
         return 0
 
-    # Ensures that the directory specified for the output image(s) exists to avoid errors in self.render()
+    # Ensures that the directory specified for the output image(s) exists to avoid errors
     @staticmethod
-    def prepareDirectory():
-        output_image_directory = os.path.dirname(OUTPUT_IMG)
-        os.makedirs(output_image_directory, exist_ok=True)
-        gif_directory = os.path.dirname(GIF_PATH)
-        os.makedirs(gif_directory, exist_ok=True)
-        video_directory = os.path.dirname(GIF_PATH)
-        os.makedirs(video_directory, exist_ok=True)
+    def prepareDirectories():
+        print("PREPARING DIRECTORIES...")
+        if MANIPULATE_IMAGE:
+            output_image_directory = os.path.dirname(OUTPUT_IMG)
+            os.makedirs(output_image_directory, exist_ok=True)
+        if CREATE_GIF:
+            gif_directory = os.path.dirname(GIF_PATH)
+            os.makedirs(gif_directory, exist_ok=True)
+        if CREATE_VIDEO:
+            video_directory = os.path.dirname(GIF_PATH)
+            os.makedirs(video_directory, exist_ok=True)
 
 def main():
+    # Initializes the random number generator
     random.seed("three hundred and thirty three")
-    cont = ImageManipulator()
-    cont.prepareDirectory()
 
     # Creating the GUI window
     root = Tk()
-    # Defining GUI window size
-    root.geometry("400x300")
-    # Initiating GUI window display
+
+    # Creating the Window instance, and by extension the ImageManipulator instance
     app = Window(root)
+    # Defining GUI window size
+    root.geometry(str(app.manipulator.xRes) + "x" + str(app.manipulator.yRes))
+
+    # Initiating GUI window display
     root.mainloop()
 
-    if MANIPULATE_IMAGE:
-        cont.manipulate()
-        if CREATE_GIF:
-            cont.createGIF()
-        if CREATE_VIDEO:
-            cont.createVideo()
     print("\n================ C O M P L E T E D ================\n")
     return 0
 
