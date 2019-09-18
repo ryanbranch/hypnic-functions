@@ -22,35 +22,41 @@ ENABLE_GUI = True
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
 MANIPULATE_IMAGE = True
 # Path to the image used as program input
-INPUT_IMG = "input.jpg"
+INPUT_IMG = "tofercat.jpg"
 # Path at which the resulting image will be saved
-OUTPUT_IMG = "output/output"
+OUTPUT_IMG = "output/tofercat"
 OUTPUT_IMG_EXTENSION = ".jpg"
 # Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
-RANDOMIZE_MANIPULATION_POSITIONS = False
+RANDOMIZE_MANIPULATION_POSITIONS = True
+# If randomizing manipulation positions, defines the minimum and maximum boundary positions for a manipulation area
+# Defined as a fraction of the entire image dimension along the respective axis
+RANDOM_MIN_X_EDGE = 0.0
+RANDOM_MAX_X_EDGE = 1.0
+RANDOM_MIN_Y_EDGE = 0.0
+RANDOM_MAX_Y_EDGE = 1.0
 # If randomizing manipulation positions, defines the minimum and maximum dimensions for a manipulation area
 # Defined as a fraction of the entire image dimension along the respective axis
-RANDOM_MANIPULATION_MIN_X_DIM = 0.2
-RANDOM_MANIPULATION_MAX_X_DIM = 0.8
-RANDOM_MANIPULATION_MIN_Y_DIM = 0.2
-RANDOM_MANIPULATION_MAX_Y_DIM = 0.8
+RANDOM_MIN_X_DIM = 0.15
+RANDOM_MAX_X_DIM = 0.35
+RANDOM_MIN_Y_DIM = 0.15
+RANDOM_MAX_Y_DIM = 0.35
 # If True, then each generated image from sequential values of manip_index in ImageManipulator.rgbFunc() will be
 #     applied to the output of the previous call of ImageManipulator.rgbFunc()
 # If False, then each generated image from sequential values of manip_index in ImageManipulator.rgbFunc() will be
 #     applied to the input image, effectively causing zero interaction between different manip_index values
-MANIPULATE_PREVIOUS_OUTPUT = False
+MANIPULATE_PREVIOUS_OUTPUT = True
 # How many times to repeat the entire image manipulation process
 # In the case where MANIPULATE_PREVIOUS_OUTPUT == True, then when a new round of manipulation begins, the final output
 #     image of the last round of manipulation is used as the base image in the new round of manipulation
 # In the case where MANIPULATE_PREVIOUS_OUTPUT == False, then this isn't a useful variable as it just creates copies
 #     of images that have already been created
-NUM_ROUNDS_OF_MANIPULATION = 1
+NUM_ROUNDS_OF_MANIPULATION = 5
 
 # GIF-RELATED VARIABLES
 # Whether or not to generate an animated GIF from all rendered images
 CREATE_GIF = True
 # Path at which the resulting animated GIF will be saved, if CREATE_GIF = True
-GIF_PATH = "output/animation2.gif"
+GIF_PATH = "output/tofercat.gif"
 # The number of seconds for which each frame of the GIF will be displayed
 GIF_SECONDS_PER_FRAME = 0.1
 # Whether or not to include the input image as the first frame of the GIF
@@ -560,21 +566,20 @@ class ImageManipulator:
         if manip_index == 1:
             rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
         elif manip_index == 2:
-            rgbResult = self.modHueShift(rgbResult, (self.currentY + 1) % random.randrange(90, 270))
+            rgbResult = self.modHueShift(rgbResult, self.currentX)
         elif manip_index == 3:
             rgbResult = self.modHueShift(rgbResult, self.currentY)
         elif manip_index == 4:
-            rgbResult = self.modHueShift(rgbResult, (self.currentX + 1) % random.randrange(90, 270))
+            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 19, 0, 32, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 39, 0, 32, 1),
+                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 29, 0, 32, 1))
         elif manip_index == 5:
-            rgbResult = self.modHueShift(rgbResult, 69)
+            rgbResult = self.modHueShift(rgbResult, -69)
         elif manip_index == 6:
-            rgbResult = self.modValueShift(rgbResult, -0.3)
+            rgbResult = self.modValueShift(rgbResult, 0.2)
         elif manip_index == 7:
-            rgbResult = self.modValueShift(rgbResult, 0.3)
-        elif manip_index == 8:
-            rgbResult = self.modSaturationShift(rgbResult, -0.3)
-        elif manip_index == 9:
-            rgbResult = self.modSaturationShift(rgbResult, 0.3)
+            rgbResult = self.modSaturationShift(rgbResult, -0.2)
+
         # Ends the current round of manipulation when the highest valid manip_index value have been exceeded
         else:
             print(str(manip_index - 1) +
@@ -597,18 +602,22 @@ class ImageManipulator:
             m = 1
             while self.manipulationComplete == False:
                 render = True
+                # When RANDOMIZE_MANIPULATION_POSITIONS = True, determines a rectangular area of the image over which
+                #    to apply the function from the next-in-line manip_index value in self.rgbFunc()
+                # To prevent issues with values outside of the pixel dimension images, all resulting numbers have a
+                #    modulus applied equal to the respective image dimension in question
                 if RANDOMIZE_MANIPULATION_POSITIONS:
                     x_bound_diff = 0
                     y_bound_diff = 0
-                    while (x_bound_diff < self.xRes * RANDOM_MANIPULATION_MIN_X_DIM) or\
-                            (x_bound_diff > self.xRes * RANDOM_MANIPULATION_MAX_X_DIM):
-                        x_bound_1 = random.randrange(0, self.xRes)
-                        x_bound_2 = random.randrange(0, self.xRes)
+                    while (x_bound_diff < self.xRes * RANDOM_MIN_X_DIM) or\
+                            (x_bound_diff > self.xRes * RANDOM_MAX_X_DIM):
+                        x_bound_1 = random.randrange(self.xRes * RANDOM_MIN_X_EDGE, self.xRes * RANDOM_MAX_X_EDGE) % self.xRes
+                        x_bound_2 = random.randrange(self.xRes * RANDOM_MIN_X_EDGE, self.xRes * RANDOM_MAX_X_EDGE) % self.xRes
                         x_bound_diff = abs(x_bound_2 - x_bound_1)
-                    while (y_bound_diff < self.yRes * RANDOM_MANIPULATION_MIN_Y_DIM) or\
-                            (y_bound_diff > self.yRes * RANDOM_MANIPULATION_MAX_Y_DIM):
-                        y_bound_1 = random.randrange(0, self.yRes)
-                        y_bound_2 = random.randrange(0, self.yRes)
+                    while (y_bound_diff < self.yRes * RANDOM_MIN_Y_DIM) or\
+                            (y_bound_diff > self.yRes * RANDOM_MAX_Y_DIM):
+                        y_bound_1 = random.randrange(self.yRes * RANDOM_MIN_Y_EDGE, self.yRes * RANDOM_MAX_Y_EDGE) % self.yRes
+                        y_bound_2 = random.randrange(self.yRes * RANDOM_MIN_Y_EDGE, self.yRes * RANDOM_MAX_Y_EDGE) % self.yRes
                         y_bound_diff = abs(y_bound_2 - y_bound_1)
                 else:
                     y_bound_1 = 0
@@ -704,7 +713,7 @@ class ImageManipulator:
 
 def main():
     # Initializes the random number generator
-    random.seed("three hundred and thirty three")
+    random.seed("tofercat")
 
     if ENABLE_GUI:
 
