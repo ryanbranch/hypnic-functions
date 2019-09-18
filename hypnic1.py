@@ -8,6 +8,26 @@ import PIL
 import imageio
 import cv2
 
+"""
+_________________________________________________
+#TODO
+_________________________________________________
+ - ABSTRACTION
+     - Abstract GIF creation into its own file
+     - POSSIBLY abstract image manipulation into its own file, and just have hypnic1.py be GUI and main controls?
+ - For functions like ImageManipulataor.{hueShitf()/saturationShift()valueShift()}, add an optional boolean to the input
+ -     so that the user can specify whether or not they want values to min/max out at the bounds of that variable instead
+ -     of undergoing the current process with the modulus operator
+     - Implement an rgbShift() or {r/g/b}Shift() function and give it that same optional boolean functionality
+ - Implement GIF_MODE global variable as-described in the comments
+     - Add control for whether or not the output of each manipulation is saved,
+         as it is wasteful/unnecessary depending on GIF_MODE
+ - Implement ability to perform operations based on neighboring pixels
+ - Add functionality for video output instead of just animated GIFs
+ - Update GUI to allow users to interactively apply filters and functions, with deep control over the underlying math
+     as well as the ability to render in various formats
+ - Condense Window class' createOutputImage(), createGif() and createVideo() code to avoid redundancy
+"""
 
 # GLOBAL CONSTANTS
 # ________________________________
@@ -15,16 +35,16 @@ import cv2
 # Whether or not to use the GUI at all
 # If disabled, then the program will simply create an image/gif/video based on other global variable values without
 # allowing specific control over parameters
-ENABLE_GUI = True
+ENABLE_GUI = False
 
 # GENERAL VARIABLES
 # Whether or not the image should be manipulated at all
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
 MANIPULATE_IMAGE = True
 # Path to the image used as program input
-INPUT_IMG = "tofercat.jpg"
+INPUT_IMG = "input.jpg"
 # Path at which the resulting image will be saved
-OUTPUT_IMG = "output/tofercat"
+OUTPUT_IMG = "output/output"
 OUTPUT_IMG_EXTENSION = ".jpg"
 # Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
 RANDOMIZE_MANIPULATION_POSITIONS = True
@@ -36,10 +56,10 @@ RANDOM_MIN_Y_EDGE = 0.0
 RANDOM_MAX_Y_EDGE = 1.0
 # If randomizing manipulation positions, defines the minimum and maximum dimensions for a manipulation area
 # Defined as a fraction of the entire image dimension along the respective axis
-RANDOM_MIN_X_DIM = 0.15
-RANDOM_MAX_X_DIM = 0.35
-RANDOM_MIN_Y_DIM = 0.15
-RANDOM_MAX_Y_DIM = 0.35
+RANDOM_MIN_X_DIM = 0.5
+RANDOM_MAX_X_DIM = 0.9
+RANDOM_MIN_Y_DIM = 0.5
+RANDOM_MAX_Y_DIM = 0.9
 # If True, then each generated image from sequential values of manip_index in ImageManipulator.rgbFunc() will be
 #     applied to the output of the previous call of ImageManipulator.rgbFunc()
 # If False, then each generated image from sequential values of manip_index in ImageManipulator.rgbFunc() will be
@@ -50,73 +70,51 @@ MANIPULATE_PREVIOUS_OUTPUT = True
 #     image of the last round of manipulation is used as the base image in the new round of manipulation
 # In the case where MANIPULATE_PREVIOUS_OUTPUT == False, then this isn't a useful variable as it just creates copies
 #     of images that have already been created
-NUM_ROUNDS_OF_MANIPULATION = 5
+NUM_ROUNDS_OF_MANIPULATION = 1
 
-# GIF-RELATED VARIABLES
+# GIF/VIDEO-RELATED VARIABLES
+# VIDEO RENDERING FUNCTIONALITY HAS NOT YET BEEN COMPLETED
+
 # Whether or not to generate an animated GIF from all rendered images
 CREATE_GIF = True
+# Whether or not to generate a video from all rendered images
+CREATE_VIDEO = False
 # Path at which the resulting animated GIF will be saved, if CREATE_GIF = True
-GIF_PATH = "output/tofercat.gif"
+GIF_PATH = "output/output.gif"
+# Path at which the resulting video will be saved, if CREATE_GIF = True
+VIDEO_PATH = "output/video2.avi"
 # The number of seconds for which each frame of the GIF will be displayed
 GIF_SECONDS_PER_FRAME = 0.1
-# Whether or not to include the input image as the first frame of the GIF
-GIF_INCLUDE_INPUT_IMAGE = True
-# Whether or not to play the animated GIF frames in reverse when the end is reached, transitioning back to the
+# Whether or not to play the animation (GIF/video) frames in reverse when the end is reached, transitioning back to the
 #     original source image instead of abruptly jumping right back to the start
-REVERSE_GIF_AT_END = True
+REVERSE_ANIMATION_AT_END = False
 # Number of times to repeat each rendered image during forward animated GIF progression
 # Effectively lengthens the time for which each frame is visible in the animated GIF
 GIF_FRAMES_PER_IMAGE_FORWARD = 1
 # Number of times to repeat each rendered image during reverse animated GIF progression
 GIF_FRAMES_PER_IMAGE_REVERSE = 1
-# Determines the type of GIF which will be created. Options available are as follows
-# 0: Each frame represents an image created from a given manipulation index, in order of creation
-# 1: GIF transitions from input image to final output image, wiping along the X direction
-# 2: GIF transitions from input image to final output image, wiping along the Y direction
-# 3: Each pixel slowly transitions from the input RGB color to the output RGB color
-#      This is done in a linear manner for each respective color
-GIF_MODE = 0
-# The total number of frames to use in a input-to-final-output transition GIF (for example, GIF_MODE values 1/2/3)
-GIF_NUM_TRANSITION_FRAMES = 30
-
-
-# VIDEO-RELATED VARIABLES
-# VIDEO RENDERING FUNCTIONALITY HAS NOT YET BEEN COMPLETED
-CREATE_VIDEO = True
-# Path at which the resulting video will be saved, if CREATE_GIF = True
-VIDEO_PATH = "output/video2.avi"
-# Whether or not to play the video frames in reverse when the end is reached, transitioning back to the original source
-#    image instead of abruptly jumping right back to the start
-REVERSE_VIDEO_AT_END = True
 # Number of times to repeat each rendered image during forward video progression
 # Effectively lengthens the time for which each frame is visible in the forward progression of the animated GIF
 VIDEO_FRAMES_PER_IMAGE_FORWARD = 1
 # Number of times to repeat each rendered image during reverse video progression
 # Effectively lengthens the time for which each frame is visible in the reverse progression of the animated GIF
 VIDEO_FRAMES_PER_IMAGE_REVERSE = 1
+# Determines the type of animation (GIF and/or Video) which will be created. Options available are as follows
+# 0: Each frame represents an image created from a given manipulation index, in order of creation
+# 1: Animation transitions from input image to final output image, wiping along the X direction
+# 2: Animation transitions from input image to final output image, wiping along the Y direction
+# 3: Each pixel slowly transitions from the input RGB color to the output RGB color
+#      This is done in a linear manner for each respective color
+ANIMATION_MODE = 0
+# The total number of frames to use in a input-to-final-output transition GIF (for example, GIF_MODE values 1/2/3)
+ANIMATION_NUM_TRANSITION_FRAMES = 30
 
-
-"""
-_________________________________________________
-#TODO
-_________________________________________________
- - For functions like ImageManipulataor.{hueShitf()/saturationShift()valueShift()}, add an optional boolean to the input
- -     so that the user can specify whether or not they want values to min/max out at the bounds of that variable instead
- -     of undergoing the current process with the modulus operator
-     - Implement an rgbShift() or {r/g/b}Shift() function and give it that same optional boolean functionality
- - Implement GIF_MODE global variable as-described in the comments
- - Implement ability to perform operations based on neighboring pixels
- - Add functionality for video output instead of just animated GIFs
- - Update GUI to allow users to interactively apply filters and functions, with deep control over the underlying math
-     as well as the ability to render in various formats
- - Condense Window class' createOutputImage(), createGif() and createVideo() code to avoid redundancy
-"""
 
 # tkinter instance for GUI display and user interaction related to manipulation of images
 # based heavily on code from http://pythonprogramming.net by Sentdex
 class Window(Frame):
 
-    def __init__(self, master = None):
+    def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
         self.init_window()
@@ -127,26 +125,26 @@ class Window(Frame):
         # Change the title of the master widget
         self.master.title("hypnic-functions")
         # Allow the widget to take the full space of the root window
-        self.pack(fill = BOTH, expand = 1)
+        self.pack(fill=BOTH, expand=1)
         # Create a button instance
-        quitButton = Button(self, text = "Quit", command = self.client_exit)
+        quitButton = Button(self, text="Quit", command=self.client_exit)
         # Place the button on the window
-        quitButton.place(x = 0, y = 0)
+        quitButton.place(x=0, y=0)
         # Create a menu instance
         menu = Menu(self.master)
-        self.master.config(menu = menu)
+        self.master.config(menu=menu)
         # Create the file object
         file = Menu(menu)
         # Add a command called "Exit" to the menu option, which runs the function self.client_exit()
-        file.add_command(label = "Exit", command = self.client_exit)
+        file.add_command(label="Exit", command=self.client_exit)
         # Add "File" to the menu
-        menu.add_cascade(label = "File", menu = file)
+        menu.add_cascade(label="File", menu=file)
         # Create the file object
         edit = Menu(menu)
         # Add a command called "Undo" to the menu option
         edit.add_command(label="Undo")
         # Add "Edit" to the menu
-        menu.add_cascade(label = "Edit", menu = edit)
+        menu.add_cascade(label="Edit", menu=edit)
         # Add commands to the menu for doing the following:
         # Displaying the input image, generating/displaying the output image, showing text, creating an animated GIF,
         # and creating a video
@@ -266,6 +264,7 @@ class Window(Frame):
     def client_exit(self):
         exit()
 
+
 # Container class for holding all variables and functions related to manipulation of images
 class ImageManipulator:
 
@@ -298,8 +297,14 @@ class ImageManipulator:
         self.outputImagePath = Path("")
         # Tracks whether or not the output image is ready to be displayed
         self.outputImageReady = False
+        # Tracks the output file number at which a GIF/video should begin
+        self.animationStartIndex = 0
+        # Tracks the output file number at which a GIF/video should end
+        self.animationEndIndex = 0
         # Tracks whether or not the output animated GIF has been created
         self.gifReady = False
+        # Holds paths of all images to be used in GIF and/or video creation
+        self.frames = []
         # Tracks whether or not the output video has been created
         self.videoReady = False
         # Internal variable used to track error incidences during debugging
@@ -419,9 +424,11 @@ class ImageManipulator:
         rgbOut = rgbIn
         hsvIn = self.fromRGBtoHSV(rgbIn)
         if hsvIn[1] < hsvIn[2]:
-            hsvOut = (hsvIn[0], hsvIn[1] + math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1, hsvIn[2] - math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1)
+            hsvOut = (hsvIn[0], hsvIn[1] + math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1,
+                      hsvIn[2] - math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1)
         elif hsvIn[2] < hsvIn[1]:
-            hsvOut = (hsvIn[0], hsvIn[1] - math.fabs(hsvIn[1] - hsvIn[2]) * (float(factor) / 2) % 1, hsvIn[2] + math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1)
+            hsvOut = (hsvIn[0], hsvIn[1] - math.fabs(hsvIn[1] - hsvIn[2]) * (float(factor) / 2) % 1,
+                      hsvIn[2] + math.fabs(hsvIn[2] - hsvIn[1]) * (float(factor) / 2) % 1)
         else:
             return rgbIn
         rgbOut = self.fromHSVtoRGB(hsvOut)
@@ -482,9 +489,9 @@ class ImageManipulator:
     def modDistFromCartesianFunc(self, rgbIn):
         maxDist = self.calcDist(0, 0, self.xRes, self.yRes)
         cartesianDist = self.calcDist(self.currentX,
-                                         self.currentY,
-                                         self.currentX,
-                                         self.calcCartesianFunc(self.currentX))
+                                      self.currentY,
+                                      self.currentX,
+                                      self.calcCartesianFunc(self.currentX))
         distRatio = (cartesianDist / maxDist)
         rgbOut = ((round(rgbIn[0] * distRatio)) % 255,
                   (round(rgbIn[1] * distRatio)) % 255,
@@ -495,9 +502,9 @@ class ImageManipulator:
     def modDistFromCartesianFunc2(self, rgbIn):
         maxDist = self.calcDist(0, 0, self.xRes, self.yRes)
         cartesianDist = self.calcDist(self.currentX,
-                                         self.currentY,
-                                         self.currentX,
-                                         self.calcCartesianFunc(self.currentX))
+                                      self.currentY,
+                                      self.currentX,
+                                      self.calcCartesianFunc(self.currentX))
         distRatio = (cartesianDist / maxDist)
         rgbOut = (((((round(rgbIn[0] * distRatio)) * 0.1) % 255) + rgbIn[0]) % 255,
                   ((((round(rgbIn[1] * distRatio)) * 0.1) % 255) + rgbIn[1]) % 255,
@@ -570,11 +577,9 @@ class ImageManipulator:
         elif manip_index == 3:
             rgbResult = self.modHueShift(rgbResult, self.currentY)
         elif manip_index == 4:
-            rgbResult = (self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 19, 0, 32, 1),
-                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 39, 0, 32, 1),
-                         self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 29, 0, 32, 1))
+            rgbResult = self.modHueShift(rgbResult, 84)
         elif manip_index == 5:
-            rgbResult = self.modHueShift(rgbResult, -69)
+            rgbResult = self.modHueShift(rgbResult, -169)
         elif manip_index == 6:
             rgbResult = self.modValueShift(rgbResult, 0.2)
         elif manip_index == 7:
@@ -609,15 +614,19 @@ class ImageManipulator:
                 if RANDOMIZE_MANIPULATION_POSITIONS:
                     x_bound_diff = 0
                     y_bound_diff = 0
-                    while (x_bound_diff < self.xRes * RANDOM_MIN_X_DIM) or\
+                    while (x_bound_diff < self.xRes * RANDOM_MIN_X_DIM) or \
                             (x_bound_diff > self.xRes * RANDOM_MAX_X_DIM):
-                        x_bound_1 = random.randrange(self.xRes * RANDOM_MIN_X_EDGE, self.xRes * RANDOM_MAX_X_EDGE) % self.xRes
-                        x_bound_2 = random.randrange(self.xRes * RANDOM_MIN_X_EDGE, self.xRes * RANDOM_MAX_X_EDGE) % self.xRes
+                        x_bound_1 = random.randrange(self.xRes * RANDOM_MIN_X_EDGE,
+                                                     self.xRes * RANDOM_MAX_X_EDGE) % self.xRes
+                        x_bound_2 = random.randrange(self.xRes * RANDOM_MIN_X_EDGE,
+                                                     self.xRes * RANDOM_MAX_X_EDGE) % self.xRes
                         x_bound_diff = abs(x_bound_2 - x_bound_1)
-                    while (y_bound_diff < self.yRes * RANDOM_MIN_Y_DIM) or\
+                    while (y_bound_diff < self.yRes * RANDOM_MIN_Y_DIM) or \
                             (y_bound_diff > self.yRes * RANDOM_MAX_Y_DIM):
-                        y_bound_1 = random.randrange(self.yRes * RANDOM_MIN_Y_EDGE, self.yRes * RANDOM_MAX_Y_EDGE) % self.yRes
-                        y_bound_2 = random.randrange(self.yRes * RANDOM_MIN_Y_EDGE, self.yRes * RANDOM_MAX_Y_EDGE) % self.yRes
+                        y_bound_1 = random.randrange(self.yRes * RANDOM_MIN_Y_EDGE,
+                                                     self.yRes * RANDOM_MAX_Y_EDGE) % self.yRes
+                        y_bound_2 = random.randrange(self.yRes * RANDOM_MIN_Y_EDGE,
+                                                     self.yRes * RANDOM_MAX_Y_EDGE) % self.yRes
                         y_bound_diff = abs(y_bound_2 - y_bound_1)
                 else:
                     y_bound_1 = 0
@@ -654,46 +663,132 @@ class ImageManipulator:
         self.currentFrame += 1
         return 0
 
-    # Creates an animated GIF with a separate frame for each rendered image
-    def generateGIF(self):
-        images = []
-        # Checks whether the input image is to be included in the animated GIF
-        if GIF_INCLUDE_INPUT_IMAGE:
-            for i in range(GIF_FRAMES_PER_IMAGE_FORWARD):
-                images.append(imageio.imread(Path(INPUT_IMG)))
-            print(str(GIF_FRAMES_PER_IMAGE_FORWARD) + " frame(s) of the input image at " +
-                  INPUT_IMG + " added to the beginning of " + GIF_PATH + ".")
+    # Builds the self.frames list for Animation Mode 0
+    # Transitions from input image to final output image, showing each intermediate output image sequentially
+    def animationMode0(self):
         currentFrame = 1
         for filename in self.outputFileList:
             for i in range(GIF_FRAMES_PER_IMAGE_FORWARD):
-                images.append(imageio.imread(filename))
-                print(str(GIF_FRAMES_PER_IMAGE_FORWARD) + " frame(s) of the input image at " +
-                      OUTPUT_IMG + OUTPUT_IMG_EXTENSION + " added to " + GIF_PATH + ".")
+                self.frames.append(imageio.imread(filename))
+                print(str(GIF_FRAMES_PER_IMAGE_FORWARD) + "frame(s) of output image " + str(i) + " at " +
+                      OUTPUT_IMG + OUTPUT_IMG_EXTENSION + "has been added to " + GIF_PATH + ".")
                 currentFrame += 1
-        if REVERSE_GIF_AT_END:
+        if REVERSE_ANIMATION_AT_END:
             for filename in reversed(self.outputFileList):
                 for i in range(GIF_FRAMES_PER_IMAGE_REVERSE):
-                    images.append(imageio.imread(filename))
-                    print(str(GIF_FRAMES_PER_IMAGE_FORWARD) + " frame(s) of the input image at " +
+                    self.frames.append(imageio.imread(filename))
+                    print(str(GIF_FRAMES_PER_IMAGE_REVERSE) + "frame(s) of output image " + str(i) + " at " +
                           OUTPUT_IMG + OUTPUT_IMG_EXTENSION + " added to " + GIF_PATH + ".")
                     currentFrame += 1
-            # Checks whether the input image is to be included in the animated GIF
-            if GIF_INCLUDE_INPUT_IMAGE:
-                for i in range(GIF_FRAMES_PER_IMAGE_REVERSE):
-                    images.append(imageio.imread(Path(INPUT_IMG)))
-                print(str(GIF_FRAMES_PER_IMAGE_REVERSE) + " frame(s) of the input image at " +
-                      INPUT_IMG + " added to the end of " + GIF_PATH + ".")
-        print("\nRendering animated GIF...")
-        kargs = {'duration': GIF_SECONDS_PER_FRAME}
-        imageio.mimsave(GIF_PATH, images, format = "GIF", **kargs)
-        print("Animated GIF rendered and saved!")
-        self.gifReady = True
+
+    # Builds the self.frames list for Animation Mode 1
+    # Transitions from input image to final output image, wiping along in the X direction
+    def animationMode1(self):
+        print("placeholder for gifMode1()")
+        return 0
+
+    # Builds the self.frames list for Animation Mode 2
+    # Transitions from input image to output image, wiping along in the Y direction
+    def animationMode2(self):
+        """
+        self.outputImagePath = Path(OUTPUT_IMG + "_" + str(self.currentFrame) + OUTPUT_IMG_EXTENSION)
+        self.outputFileList.append(self.outputImagePath)
+        self.imageOut.save(self.outputImagePath)
+        print("Output image " + str(self.currentFrame) + " rendered and saved.")
+        self.outputImageReady = True
+        self.currentFrame += 1
+        return 0
+        """
+
+        """
+        # The image to modify
+        self.imageIn = Image.open(INPUT_IMG)
+        # An array of pixels representing the input image. Used for reference but never modified.
+        self.pixelsIn = self.imageIn.load()
+        """
+
+        # Creates an entirely new set of output images to be used for frames in the animation
+        imageAnimation = self.imageIn
+        pixelsAnimation = imageGif.load()
+
+        # Because currentFrame is incremented after rendering/saving any image, we can use the existing value without
+        #     overwriting any previously saved images
+        gifStartFrame = self.currentFrame
+        pixelsPerFrame = self.yRes / GIF_NUM_TRANSITION_FRAMES
+        for y in range(0, self.yRes):
+            # if self.manipulationComplete:
+            #    break
+            for x in range(0, self.xRes):
+                # if self.manipulationComplete:
+                #    break
+                #    self.pixelsOut[x, y] = self.pixelsIn[x, y]
+                #    render = True
+                # else:
+                #    render = False
+                # m += 1
+                # if render:
+                self.renderOutputImage()
+
+        print("placeholder for gifMode2()")
+        return 0
+
+    # Builds the self.frames list for Animation Mode 3
+    def animationMode3(self):
+        print("placeholder for gifMode3()")
+        return 0
+
+    # Creates an animated GIF with a separate frame for each rendered image
+    def generateGIF(self):
+        # No matter what, the first frame(s) will always be the input image
+        for i in range(GIF_FRAMES_PER_IMAGE_FORWARD):
+            self.frames.append(imageio.imread(Path(INPUT_IMG)))
+        print(str(GIF_FRAMES_PER_IMAGE_FORWARD) + " frame(s) of the input image at " +
+              INPUT_IMG + " added to the beginning of " + GIF_PATH + ".")
+
+        # Calls the proper function, based on ANIMATION_MODE, to build self.frames
+        if ANIMATION_MODE == 0:
+            self.animationMode0()
+        elif ANIMATION_MODE == 1:
+            self.animationMode1()
+        elif ANIMATION_MODE == 2:
+            self.animationMode2()
+        elif ANIMATION_MODE == 3:
+            self.animationMode3()
+
+        # If animation reversal mode is enabled, then the input image frame(s) is/are included at the end as well
+        if REVERSE_ANIMATION_AT_END:
+            for i in range(GIF_FRAMES_PER_IMAGE_REVERSE):
+                self.frames.append(imageio.imread(Path(INPUT_IMG)))
+            print(str(GIF_FRAMES_PER_IMAGE_REVERSE) + " frame(s) of the input image at " +
+                  INPUT_IMG + " added to the end of " + GIF_PATH + ".")
+
+        if len(self.frames) != 0:
+            print("\nRendering animated GIF...")
+            kargs = {'duration': GIF_SECONDS_PER_FRAME}
+            imageio.mimsave(GIF_PATH, self.frames, format="GIF", **kargs)
+            print("Animated GIF rendered and saved!")
+            self.gifReady = True
+        else:
+            print("ERROR: self.frames() is empty, so a GIF cannot be created!")
         return 0
 
     # Creates a video animation with a separate frame for each rendered image
     def generateVideo(self):
         print("Video generation has not yet been implemented!")
-        #self.videoReady = True
+        """
+        # If CREATE_GIF is disabled, then the self.frames list is not configured yet and must be set up
+        if not CREATE_GIF:
+            if ANIMATION_MODE == 0:
+                self.animationMode0()
+            elif ANIMATION_MODE == 1:
+                self.animationMode1()
+            elif ANIMATION_MODE == 2:
+                self.animationMode2()
+            elif ANIMATION_MODE == 3:
+                self.animationMode3()
+        #CODE WILL GO HERE
+        self.videoReady = True
+        """
         return 0
 
     # Ensures that the directory specified for the output image(s) exists to avoid errors
@@ -710,6 +805,7 @@ class ImageManipulator:
             video_directory = os.path.dirname(GIF_PATH)
             os.makedirs(video_directory, exist_ok=True)
         print("ALL DIRECTORIES PREPARED SUCCESSFULLY.\n")
+
 
 def main():
     # Initializes the random number generator
@@ -737,5 +833,6 @@ def main():
 
     print("\n================ C O M P L E T E D ================\n")
     return 0
+
 
 main()
