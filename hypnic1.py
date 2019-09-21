@@ -6,7 +6,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 import PIL
 import imageio
-import cv2
+#import cv2
 
 """
 _________________________________________________
@@ -73,6 +73,8 @@ MANIPULATE_PREVIOUS_OUTPUT = True
 # In the case where MANIPULATE_PREVIOUS_OUTPUT == False, then this isn't a useful variable as it just creates copies
 #     of images that have already been created
 NUM_ROUNDS_OF_MANIPULATION = 1
+# Determines whether to use the manipulation order as listed in rgb(func) or to randomize the order
+RANDOM_MANIPULATION_ORDER = False
 
 # GIF/VIDEO-RELATED VARIABLES
 # VIDEO RENDERING FUNCTIONALITY HAS NOT YET BEEN COMPLETED
@@ -101,13 +103,6 @@ VIDEO_FRAMES_PER_IMAGE_FORWARD = 1
 # Number of times to repeat each rendered image during reverse video progression
 # Effectively lengthens the time for which each frame is visible in the reverse progression of the animated GIF
 VIDEO_FRAMES_PER_IMAGE_REVERSE = 1
-# Determines the type of animation (GIF and/or Video) which will be created. Options available are as follows
-# 0: Each frame represents an image created from a given manipulation index, in order of creation
-# 1: Animation transitions from input image to final output image, wiping along the X direction
-# 2: Animation transitions from input image to final output image, wiping along the Y direction
-# 3: Each pixel slowly transitions from the input RGB color to the output RGB color
-#      This is done in a linear manner for each respective color
-ANIMATION_MODE = 3
 # The total number of frames to use in a input-to-final-output transition GIF (for example, GIF_MODE values 1/2/3)
 ANIMATION_NUM_TRANSITION_FRAMES = 60
 
@@ -295,6 +290,11 @@ class ImageManipulator:
         self.pixelsOut = self.imageOut.load()
         # Tracks when all image manipulation routines are complete
         self.manipulationComplete = False
+        # Used to determine the total number of manipulations that are configured in the current code
+        # Initialized as negative to make it an invalid input
+        self.numTotalManipulations = -1
+        # Holds a list of all valid values of manip_index
+        self.manipulationsList = []
         # Path to which the output image is saved
         self.outputImagePath = Path("")
         # Tracks whether or not the output image is ready to be displayed
@@ -303,6 +303,8 @@ class ImageManipulator:
         self.frames = []
         # Tracks the output file number at which a transition-type GIF/video should begin
         self.transitionStartIndex = 0
+        # Sets the animation mode for GIF/video creation
+        self.animationMode = 0
         # Tracks whether or not the output animated GIF has been created
         self.gifReady = False
         # Holds imageio variables which reference the contents of self.frames for animated GIF creation
@@ -576,6 +578,7 @@ class ImageManipulator:
     # Determines the new R/G/B value of a pixel based on X/Y coordinate and existing R/G/B value
     # Currently the only purpose is to call the desired modification function(s)
     def rgbFunc(self, manip_index):
+        numManips = 0
         # If the manipulation function for the current manip_index should be applied to the input image
         if not MANIPULATE_PREVIOUS_OUTPUT:
             rgbResult = self.pixelsIn[self.currentX, self.currentY]
@@ -584,39 +587,85 @@ class ImageManipulator:
         else:
             rgbResult = self.pixelsOut[self.currentX, self.currentY]
         # Manipulates a pixel based on the value of manip_index
+        # Also us to determine how many consecutive manipulation indices are present
         if manip_index == 1:
-            rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
         elif manip_index == 2:
-            rgbResult = self.modHueShift(rgbResult, self.currentX)
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modHueShift(rgbResult, self.currentX)
         elif manip_index == 3:
-            rgbResult = self.modHueShift(rgbResult, self.currentY)
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modHueShift(rgbResult, self.currentY)
         elif manip_index == 4:
-            rgbResult = self.modHueShift(rgbResult, 84)
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modHueShift(rgbResult, 84)
         elif manip_index == 5:
-            rgbResult = self.modHueShift(rgbResult, -169)
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modHueShift(rgbResult, -169)
         elif manip_index == 6:
-            rgbResult = self.modValueShift(rgbResult, 0.2)
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modValueShift(rgbResult, 0.2)
         elif manip_index == 7:
-            rgbResult = self.modSaturationShift(rgbResult, -0.2)
-
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modHueShift(rgbResult, ((self.currentY + 1) % (self.currentX + 1)) % 360)
+        elif manip_index == 8:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modSaturationShift(rgbResult, -0.2)
         # Ends the current round of manipulation when the highest valid manip_index value have been exceeded
         else:
+            if self.numTotalManipulations == -1:
+                self.numTotalManipulations = numManips
+                return self.numTotalManipulations
             print(str(manip_index - 1) +
                   " inidividual image manipulation(s) performed. Current round of manipulation has been completed.\n")
             self.manipulationComplete = True
             return 0
-        return rgbResult
+        if self.numTotalManipulations == -1:
+            return self.numTotalManipulations
+        else:
+            return rgbResult
 
     # Calls self.rgbFunc() for each pixel.
     # Also supports defining a random rectangle of pixels, redefined for each call of self.rgbFunc(), as opposed to
     #     applying self.rgbFunc to every pixel in the entire image.
     def manipulate(self):
+        num = 1
+        while self.numTotalManipulations == -1:
+            self.numTotalManipulations = self.rgbFunc(num)
+            num += 1
+            self.manipulationsList.append(num)
+        if RANDOM_MANIPULATION_ORDER:
+            sourceManipulationsList = self.manipulationsList
+            self.manipulationsList = []
+            for i in range(1, self.numTotalManipulations):
+                elt = sourceManipulationsList[random.randRange(1, i)]
+                self.manipulationsList.append(elt)
+                sourceManipulationsList.remove(elt)
+                num -= 1
         for n in range(NUM_ROUNDS_OF_MANIPULATION):
             if (n > 0) and (not MANIPULATE_PREVIOUS_OUTPUT):
                 print("WARNING: There is no reason to run multiple rounds of manipulation when " +
                       "MANIPULATE_PREVIOUS_OUTPUT\nis False, as this would generate equivalent" +
                       "outputs to the first round of manipulation.\n")
                 break
+                result = self.rgbFunc(m)
             self.manipulationComplete = False
             m = 1
             while self.manipulationComplete == False:
@@ -656,11 +705,11 @@ class ImageManipulator:
                         self.currentX = x
                         self.currentY = y
                         result = self.rgbFunc(m)
-                        if result != 0:
+                        if result == 0:
+                            render = False
+                        else:
                             self.pixelsOut[self.currentX, self.currentY] = result
                             render = True
-                        else:
-                            render = False
                 m += 1
                 if render:
                     self.renderOutputImage()
@@ -796,22 +845,29 @@ class ImageManipulator:
         return 0
 
     # Creates an animated GIF with a separate frame for each rendered image
+    # Determines the type of animation (GIF and/or Video) which will be created. Options available are as follows
+    # -2: Each frame represents an image created from a given manipulation index, in order of creation
+    # -1: Animation transitions from input image to final output image, wiping along the X direction
+    # 0: Animation transitions from input image to final output image, wiping along the Y direction
+    # 1: Each pixel slowly transitions from the input RGB color to the output RGB color
+    #      This is done in a linear manner for each respective color
     def generateGIF(self):
         # No matter what, the first frame(s) will always be the input image
         for i in range(GIF_FRAMES_PER_IMAGE_FORWARD):
             self.frames.append(Path(INPUT_IMG))
         print(str(GIF_FRAMES_PER_IMAGE_FORWARD) + " frame(s) of " + INPUT_IMG + " have been added to " + GIF_PATH + ".")
 
-        # Calls the proper function, based on ANIMATION_MODE, to build self.frames
-        if ANIMATION_MODE == 0:
+        # Calls the proper function, based on self.animationMode, to build self.frames
+        if self.animationMode == 0:
             self.animationMode0()
-        elif ANIMATION_MODE == 1:
+        elif self.animationMode == 1:
             self.animationMode1()
-        elif ANIMATION_MODE == 2:
+        elif self.animationMode == 2:
             self.animationMode2()
-        elif ANIMATION_MODE == 3:
+        elif self.animationMode == 3:
             self.animationMode3()
-
+        else:
+            print("ERROR: Animation mode " + str(self.animationMode) + " is not a valid mode!")
         # If animation reversal mode is enabled, then the input image frame(s) is/are included at the end as well
         if REVERSE_ANIMATION_AT_END:
             for i in range(GIF_FRAMES_PER_IMAGE_REVERSE):
@@ -833,20 +889,6 @@ class ImageManipulator:
     # Creates a video animation with a separate frame for each rendered image
     def generateVideo(self):
         print("Video generation has not yet been implemented!")
-        """
-        # If CREATE_GIF is disabled, then the self.frames list is not configured yet and must be set up
-        if not CREATE_GIF:
-            if ANIMATION_MODE == 0:
-                self.animationMode0()
-            elif ANIMATION_MODE == 1:
-                self.animationMode1()
-            elif ANIMATION_MODE == 2:
-                self.animationMode2()
-            elif ANIMATION_MODE == 3:
-                self.animationMode3()
-        #CODE WILL GO HERE
-        self.videoReady = True
-        """
         return 0
 
     # Ensures that the directory specified for the output image(s) exists to avoid errors
