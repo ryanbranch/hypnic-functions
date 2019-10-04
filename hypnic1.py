@@ -21,10 +21,13 @@ _________________________________________________
  -     so that the user can specify whether or not they want values to min/max out at the bounds of that variable instead
  -     of undergoing the current process with the modulus operator
      - Implement an rgbShift() or {r/g/b}Shift() function and give it that same optional boolean functionality
- - Implement GIF_MODE global variable as-described in the comments
+ - Implement GIF_MODE variable as-described in the comments (DONE, but children listed below are incomplete)
      - Add control for whether or not the output of each manipulation is saved,
          as it is wasteful/unnecessary depending on GIF_MODE
  - Implement ability to perform operations based on neighboring pixels
+     - Will require changing how rgbResult is initialized in ImageManipulator.rgbFunc()
+     = possibly need to implement a new ImageManipulator member variable called imageCurrent, analogous to
+        imageIn and imageOut
  - Add functionality for video output instead of just animated GIFs
  - Update GUI to allow users to interactively apply filters and functions, with deep control over the underlying math
      as well as the ability to render in various formats
@@ -85,10 +88,10 @@ CREATE_GIF = True
 CREATE_VIDEO = False
 # Path at which the resulting animated GIF will be saved, if CREATE_GIF = True
 GIF_PATH = "output\\output.gif"
-# Path at which the resulting video will be saved, if CREATE_GIF = True
+# Path at which the resulting video will be saved, if CREATE_VIDEO = True
 VIDEO_PATH = "output\\video2.avi"
 # The number of seconds for which each frame of the GIF will be displayed
-GIF_SECONDS_PER_FRAME = 0.02
+GIF_SECONDS_PER_FRAME = 0.2
 # Whether or not to play the animation (GIF/video) frames in reverse when the end is reached, transitioning back to the
 #     original source image instead of abruptly jumping right back to the start
 REVERSE_ANIMATION_AT_END = True
@@ -304,7 +307,7 @@ class ImageManipulator:
         # Tracks the output file number at which a transition-type GIF/video should begin
         self.transitionStartIndex = 0
         # Sets the animation mode for GIF/video creation
-        self.animationMode = 0
+        self.animationMode = 4
         # Tracks whether or not the output animated GIF has been created
         self.gifReady = False
         # Holds imageio variables which reference the contents of self.frames for animated GIF creation
@@ -462,7 +465,7 @@ class ImageManipulator:
     # Returns a color offset from rgbIn towards rgbGoal
     # Red, Green, and Blue values are separately modified by a number such that if it were repeated stepsRemaining
     #     times, then the rgbGoal color values would be reached
-    # Designed for use with Animation Mode 3
+    # Designed for use with Animation Mode 3, but has other potential applications as well
     @staticmethod
     def transitionRGB(rgbIn, rgbGoal, stepsRemaining):
         rgbOut = list(rgbIn)
@@ -909,7 +912,7 @@ class ImageManipulator:
 
 def main():
     # Initializes the random number generator
-    random.seed("i love tofer and there's NOTHING you can do about it!")
+    random.seed("333   333   333")
     # Launches the GUI, if enabled
     if ENABLE_GUI:
         root = Tk()
