@@ -47,9 +47,9 @@ ENABLE_GUI = False
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
 MANIPULATE_IMAGE = True
 # Path to the image used as program input
-INPUT_IMG = "input.jpg"
+INPUT_IMG = "input3.jpg"
 # Path at which the resulting image will be saved
-OUTPUT_IMG = "output\\outputXv1"
+OUTPUT_IMG = "output\\output3D1v1"
 OUTPUT_IMG_EXTENSION = ".jpg"
 # Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
 RANDOMIZE_MANIPULATION_POSITIONS = False
@@ -274,6 +274,9 @@ class ImageManipulator:
         self.imageIn = Image.open(INPUT_IMG)
         # A copy of the input image to which the functions are applied
         self.imageOut = Image.open(INPUT_IMG)
+        # A copy of the most recently saved output image, used for reference when using information
+        #   from multiple pixels at once
+        self.imageReference = Image.open(INPUT_IMG)
         # The X resolution of self.imageIn
         self.xRes = self.imageIn.size[0]
         # The Y resolution of self.imageIn
@@ -291,6 +294,8 @@ class ImageManipulator:
         # An array of pixels representing the output image. Initialized identical to self.pixelsIn
         # Modified over time while iterating through rows/columns. Should not be used for reference.
         self.pixelsOut = self.imageOut.load()
+        # An array of pixels representing the reference image
+        self.pixelsReference = self.imageReference.load()
         # Tracks when all image manipulation routines are complete
         self.manipulationComplete = False
         # Used to determine the total number of manipulations that are configured in the current code
@@ -298,8 +303,10 @@ class ImageManipulator:
         self.numTotalManipulations = -1
         # Holds a list of all valid values of manip_index
         self.manipulationsList = []
-        # Holds a list of colors which can be used as input for various functions
+        # Holds a list of colors which can be used as input for various functions, as RGB values
         self.colorList = []
+        # Holds the HSV value of each RGB color in colorList
+        self.colorListHSV = []
         # Path to which the output image is saved
         self.outputImagePath = Path("")
         # Tracks whether or not the output image is ready to be displayed
@@ -453,14 +460,28 @@ class ImageManipulator:
     # Shifts the Saturation value by a given number of degrees
     def modSaturationShift(self, rgbIn, shift):
         hsvIn = self.fromRGBtoHSV(rgbIn)
-        hsvOut = (hsvIn[0], (hsvIn[1] + shift) % 360, hsvIn[2])
+        hsvOut = (hsvIn[0], (hsvIn[1] + shift) % 1, hsvIn[2])
         rgbOut = self.fromHSVtoRGB(hsvOut)
         return rgbOut
 
     # Shifts the Value value by a given number of degrees
     def modValueShift(self, rgbIn, shift):
         hsvIn = self.fromRGBtoHSV(rgbIn)
-        hsvOut = (hsvIn[0], hsvIn[1], (hsvIn[2] + shift) % 360)
+        hsvOut = (hsvIn[0], hsvIn[1], (hsvIn[2] + shift) % 1)
+        rgbOut = self.fromHSVtoRGB(hsvOut)
+        return rgbOut
+
+    # Sets the Saturation value to a multiple of its previous value
+    def modSaturationMultiple(self, rgbIn, multiple):
+        hsvIn = self.fromRGBtoHSV(rgbIn)
+        hsvOut = (hsvIn[0], (hsvIn[1] * multiple) % 1, hsvIn[2])
+        rgbOut = self.fromHSVtoRGB(hsvOut)
+        return rgbOut
+
+    # Sets the Value value to a multiple of its previous value
+    def modValueMultiple(self, rgbIn, multiple):
+        hsvIn = self.fromRGBtoHSV(rgbIn)
+        hsvOut = (hsvIn[0], hsvIn[1], (hsvIn[2] * multiple) % 1)
         rgbOut = self.fromHSVtoRGB(hsvOut)
         return rgbOut
 
@@ -580,19 +601,31 @@ class ImageManipulator:
         valOut = int(round(valOut))
         return valOut
 
-    # Returns a list of RGB color tuples of length numColors,
-    #     transitioning from color1 to color2 via regular steps in R/G/B values
-    @staticmethod
-    def colorListTransitionRGB(numColors, color1, color2):
-        colors = []
+    # Sets the value of self.colorListHSV based on the current value of self.colorList
+    # Returns self.colorListHSV as well, but the function will set the self.colorList variable regardless
+    def generateColorListHSV(self):
+        newList = []
+        for color in self.colorList:
+            newList.append(self.fromRGBtoHSV(color))
+        self.colorListHSV = newList
+        return self.colorListHSV
+
+    # Sets self.colorList to a list of RGB color tuples of length numColors,
+    #   transitioning from color1 to color2 via regular steps in R/G/B values
+    # Returns self.colorList as well, but the function will set the self.colorList variable regardless
+    def colorListTransitionRGB(self, numColors, color1, color2):
+        newList = []
         for i in range(numColors):
-            colors.append((round(color1[0] + (i * (color2[0] - color1[0])) / (numColors - 1)),
+            newList.append((round(color1[0] + (i * (color2[0] - color1[0])) / (numColors - 1)),
                            round(color1[1] + (i * (color2[1] - color1[1])) / (numColors - 1)),
                            round(color1[2] + (i * (color2[2] - color1[2])) / (numColors - 1))))
-        return colors
+        self.colorList = newList
+        self.generateColorListHSV()
+        return self.colorList
 
-    # Returns a list of RGB color tuples of length numColors,
-    #     transitioning from color1 to color2 via regular steps in H/S/V values
+    # Sets self.colorList to a list of RGB color tuples of length numColors,
+    #   transitioning from color1 to color2 via regular steps in H/S/V values
+    # Returns self.colorList as well, but the function will set the self.colorList variable regardless
     def colorListTransitionHSV(self, numColors, color1, color2):
         hsvStart = self.fromRGBtoHSV(color1)
         hsvEnd = self.fromRGBtoHSV(color2)
@@ -601,16 +634,41 @@ class ImageManipulator:
             hsvColors.append((round(hsvStart[0] + (i * (hsvEnd[0] - hsvStart[0])) / (numColors - 1)),
                               round(hsvStart[1] + (i * (hsvEnd[1] - hsvStart[1])) / (numColors - 1)),
                               round(hsvStart[2] + (i * (hsvEnd[2] - hsvStart[2])) / (numColors - 1))))
-        colors = []
+        newList = []
         for hsvColor in hsvColors:
-            colors.append(self.fromHSVtoRGB(hsvColor))
-        return colors
+            newList.append(self.fromHSVtoRGB(hsvColor))
+        self.colorList = newList
+        self.generateColorListHSV()
+        return self.colorList
 
-    # Returns a list, of length numColors, of random RGB color tuples
+    # Sets self.colorList to list of size^3 colors, spanning a cubic grid from R/G/B == rgbMin to R/G/B == rgbMax
+    # Returns self.colorList as well, but the function will set the self.colorList variable regardless
+    def colorListCubeRGB(self, size, rgbMin = 0, rgbMax = 255):
+        # Takes the modulus of rgbMin and rgbMax to ensure that they fall within acceptable values
+        # The algorithm still functions even if rgbMin is greater or equal to rgbMax
+        rgbMin %= 255
+        rgbMax %= 255
+        # A list of the possible values that each of R, G, and B value on the grid
+        rgbVals = []
+        for i in range(size):
+            if i == 0:
+                rgbVals.append(round(rgbMin))
+            else:
+                rgbVals.append(round(rgbMin + (rgbMax - rgbMin) / i))
+        newList = []
+        for r in range(size):
+            for g in range(size):
+                for b in range(size):
+                    newList.append((rgbVals[r], rgbVals[g], rgbVals[b]))
+        self.colorList = newList
+        self.generateColorListHSV()
+        return self.colorList
+
+    # Sets self.colorList to a list, of length numColors, of random RGB color tuples
     # color1 and color2 optionally act as boundaries for maximum R/G/B values
-    @staticmethod
-    def colorListRandom(numColors, color1 = (0, 0, 0), color2 = (255, 255, 255)):
-        colors = []
+    # Returns self.colorList as well, but the function will set the self.colorList variable regardless
+    def colorListRandom(self, numColors, color1 = (0, 0, 0), color2 = (255, 255, 255)):
+        newList = []
         minR = min(color1[0], color2[0])
         maxR = max(color1[0], color2[0])
         minG = min(color1[1], color2[1])
@@ -618,8 +676,10 @@ class ImageManipulator:
         minB = min(color1[2], color2[2])
         maxB = max(color1[2], color2[2])
         for i in range(numColors):
-            colors.append((random.randint(minR, maxR), random.randint(minG, maxG), random.randint(minB, maxB)))
-        return colors
+            newList.append((random.randint(minR, maxR), random.randint(minG, maxG), random.randint(minB, maxB)))
+        self.colorList = newList
+        self.generateColorListHSV()
+        return self.colorList
 
     # Modifies the redness/greenness/blueness of colors in self.colorList
     # The modifier value evenly transitions from redStart to redEnd, etc.
@@ -673,13 +733,14 @@ class ImageManipulator:
         self.colorList = newList
         return 0
 
-    # Sets a pixel's color to one of a finite list of colors, sequentially based on average value of R, G, and B
+    # Sets a pixel's color to a member of self.colorList, sequentially based on average value of R, G, and B
     # TODO: Write a new version of that function which uses closest total RGB distance from input list
     # TODO: Write a new version of this function which uses closest value distance from input list
-    @staticmethod
-    def limitColorsByAverageRGB(rgbIn, colorsIn):
+    def limitColorsByAverageRGB(self, rgbIn):
+        if not self.colorList:
+            exit(421)
         average = (rgbIn[0] + rgbIn[1] + rgbIn[2]) / 3
-        numColors = len(colorsIn)
+        numColors = len(self.colorList)
         colorOutIndex = -1
         for n in range(numColors):
             if (average >= 255 * (n / numColors)) and (average < 255 * ((n + 1) / numColors)):
@@ -687,20 +748,179 @@ class ImageManipulator:
         if colorOutIndex == -1:
             exit(42)
         else:
-            return(colorsIn[colorOutIndex])
+            return self.colorList[colorOutIndex]
+
+    # Treats colors as points on a 3D coordinate grid (r/g/b ~ x/y/z) and outputs the color
+    #   which is least distant from the input color
+    # TODO: Write a similar function but for distance within HSV space (polar coordinates with Z axis, H is theta)
+    def limitColorsByMatchRGB(self, rgbIn):
+        if not self.colorList:
+            exit(491)
+        # Stores the R value of the input color
+        rVal = rgbIn[0]
+        gVal = rgbIn[1]
+        bVal = rgbIn[2]
+        # Stores the distance of the color (within self.colors) with the closest R value to the input color
+        # Initialized as the difference between the maximum and minimum possible values of R
+        # The distance between (0, 0, 0) and (255, 255, 255) is approximately 441.673
+        minDist = 442.0
+        # Stores the index (within self.colors) of the color which most closely matches the input color
+        colorOutIndex = -1
+        numColors = len(self.colorList)
+        for n in range(numColors):
+            dist = math.sqrt(((abs(self.colorList[n][0] - rVal)) ** 2) +
+                             ((abs(self.colorList[n][1] - gVal)) ** 2) +
+                             ((abs(self.colorList[n][2] - bVal)) ** 2))
+            if dist <= minDist:
+                minDist = dist
+                colorOutIndex = n
+        if colorOutIndex == -1:
+            exit(49)
+        else:
+            return self.colorList[colorOutIndex]
+
+    # Sets a pixel's color to the member of self.colorList with the closest R value to the input color
+    def limitColorsByMatchR(self, rgbIn):
+        if not self.colorList:
+            exit(461)
+        # Stores the R value of the input color
+        rVal = rgbIn[0]
+        # Stores the distance of the color (within self.colors) with the closest R value to the input color
+        # Initialized as the difference between the maximum and minimum possible values of R
+        rMinDist = 255
+        # Stores the index (within self.colors) of the color which most closely matches the input color
+        colorOutIndex = -1
+        numColors = len(self.colorList)
+        for n in range(numColors):
+            rDist = abs(self.colorList[n][0] - rVal)
+            if rDist <= rMinDist:
+                rMinDist = rDist
+                colorOutIndex = n
+        if colorOutIndex == -1:
+            exit(46)
+        else:
+            return self.colorList[colorOutIndex]
+
+    # Sets a pixel's color to the member of self.colorList with the closest G value to the input color
+    def limitColorsByMatchG(self, rgbIn):
+        if not self.colorList:
+            exit(471)
+        # Stores the G value of the input color
+        gVal = rgbIn[1]
+        # Stores the distance of the color (within self.colors) with the closest G value to the input color
+        # Initialized as the difference between the maximum and minimum possible values of G
+        gMinDist = 255
+        # Stores the index (within self.colors) of the color which most closely matches the input color
+        colorOutIndex = -1
+        numColors = len(self.colorList)
+        for n in range(numColors):
+            gDist = abs(self.colorList[n][1] - gVal)
+            if gDist <= gMinDist:
+                gMinDist = gDist
+                colorOutIndex = n
+        if colorOutIndex == -1:
+            exit(47)
+        else:
+            return self.colorList[colorOutIndex]
+
+    # Sets a pixel's color to the member of self.colorList with the closest B value to the input color
+    def limitColorsByMatchB(self, rgbIn):
+        if not self.colorList:
+            exit(481)
+        # Stores the B value of the input color
+        bVal = rgbIn[2]
+        # Stores the distance of the color (within self.colors) with the closest B value to the input color
+        # Initialized as the difference between the maximum and minimum possible values of B
+        bMinDist = 255
+        # Stores the index (within self.colors) of the color which most closely matches the input color
+        colorOutIndex = -1
+        numColors = len(self.colorList)
+        for n in range(numColors):
+            bDist = abs(self.colorList[n][2] - bVal)
+            if bDist <= bMinDist:
+                bMinDist = bDist
+                colorOutIndex = n
+        if colorOutIndex == -1:
+            exit(48)
+        else:
+            return self.colorList[colorOutIndex]
+
+    # Sets a pixel's color to the member of self.colorList with the closest H value to the input color
+    def limitColorsByMatchH(self, rgbIn):
+        if not self.colorList:
+            exit(431)
+        if not self.colorListHSV:
+            self.generateColorListHSV()
+        # Stores the H value of the input color
+        hVal = self.fromRGBtoHSV(rgbIn)[0]
+        # Stores the distance of the color (within self.colors) with the closest H value to the input color
+        # Initialized as the difference between the maximum and minimum possible values of H
+        hMinDist = 360
+        # Stores the index (within self.colors) of the color which most closely matches the input color
+        colorOutIndex = -1
+        numColors = len(self.colorList)
+        for n in range(numColors):
+            hDist = abs(self.colorListHSV[n][0] - hVal)
+            if hDist <= hMinDist:
+                hMinDist = hDist
+                colorOutIndex = n
+        if colorOutIndex == -1:
+            exit(43)
+        else:
+            return self.colorList[colorOutIndex]
+
+    # Sets a pixel's color to the member of self.colorList with the closest S value to the input color
+    def limitColorsByMatchS(self, rgbIn):
+        if not self.colorList:
+            exit(441)
+        if not self.colorListHSV:
+            self.generateColorListHSV()
+        # Stores the S value of the input color
+        sVal = self.fromRGBtoHSV(rgbIn)[1]
+        # Stores the distance of the color (within self.colors) with the closest S value to the input color
+        # Initialized as the difference between the maximum and minimum possible values of S
+        sMinDist = 1.0
+        # Stores the index (within self.colors) of the color which most closely matches the input color
+        colorOutIndex = -1
+        numColors = len(self.colorList)
+        for n in range(numColors):
+            sDist = abs(self.colorListHSV[n][1] - sVal)
+            if sDist <= sMinDist:
+                sMinDist = sDist
+                colorOutIndex = n
+        if colorOutIndex == -1:
+            exit(44)
+        else:
+            return self.colorList[colorOutIndex]
+
+    # Sets a pixel's color to the member of self.colorList with the closest V value to the input color
+    def limitColorsByMatchV(self, rgbIn):
+        if not self.colorList:
+            exit(451)
+        if not self.colorListHSV:
+            self.generateColorListHSV()
+        # Stores the V value of the input color
+        vVal = self.fromRGBtoHSV(rgbIn)[2]
+        # Stores the distance of the color (within self.colors) with the closest V value to the input color
+        # Initialized as the difference between the maximum and minimum possible values of V
+        vMinDist = 1.0
+        # Stores the index (within self.colors) of the color which most closely matches the input color
+        colorOutIndex = -1
+        numColors = len(self.colorList)
+        for n in range(numColors):
+            vDist = abs(self.colorListHSV[n][2] - vVal)
+            if vDist <= vMinDist:
+                vMinDist = vDist
+                colorOutIndex = n
+        if colorOutIndex == -1:
+            exit(45)
+        else:
+            return self.colorList[colorOutIndex]
 
     # Sets a pixel's color to be that of the most frequently occurring color between itself and its 8 nearest neighbors
     # TODO: Write a new version of this function which separately sets R, G, and B values
     def setToMostFrequentNeighbor(self, searchDistance = 1):
-        # Determines the pixel array on which this function is to be applied
-        targetList = []
-        # If the function should be performed on the input image
-        if not MANIPULATE_PREVIOUS_OUTPUT:
-            targetList = self.pixelsIn
-        # If the function should be performed on the image that resulted
-        #     from the previous call of self.rgbFunc()
-        else:
-            targetList = self.pixelsOut
+        targetList = self.pixelsReference
         # Determines the valid range of neighbors to search
         xValues = []
         yValues = []
@@ -733,15 +953,7 @@ class ImageManipulator:
     # searchDistance describes the length in any direction within which neighboring pixels are included
     #   so a searchDistance of 1 encompasses a 3x3 area, a searchDistance of 2 encompasses a 5x5 area, etc.
     def setToAverageOfNeighbors(self, searchDistance = 1):
-        # Determines the pixel array on which this function is to be applied
-        targetList = []
-        # If the function should be performed on the input image
-        if not MANIPULATE_PREVIOUS_OUTPUT:
-            targetList = self.pixelsIn
-        # If the function should be performed on the image that resulted
-        #     from the previous call of self.rgbFunc()
-        else:
-            targetList = self.pixelsOut
+        targetList = self.pixelsReference
         # Determines the valid range of neighbors to search
         xValues = []
         yValues = []
@@ -781,26 +993,34 @@ class ImageManipulator:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                if not self.colorList:
-                    self.colorList = self.colorListTransitionRGB(5, (20, 20, 20), (220, 220, 220))
-                    self.rgbShiftColorList(20, 120, 0, 20, 20, 40, True)
-                    self.hsvShiftColorList(20, 180, 0, 0, -0.1, -0.4, True)
-                rgbResult = self.limitColorsByAverageRGB(rgbResult, self.colorList)
+                #rgbResult = self.modValueMultiple(rgbResult, 0.85)
+                rgbResult = rgbResult
         elif manip_index == 2:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToMostFrequentNeighbor()
+                if not self.colorList:
+                    self.colorList = self.colorListCubeRGB(5, 32, 223)
+                    self.generateColorListHSV()
+                    #self.rgbShiftColorList(80, 200, 0, 40, 40, 120, True)
+                    #self.hsvShiftColorList(240, 340, 0, 0, -0.1, 0.1, False)
+                #print(self.colorList)
+                rgbResult = self.limitColorsByMatchRGB(rgbResult)
         elif manip_index == 3:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToAverageOfNeighbors(3)
+                rgbResult = self.setToMostFrequentNeighbor(1)
         elif manip_index == 4:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToMostFrequentNeighbor()
+                rgbResult = self.setToAverageOfNeighbors(1)
+        elif manip_index == 5:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.setToMostFrequentNeighbor(1)
         # Ends the current round of manipulation when the highest valid manip_index value have been exceeded
         else:
             if self.numTotalManipulations == -1:
@@ -897,6 +1117,10 @@ class ImageManipulator:
         self.outputFileList.append(self.outputImagePath)
         self.imageOut.save(self.outputImagePath)
         print("Output image " + str(self.currentImageIndex) + " rendered and saved.")
+        if MANIPULATE_PREVIOUS_OUTPUT:
+            self.imageReference = self.imageOut
+        else:
+            self.imageReference = self.imageIn
         self.outputImageReady = True
         self.currentImageIndex += 1
         return 0
@@ -1021,10 +1245,10 @@ class ImageManipulator:
 
     # Creates an animated GIF with a separate frame for each rendered image
     # Determines the type of animation (GIF and/or Video) which will be created. Options available are as follows
-    # -2: Each frame represents an image created from a given manipulation index, in order of creation
-    # -1: Animation transitions from input image to final output image, wiping along the X direction
-    # 0: Animation transitions from input image to final output image, wiping along the Y direction
-    # 1: Each pixel slowly transitions from the input RGB color to the output RGB color
+    # 0: Each frame represents an image created from a given manipulation index, in order of creation
+    # 1: Animation transitions from input image to final output image, wiping along the X direction
+    # 2: Animation transitions from input image to final output image, wiping along the Y direction
+    # 3: Each pixel slowly transitions from the input RGB color to the output RGB color
     #      This is done in a linear manner for each respective color
     def generateGIF(self):
         # No matter what, the first frame(s) will always be the input image
