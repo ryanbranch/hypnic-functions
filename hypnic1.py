@@ -47,9 +47,9 @@ ENABLE_GUI = False
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
 MANIPULATE_IMAGE = True
 # Path to the image used as program input
-INPUT_IMG = "input3.jpg"
+INPUT_IMG = "cat input (4).png"
 # Path at which the resulting image will be saved
-OUTPUT_IMG = "output\\output3D1v1"
+OUTPUT_IMG = "output\\catOut4PNGv1"
 OUTPUT_IMG_EXTENSION = ".jpg"
 # Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
 RANDOMIZE_MANIPULATION_POSITIONS = False
@@ -296,6 +296,8 @@ class ImageManipulator:
         self.pixelsOut = self.imageOut.load()
         # An array of pixels representing the reference image
         self.pixelsReference = self.imageReference.load()
+        # Tracks when the first pixel of a reference image is going to be used in a new function application
+        self.referenceStarting = True
         # Tracks when all image manipulation routines are complete
         self.manipulationComplete = False
         # Used to determine the total number of manipulations that are configured in the current code
@@ -917,19 +919,37 @@ class ImageManipulator:
         else:
             return self.colorList[colorOutIndex]
 
-    # Sets a pixel's color to be that of the most frequently occurring color between itself and its 8 nearest neighbors
+    # Sets a pixel's color to be that of the most frequently occurring color between itself and its nearest neighbors
+    # searchDistance describes the distance within which neighboring pixels are included
+    #   so a searchDistance of 1 encompasses a 2x2 area, a searchDistance of 2 encompasses a 3x3 area, etc.
+    # positiveOnly determines whether the search for neighbors will only encompass a positive direction
+    # by doing so, one can ensure that this function will not rely on any pixels which it has itself changed
     # TODO: Write a new version of this function which separately sets R, G, and B values
-    def setToMostFrequentNeighbor(self, searchDistance = 1):
+    def setToMostFrequentNeighbor(self, searchDistance = 1, positiveOnly = True):
+        if self.referenceStarting:
+            if MANIPULATE_PREVIOUS_OUTPUT:
+                self.imageReference = self.imageOut
+            else:
+                self.imageReference = self.imageIn
+            self.pixelsReference = self.imageReference.load()
         targetList = self.pixelsReference
         # Determines the valid range of neighbors to search
         xValues = []
         yValues = []
-        for x in range(self.currentX - searchDistance, self.currentX + searchDistance + 1):
-            if (x >= 0) and (x < self.xRes):
-                xValues.append(x)
-        for y in range(self.currentY - searchDistance, self.currentY + searchDistance + 1):
-            if (y >= 0) and (y < self.yRes):
-                yValues.append(y)
+        if positiveOnly:
+            for x in range(self.currentX, self.currentX + searchDistance + 1):
+                if (x >= 0) and (x < self.xRes):
+                    xValues.append(x)
+            for y in range(self.currentY, self.currentY + searchDistance + 1):
+                if (y >= 0) and (y < self.yRes):
+                    yValues.append(y)
+        else:
+            for x in range(round(self.currentX - searchDistance / 2), round(self.currentX + searchDistance / 2 + 1)):
+                if (x >= 0) and (x < self.xRes):
+                    xValues.append(x)
+            for y in range(round(self.currentY - searchDistance / 2), round(self.currentY + searchDistance / 2 + 1)):
+                if (y >= 0) and (y < self.yRes):
+                    yValues.append(y)
         colorFrequencies = {}
         # Creates a dictionary using all neighboring color values as keys and counting the frequency of each
         # And determines the most frequent color
@@ -950,19 +970,35 @@ class ImageManipulator:
         return targetList[maxFreqX, maxFreqY]
 
     # Sets a pixel's color to be the average of all of its neighbors, on an RGB basis
-    # searchDistance describes the length in any direction within which neighboring pixels are included
-    #   so a searchDistance of 1 encompasses a 3x3 area, a searchDistance of 2 encompasses a 5x5 area, etc.
-    def setToAverageOfNeighbors(self, searchDistance = 1):
+    # searchDistance describes the distance within which neighboring pixels are included
+    #   so a searchDistance of 1 encompasses a 2x2 area, a searchDistance of 2 encompasses a 3x3 area, etc.
+    # positiveOnly determines whether the search for neighbors will only encompass a positive direction
+    # by doing so, one can ensure that this function will not rely on any pixels which it has itself changed
+    def setToAverageOfNeighbors(self, searchDistance = 1, positiveOnly = True):
+        if self.referenceStarting:
+            if MANIPULATE_PREVIOUS_OUTPUT:
+                self.imageReference = self.imageOut
+            else:
+                self.imageReference = self.imageIn
+            self.pixelsReference = self.imageReference.load()
         targetList = self.pixelsReference
         # Determines the valid range of neighbors to search
         xValues = []
         yValues = []
-        for x in range(self.currentX - searchDistance, self.currentX + searchDistance + 1):
-            if (x >= 0) and (x < self.xRes):
-                xValues.append(x)
-        for y in range(self.currentY - searchDistance, self.currentY + searchDistance + 1):
-            if (y >= 0) and (y < self.yRes):
-                yValues.append(y)
+        if positiveOnly:
+            for x in range(self.currentX, self.currentX + searchDistance + 1):
+                if (x >= 0) and (x < self.xRes):
+                    xValues.append(x)
+            for y in range(self.currentY, self.currentY + searchDistance + 1):
+                if (y >= 0) and (y < self.yRes):
+                    yValues.append(y)
+        else:
+            for x in range(round(self.currentX - searchDistance / 2), round(self.currentX + searchDistance / 2 + 1)):
+                if (x >= 0) and (x < self.xRes):
+                    xValues.append(x)
+            for y in range(round(self.currentY - searchDistance / 2), round(self.currentY + searchDistance / 2 + 1)):
+                if (y >= 0) and (y < self.yRes):
+                    yValues.append(y)
         # Determines the average R, G, and B values of the current pixel and all of its neighbors
         numNeighbors = 0
         totalR = 0
@@ -993,14 +1029,13 @@ class ImageManipulator:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                #rgbResult = self.modValueMultiple(rgbResult, 0.85)
-                rgbResult = rgbResult
+                rgbResult = self.modValueMultiple(rgbResult, 0.9)
         elif manip_index == 2:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
                 if not self.colorList:
-                    self.colorList = self.colorListCubeRGB(5, 32, 223)
+                    self.colorList = self.colorListCubeRGB(5, 16, 239)
                     self.generateColorListHSV()
                     #self.rgbShiftColorList(80, 200, 0, 40, 40, 120, True)
                     #self.hsvShiftColorList(240, 340, 0, 0, -0.1, 0.1, False)
@@ -1010,17 +1045,17 @@ class ImageManipulator:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToMostFrequentNeighbor(1)
+                rgbResult = self.setToMostFrequentNeighbor(4)
         elif manip_index == 4:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToAverageOfNeighbors(1)
+                rgbResult = self.setToAverageOfNeighbors(4)
         elif manip_index == 5:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToMostFrequentNeighbor(1)
+                rgbResult = self.setToMostFrequentNeighbor(4, False)
         # Ends the current round of manipulation when the highest valid manip_index value have been exceeded
         else:
             if self.numTotalManipulations == -1:
@@ -1121,6 +1156,8 @@ class ImageManipulator:
             self.imageReference = self.imageOut
         else:
             self.imageReference = self.imageIn
+        # Resets the value of self.referenceStarting for future use
+        self.referenceStarting = True
         self.outputImageReady = True
         self.currentImageIndex += 1
         return 0
