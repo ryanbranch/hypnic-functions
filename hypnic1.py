@@ -47,9 +47,9 @@ ENABLE_GUI = False
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
 MANIPULATE_IMAGE = True
 # Path to the image used as program input
-INPUT_IMG = "cat input (4).png"
+INPUT_IMG = "input.jpg"
 # Path at which the resulting image will be saved
-OUTPUT_IMG = "output\\catOut4PNGv1"
+OUTPUT_IMG = "output\\output"
 OUTPUT_IMG_EXTENSION = ".jpg"
 # Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
 RANDOMIZE_MANIPULATION_POSITIONS = False
@@ -755,6 +755,8 @@ class ImageManipulator:
     # Treats colors as points on a 3D coordinate grid (r/g/b ~ x/y/z) and outputs the color
     #   which is least distant from the input color
     # TODO: Write a similar function but for distance within HSV space (polar coordinates with Z axis, H is theta)
+    # TODO: Improve efficiency by treating color list sometimes as a cube and narrowing the search space to at most
+    #   somewhere between 8 and 27 values
     def limitColorsByMatchRGB(self, rgbIn):
         if not self.colorList:
             exit(491)
@@ -1029,33 +1031,29 @@ class ImageManipulator:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.modValueMultiple(rgbResult, 0.9)
-        elif manip_index == 2:
-            if self.numTotalManipulations == -1:
-                numManips += 1
-            else:
                 if not self.colorList:
-                    self.colorList = self.colorListCubeRGB(5, 16, 239)
+                    print("Generating color cube!")
+                    self.colorList = self.colorListCubeRGB(4, 16, 239)
                     self.generateColorListHSV()
                     #self.rgbShiftColorList(80, 200, 0, 40, 40, 120, True)
                     #self.hsvShiftColorList(240, 340, 0, 0, -0.1, 0.1, False)
                 #print(self.colorList)
                 rgbResult = self.limitColorsByMatchRGB(rgbResult)
+        elif manip_index == 2:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.setToMostFrequentNeighbor(3)
         elif manip_index == 3:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToMostFrequentNeighbor(4)
+                rgbResult = self.setToAverageOfNeighbors(2)
         elif manip_index == 4:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToAverageOfNeighbors(4)
-        elif manip_index == 5:
-            if self.numTotalManipulations == -1:
-                numManips += 1
-            else:
-                rgbResult = self.setToMostFrequentNeighbor(4, False)
+                rgbResult = self.setToMostFrequentNeighbor(2, False)
         # Ends the current round of manipulation when the highest valid manip_index value have been exceeded
         else:
             if self.numTotalManipulations == -1:
@@ -1073,6 +1071,7 @@ class ImageManipulator:
     # Calls self.rgbFunc() for each pixel.
     # Also supports defining a random rectangle of pixels, redefined for each call of self.rgbFunc(), as opposed to
     #     applying self.rgbFunc to every pixel in the entire image.
+    # TODO: Display a percent completion bar during the manipulation loop
     def manipulate(self):
         num = 1
         while self.numTotalManipulations == -1:
@@ -1087,6 +1086,8 @@ class ImageManipulator:
                 self.manipulationsList.append(elt)
                 sourceManipulationsList.remove(elt)
                 num -= 1
+        numRows = self.yRes
+        rowsPerPercent = numRows / 100.0
         for n in range(NUM_ROUNDS_OF_MANIPULATION):
             if (n > 0) and (not MANIPULATE_PREVIOUS_OUTPUT):
                 print("WARNING: There is no reason to run multiple rounds of manipulation when " +
@@ -1138,6 +1139,9 @@ class ImageManipulator:
                         else:
                             self.pixelsOut[self.currentX, self.currentY] = result
                             render = True
+                    # print(y)
+                    if y % rowsPerPercent < 1:
+                        print("Manipulation " + str(m) + " progress:  " + str(round(y / rowsPerPercent)) + " PERCENT")
                 # Increments the manipulation index, and clears the value of self.colorList for future use
                 m += 1
                 self.colorList = []
