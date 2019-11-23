@@ -47,10 +47,10 @@ ENABLE_GUI = False
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
 MANIPULATE_IMAGE = True
 # Path to the image used as program input
-INPUT_IMG = "input.jpg"
+INPUT_IMG = "input-g-9.png"
 # Path at which the resulting image will be saved
-OUTPUT_IMG = "output\\output"
-OUTPUT_IMG_EXTENSION = ".jpg"
+OUTPUT_IMG = "output\\output-g-9"
+OUTPUT_IMG_EXTENSION = ".png"
 # Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
 RANDOMIZE_MANIPULATION_POSITIONS = False
 # If randomizing manipulation positions, defines the minimum and maximum boundary positions for a manipulation area
@@ -1027,6 +1027,8 @@ class ImageManipulator:
             rgbResult = self.pixelsOut[self.currentX, self.currentY]
         # Manipulates a pixel based on the value of manip_index
         # Also us to determine how many consecutive manipulation indices are present
+
+        """
         if manip_index == 1:
             if self.numTotalManipulations == -1:
                 numManips += 1
@@ -1039,6 +1041,13 @@ class ImageManipulator:
                     #self.hsvShiftColorList(240, 340, 0, 0, -0.1, 0.1, False)
                 #print(self.colorList)
                 rgbResult = self.limitColorsByMatchRGB(rgbResult)
+        """
+
+        if manip_index == 1:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.setToAverageOfNeighbors(2)
         elif manip_index == 2:
             if self.numTotalManipulations == -1:
                 numManips += 1
@@ -1053,7 +1062,7 @@ class ImageManipulator:
             if self.numTotalManipulations == -1:
                 numManips += 1
             else:
-                rgbResult = self.setToMostFrequentNeighbor(2, False)
+                rgbResult = self.setToMostFrequentNeighbor(2)
         # Ends the current round of manipulation when the highest valid manip_index value have been exceeded
         else:
             if self.numTotalManipulations == -1:
@@ -1140,8 +1149,10 @@ class ImageManipulator:
                             self.pixelsOut[self.currentX, self.currentY] = result
                             render = True
                     # print(y)
-                    if y % rowsPerPercent < 1:
-                        print("Manipulation " + str(m) + " progress:  " + str(round(y / rowsPerPercent)) + " PERCENT")
+                    # Only print manipulation progress before self.manipulationComplete is true
+                    if not self.manipulationComplete:
+                        if y % rowsPerPercent < 1:
+                            print("Manipulation " + str(m) + " progress:  " + str(round(y / rowsPerPercent)) + " PERCENT")
                 # Increments the manipulation index, and clears the value of self.colorList for future use
                 m += 1
                 self.colorList = []
