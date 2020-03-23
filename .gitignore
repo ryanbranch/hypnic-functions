@@ -3,6 +3,7 @@
 venv/
 
 # Specific to hypnic-functions
+hypnic2.py
 uncategorized-results.py
 source-images/
 *.jpg

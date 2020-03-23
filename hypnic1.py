@@ -47,10 +47,10 @@ ENABLE_GUI = False
 # Can be disabled, for example, in situations when non-manipulation functionality is being tested
 MANIPULATE_IMAGE = True
 # Path to the image used as program input
-INPUT_IMG = "input-g-9.png"
+INPUT_IMG = "lean1in.jpg"
 # Path at which the resulting image will be saved
-OUTPUT_IMG = "output\\output-g-9"
-OUTPUT_IMG_EXTENSION = ".png"
+OUTPUT_IMG = "output\\outputLEAN1"
+OUTPUT_IMG_EXTENSION = ".jpg"
 # Whether every manipulation pass should cover a random range of the image (as opposed to the entire frame)
 RANDOMIZE_MANIPULATION_POSITIONS = False
 # If randomizing manipulation positions, defines the minimum and maximum boundary positions for a manipulation area
@@ -83,11 +83,11 @@ RANDOM_MANIPULATION_ORDER = False
 # VIDEO RENDERING FUNCTIONALITY HAS NOT YET BEEN COMPLETED
 
 # Whether or not to generate an animated GIF from all rendered images
-CREATE_GIF = False
+CREATE_GIF = True
 # Whether or not to generate a video from all rendered images
 CREATE_VIDEO = False
 # Path at which the resulting animated GIF will be saved, if CREATE_GIF = True
-GIF_PATH = "output\\output.gif"
+GIF_PATH = "output\\outputLEAN1.gif"
 # Path at which the resulting video will be saved, if CREATE_VIDEO = True
 VIDEO_PATH = "output\\video2.avi"
 # The number of seconds for which each frame of the GIF will be displayed
@@ -107,7 +107,7 @@ VIDEO_FRAMES_PER_IMAGE_FORWARD = 1
 # Effectively lengthens the time for which each frame is visible in the reverse progression of the animated GIF
 VIDEO_FRAMES_PER_IMAGE_REVERSE = 1
 # The total number of frames to use in a input-to-final-output transition GIF (for example, GIF_MODE values 1/2/3)
-ANIMATION_NUM_TRANSITION_FRAMES = 5
+ANIMATION_NUM_TRANSITION_FRAMES = 20
 
 
 # tkinter instance for GUI display and user interaction related to manipulation of images
@@ -1063,6 +1063,43 @@ class ImageManipulator:
                 numManips += 1
             else:
                 rgbResult = self.setToMostFrequentNeighbor(2)
+        elif manip_index == 5:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modSaturationShift(rgbResult, -0.3)
+        elif manip_index == 6:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.setToAverageOfNeighbors(4)
+        elif manip_index == 7:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.setToMostFrequentNeighbor(4)
+        elif manip_index == 8:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = (self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 19, 0, 32, 1),
+                             self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 39, 0, 32, 1),
+                             self.calcFromCustomDomainRGB(rgbResult[2], 127, 128, 29, 0, 32, 1))
+        elif manip_index == 9:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.modHueShift(rgbResult, ((self.currentX + 1) % (self.currentY + 1)) % 360)
+        elif manip_index == 10:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.setToAverageOfNeighbors(4)
+        elif manip_index == 10:
+            if self.numTotalManipulations == -1:
+                numManips += 1
+            else:
+                rgbResult = self.setToMostFrequentNeighbor(4)
         # Ends the current round of manipulation when the highest valid manip_index value have been exceeded
         else:
             if self.numTotalManipulations == -1:
