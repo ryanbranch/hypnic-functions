@@ -3,13 +3,16 @@
 venv/
 
 # Specific to hypnic-functions
-hypnic2.py
-uncategorized-results.py
 source-images/
+media/
+hypnic2.py
+hypnic3.py
+uncategorized-results.py
 *.jpg
 *.png
 *.bmp
 *.gif
+*.xcf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
