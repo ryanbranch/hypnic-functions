@@ -6,7 +6,12 @@ from tkinter import *
 from PIL import Image, ImageTk
 import PIL
 import imageio
+# VIDEO FUNCTIONALITY PLANNED FOR FUTURE
 #import cv2
+# THREADING FUNCTIONALITY PLANNED FOR FUTURE (https://pythonprogramming.net/threading-tutorial-python/)
+#import threading
+#from queue import Queue
+#import time
 
 """
 _________________________________________________

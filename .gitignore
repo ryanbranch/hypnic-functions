@@ -5,6 +5,7 @@ venv/
 # Specific to hypnic-functions
 source-images/
 media/
+hypnic2/
 hypnic2.py
 hypnic3.py
 uncategorized-results.py
