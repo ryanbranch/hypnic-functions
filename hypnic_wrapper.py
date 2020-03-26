@@ -11,4 +11,7 @@ def main():
     app = HypnicWrapper()
     app.gui.mainloop()
 
+    # Post-run operations (garbage collection, etc.)
+    del app.gui.img
+
 main()

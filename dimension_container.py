@@ -32,6 +32,7 @@ class DimensionContainer():
         self.imagesFramePadX = self.defaultInternalPadding
         self.imagesFramePadY = self.defaultInternalPadding
         self.imagesFrameHeight = self.mainContentHeight - self.mainContentPadY
+        # the Images Frame is a square by design, so its width is initialized as its height
         self.imagesFrameWidth = self.imagesFrameHeight
 
         self.imageFramePadX = self.defaultInternalPadding
