@@ -6,8 +6,15 @@ venv/
 source-images/
 media/
 hypnic2/
+hypnic3/
+hypnic4/
+hypnic5/
+hypnic6/
 hypnic2.py
 hypnic3.py
+hypnic4.py
+hypnic5.py
+hypnic6.py
 uncategorized-results.py
 *.jpg
 *.png
