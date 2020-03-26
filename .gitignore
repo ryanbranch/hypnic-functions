@@ -5,11 +5,13 @@ venv/
 # Specific to hypnic-functions
 source-images/
 media/
+sandbox/
 hypnic2/
 hypnic3/
 hypnic4/
 hypnic5/
 hypnic6/
+sandbox.py
 hypnic2.py
 hypnic3.py
 hypnic4.py

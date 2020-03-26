@@ -9,8 +9,11 @@ from tkinter import CENTER, ttk
 import dimension_container
 import image_container
 
+# G L O B A L   V A R I A B L E S
+# Path to the text document which lists the paths to all input images
 # TODO: Remove this global and define it from user input at runtime
 INPUT_IMAGE_PATHS_FILE = "hypnic_images.txt"
+
 
 class HypnicGUI(tkinter.Tk):
 
@@ -125,10 +128,10 @@ class HypnicGUI(tkinter.Tk):
 
     # Fills the previously-defined GUI with label elements
     def fillGrid(self):
-        self.imageLabelTL = tkinter.ttk.Label(self.imageFrameTL, image=self.img.tkImage1)
-        self.imageLabelTR = tkinter.ttk.Label(self.imageFrameTR, image=self.img.tkImage2)
-        self.imageLabelBL = tkinter.ttk.Label(self.imageFrameBL, image=self.img.tkImage3)
-        self.imageLabelBR = tkinter.ttk.Label(self.imageFrameBR, image=self.img.tkImage4)
+        self.imageLabelTL = tkinter.ttk.Label(self.imageFrameTL, image=self.img.tkImages[0])
+        self.imageLabelTR = tkinter.ttk.Label(self.imageFrameTR, image=self.img.tkImages[1])
+        self.imageLabelBL = tkinter.ttk.Label(self.imageFrameBL, image=self.img.tkImages[2])
+        self.imageLabelBR = tkinter.ttk.Label(self.imageFrameBR, image=self.img.tkImages[3])
         self.imageLabelTL.place(relx=0.5, rely=0.5, anchor=CENTER)
         self.imageLabelTR.place(relx=0.5, rely=0.5, anchor=CENTER)
         self.imageLabelBL.place(relx=0.5, rely=0.5, anchor=CENTER)
@@ -136,5 +139,5 @@ class HypnicGUI(tkinter.Tk):
 
     # Sets the necessary style parameters for each ttk-specific widget
     def styleWidgets(self):
-        print(1)
+        print("PLACEHOLDER FOR CONTENT WITHIN THE HypnicGUI.styleWidgets() function")
 
