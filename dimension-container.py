@@ -1,5 +1,7 @@
 import math
 
+__name__ = "dimension_container"
+
 class DimensionContainer():
 
     def __init__(self):
