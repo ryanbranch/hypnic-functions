@@ -1,6 +1,6 @@
-import math
-
 __name__ = "dimension_container"
+
+import math
 
 class DimensionContainer():
 
@@ -38,7 +38,6 @@ class DimensionContainer():
         self.imageFramePadY = self.defaultInternalPadding
         self.imageFrameWidth = math.floor((self.imagesFrameWidth - self.imagesFramePadX) / 2)
         self.imageFrameHeight = math.floor((self.imagesFrameHeight - self.imagesFramePadY) / 2)
-        self.print(self.imagesFrameWidth, self.imagesFrameHeight, self.imageFrameWidth, self.imageFrameHeight)
 
         self.controlFramePadX = self.defaultInternalPadding
         self.controlFramePadY = self.defaultInternalPadding
