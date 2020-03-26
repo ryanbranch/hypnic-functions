@@ -1,3 +1,13 @@
+# TODO:
+#  A. Shift responsibility for window dimension definition to hypnic_launcher.py
+#  B. Change dimensions to be less static and more scalable
+#    1. Some things still need to remain static, but overall want to write the GUI to support all standard resolutions
+#      a. In the future may need to do more advanced stuff with resolution detection
+#    2. For now it should suffice to design a layout which fulfills the following requirements:
+#      a. Functions at all widths between 33% and 100% of 1920px
+#      b. Functions at all heights between 50% and 100% of 1080px
+#      c. Functions at all aspect ratios between 4:3 and 16:9
+
 __name__ = "dimension_container"
 
 import math
@@ -5,6 +15,7 @@ import math
 class DimensionContainer():
 
     def __init__(self):
+
         self.defaultInternalPadding = 0
         self.defaultExternalPadding = 0
 
@@ -27,7 +38,8 @@ class DimensionContainer():
 
         self.mainContentPadX = self.defaultInternalPadding
         self.mainContentPadY = self.defaultInternalPadding
-        self.mainContentHeight = self.windowHeight - self.windowPadY - self.topToolbarHeight - self.bottomToolbarHeight - self.bottomInfobarHeight
+        self.mainContentHeight = self.windowHeight - self.windowPadY -\
+                                 self.topToolbarHeight - self.bottomToolbarHeight - self.bottomInfobarHeight
 
         self.imagesFramePadX = self.defaultInternalPadding
         self.imagesFramePadY = self.defaultInternalPadding

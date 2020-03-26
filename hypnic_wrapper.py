@@ -1,3 +1,6 @@
+# TODO:
+#  A. Placeholder
+
 __name__ = "hypnic_wrapper"
 
 import hypnic_gui
