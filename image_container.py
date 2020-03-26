@@ -29,17 +29,6 @@ class ImageContainer():
 
         self.getImages()
 
-        # NOTE: The code below comes from before input image files were specified within a text document
-        # I'm leaving part of the code as a reference for now, and will remove it later when I know it's not needed
-        """
-        self.pathToImage1 = "media/image1.jpg"
-        self.pathToImage2 = "media/image2.jpg"
-        self.pilImage1 = PIL.Image.open(self.pathToImage1)
-        self.pilImage2 = PIL.Image.open(self.pathToImage2)
-        self.tkImage1 = PIL.ImageTk.PhotoImage(image=self.pilImage1)
-        self.tkImage2 = PIL.ImageTk.PhotoImage(image=self.pilImage2)
-        """
-
     # Returns true if char is a "/" or "\" character
     def isSlash(self, char):
         if (char == "/") or (char == "\\"):
@@ -77,60 +66,6 @@ class ImageContainer():
             #       can allow users to specify input images at runtime
             exit(333)
 
-        # NOTE: Saving this code for later, just in case
-        # This large block of code is left over from an attempt to do a more in-depth parsing of the text document
-        # It became too complicated and I deemed it unnecessary but I'm including this commit so that the work is saved
-        #   for future use. Will remove immediately in the following commit.
-        """
-        # Iterates through each file path defined within self.imagesTxtPath
-        for path in paths:
-            # Prepends a forward-slash character in order to ensure that Path objects initialize properly
-            print(path)
-            print(20)
-            path.insert(0, "/")
-            print(path)
-            print(100)
-            self.inputPaths.append(path)
-            print(100)
-            print(self.inputPaths)
-
-        print(paths)
-        pathString = f.read()
-        print(pathString)
-        # Iterates through f line-by-line until either the file ends or a blank line is reached
-        while pathString != "":
-            pathEdit = pathString
-            # Post-processing on pathString to ensure that it parses folders correctly
-            # Specifically, if pathString contains a "/" or "\" character then the path itself contains a folder
-            #   and as a result, a "/" character must be present in position 0 of the string
-            # Finds the indices, within pathstring, of the first "/" and "\" characters
-            firstForward = pathEdit.find("/")
-            print(5)
-            firstBack = pathEdit.find("\\")
-            print(6)
-            # If both calls return -1, then the path can be assumed to not contain any folder names
-            #   and so pathString does not need to be modified before the append operation
-            # But if either is non-negative, then there is a slash present somewhere
-            if (firstForward != -1) or (firstBack != -1):
-                print(7)
-                firstSlash = min(firstForward, firstBack)
-                print(8)
-                # If the first "/" or "\" character appears at index 0, then the path is already valid
-                # If not, we simply insert a "/" character at index 0
-                if firstSlash != 0:
-                    print(9)
-                    print(pathEdit)
-                    pathEdit.insert(0,"/")
-                    print(11)
-            # Appends the resulting string to self.inputPaths
-            print(10)
-            self.inputPaths.append(pathEdit)
-            print(pathEdit)
-            print(pathString)
-            # Grabs a new line for the next iteration
-            pathString = f.read()
-        """
-
         # Triggers if the file has been closed and no images were obtained
         # Not inherently a catastrophic error, but should raise red flags to the user
         if not self.inputPaths:
@@ -142,6 +77,7 @@ class ImageContainer():
             print("Relevant function:                              ImageContainer.getImages()")
             print("Value of ImageContainer.imagesTxtPath variable: " + str(self.imagesTxtPath))
             print()
+
         # Otherwise, can proceed normally and populate the relevant lists
         else:
             # Iterates through all file paths identified from the image path definition text document
@@ -173,13 +109,6 @@ class ImageContainer():
     # Destructor for ImageContainer, called upon deletion
     def __del__(self):
 
-        # NOTE: The code below comes from before input image files were specified within a text document
-        # I'm leaving part of the code as a reference for now, and will remove it later when I know it's not needed
-        """
-        self.pilImage1.close()
-        self.pilImage2.close()
-        """
-
         # For each PIL Image: Closes the file pointer, destroys the image core and releases its memory
         for p in self.pilImages:
             # Attempts to close
@@ -195,5 +124,6 @@ class ImageContainer():
                 print("Relevant function:                              ImageContainer.__del__(self)")
                 print("Relevant ImageContainer.pilImages value:        " + str(p))
                 print()
+
         # Console output for user
         print("All PIL images have been released from memory.")
