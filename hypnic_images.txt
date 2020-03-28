@@ -1,4 +1,4 @@
-media/image5.jpg
+media/image2.jpg
+media/image4.jpg
 media/image6.jpg
-media/imdage7.jpg
 media/image8.jpg

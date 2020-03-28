@@ -10,6 +10,8 @@
 #      c. Could also include a check box for [en/dis]abling a dialog which asks, individually, for each file saved
 #   B. Launcher should be imported to and called from hypnic_wrapper.py
 
+__name__ = "hypnic_launcher"
+
 def main():
     print()
 

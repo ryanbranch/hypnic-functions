@@ -3,6 +3,7 @@
 
 __name__ = "hypnic_wrapper"
 
+# Local Inputs
 import hypnic_gui
 
 class HypnicWrapper():

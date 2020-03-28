@@ -4,11 +4,10 @@
 
 __name__ = "image_container"
 
+# Library Inputs
 import PIL
 from PIL import Image, ImageTk
-import os
 from pathlib import Path
-import copy
 
 # G L O B A L   V A R I A B L E S
 # Path to an image which is used by default when a desired image fails to load
@@ -21,20 +20,16 @@ class ImageContainer():
         self.imagesTxtPath = imagesTxtPath_
         self.inputPaths = []
         # Array of booleans where a value of True denotes that the associated string within self.inputPaths is invalid
-    #   # For the same indices at which self.missingFiles contains a value of True, the corresponding element within
+        # For the same indices at which self.missingFiles contains a value of True, the corresponding element within
         #   associated lists (e.g. self.pilImages and self.tkImages) are based on the standby image (STANDBY_IMAGE_PATH)
         self.missingFiles = []
+        # Array of PIL Image objects directly corresponding to the path strings in self.inputPaths
         self.pilImages = []
+        # Array of PIL Tkinter PhotoImage objects directly corresponding to the path strings in self.inputPaths
         self.tkImages = []
 
         self.getImages()
 
-    # Returns true if char is a "/" or "\" character
-    def isSlash(self, char):
-        if (char == "/") or (char == "\\"):
-            return True
-        else:
-            return False
 
     # Builds the relevant lists of image objects and related data, based on a text file
     # Text file is defined by INPUT_IMAGE_PATHS_FILE, a global variable in hypnic_gui.py

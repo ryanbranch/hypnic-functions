@@ -10,49 +10,54 @@
 
 __name__ = "dimension_container"
 
+# Library Inputs
 import math
 
 class DimensionContainer():
 
     def __init__(self):
 
-        self.defaultInternalPadding = 0
-        self.defaultExternalPadding = 0
+        # used by the GUI's StyleContainer instance, so these dimensions must be defined beforehand
+        self.internalPaddingButton = 0
+        self.externalPaddingButton = 0
 
-        self.windowPadX = self.defaultInternalPadding
-        self.windowPadY = self.defaultInternalPadding
+        self.defaultInternalPaddingGrid = 0
+        self.defaultExternalPaddingGrid = 0
+
+        self.windowPadX = self.defaultInternalPaddingGrid
+        self.windowPadY = self.defaultInternalPaddingGrid
         self.windowWidth = 1800
-        self.windowHeight = 1010
+        self.windowHeight = 1000
 
-        self.topToolbarPadX = self.defaultInternalPadding
-        self.topToolbarPadY = self.defaultInternalPadding
+        self.topToolbarPadX = self.defaultInternalPaddingGrid
+        self.topToolbarPadY = self.defaultInternalPaddingGrid
         self.topToolbarHeight = 60
 
-        self.bottomToolbarPadX = self.defaultInternalPadding
-        self.bottomToolbarPadY = self.defaultInternalPadding
+        self.bottomToolbarPadX = self.defaultInternalPaddingGrid
+        self.bottomToolbarPadY = self.defaultInternalPaddingGrid
         self.bottomToolbarHeight = 60
 
-        self.bottomInfobarPadX = self.defaultInternalPadding
-        self.bottomInfobarPadY = self.defaultInternalPadding
+        self.bottomInfobarPadX = self.defaultInternalPaddingGrid
+        self.bottomInfobarPadY = self.defaultInternalPaddingGrid
         self.bottomInfobarHeight = 30
 
-        self.mainContentPadX = self.defaultInternalPadding
-        self.mainContentPadY = self.defaultInternalPadding
+        self.mainContentPadX = self.defaultInternalPaddingGrid
+        self.mainContentPadY = self.defaultInternalPaddingGrid
         self.mainContentHeight = self.windowHeight - self.windowPadY -\
                                  self.topToolbarHeight - self.bottomToolbarHeight - self.bottomInfobarHeight
 
-        self.imagesFramePadX = self.defaultInternalPadding
-        self.imagesFramePadY = self.defaultInternalPadding
+        self.imagesFramePadX = self.defaultInternalPaddingGrid
+        self.imagesFramePadY = self.defaultInternalPaddingGrid
         self.imagesFrameHeight = self.mainContentHeight - self.mainContentPadY
         # the Images Frame is a square by design, so its width is initialized as its height
         self.imagesFrameWidth = self.imagesFrameHeight
 
-        self.imageFramePadX = self.defaultInternalPadding
-        self.imageFramePadY = self.defaultInternalPadding
+        self.imageFramePadX = self.defaultInternalPaddingGrid
+        self.imageFramePadY = self.defaultInternalPaddingGrid
         self.imageFrameWidth = math.floor((self.imagesFrameWidth - self.imagesFramePadX) / 2)
         self.imageFrameHeight = math.floor((self.imagesFrameHeight - self.imagesFramePadY) / 2)
 
-        self.controlFramePadX = self.defaultInternalPadding
-        self.controlFramePadY = self.defaultInternalPadding
+        self.controlFramePadX = self.defaultInternalPaddingGrid
+        self.controlFramePadY = self.defaultInternalPaddingGrid
         self.controlFrameWidth = self.windowWidth - self.windowPadX - self.imagesFrameWidth
         self.controlFrameHeight = self.imagesFrameHeight
