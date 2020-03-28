@@ -26,6 +26,10 @@ class HypnicGUI(tkinter.Tk):
 
     def __init__(self, wrapper_, *args, **kwargs):
 
+        # self.wrapper should ALWAYS reference "app" from within hypnic_wrapper.py's main() function
+        # a new HypnicWrapper instance should never be defined
+        self.wrapper = wrapper_
+
         # Begins by running the initialization function for the basic instance of tkinter.Tk
         tkinter.Tk.__init__(self, *args, **kwargs)
 
@@ -38,9 +42,7 @@ class HypnicGUI(tkinter.Tk):
         # TODO: Replace INPUT_IMAGE_PATHS_FILE with runtime user input, the entire reason it's passed in by the GUI
         self.img = image_container.ImageContainer(INPUT_IMAGE_PATHS_FILE)
 
-        # self.wrapper should ALWAYS reference app from within hypnic_wrapper.py's main() function
-        # a new HypnicWrapper instance should never be defined
-        self.wrapper = wrapper_
+
 
         self.iconbitmap(default='media/hficon.ico')
         self.wm_title("hypnic-functions GUI Client")
@@ -81,6 +83,11 @@ class HypnicGUI(tkinter.Tk):
         self.imageFrameBR = tkinter.Frame(self.imagesFrame, bg='yellow', width=self.styles.dims.imageFrameWidth,
                                           height=self.styles.dims.imageFrameHeight)
         """
+
+        # TODO: Remove once tke ttk Style instance is fully stored within the StyleContainer instance
+        #self.styles.ttkStyles.configure("TFrame", background="#555")
+        #self.styles.ttkStyles.configure("TLabelFrame", background="#ccc")
+        #self.styles.ttkStyles.configure("TLabel", background="#ccc")
 
         # Defines the main 4 containers: Top Toolbar, Main Content, Bottom Toolbar, and Bottom Infobar
         self.topToolbar = tkinter.ttk.Frame(self, height=self.styles.dims.topToolbarHeight)

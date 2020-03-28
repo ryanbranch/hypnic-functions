@@ -18,25 +18,32 @@ class StyleContainer():
 
     def __init__(self):
 
-        # This function accesses hypnic_gui's DimensionContainer object instance, "dims",
+        # This function holds the DimensionContainer object instance, "dims",
         # in order to access things like padding specification variables
-        dimsRef_ = 0
-        self.dimsRef = dimsRef_
-
         self.dims = dimension_container.DimensionContainer()
-
+        # This function also
         self.ttkStyles = ttk.Style()
 
+        self.ttkStyleConfig()
+
     def ttkStyleConfig(self):
-        # This if/else is just a placeholder until I actually implement style configuration
-        if True:
-            print()
-        else:
-            # DEFAULT STYLES
-            # TButton represents the default ttk Button (the class name for ttk::button is TButton)
 
-            self.ttkStyles.configure("TButton", padding=self.dimsRef.internalPaddingButton)
+        # DEFAULT STYLES
+        # TButton represents the default ttk Button (the class name for ttk::button is TButton)
+        self.ttkStyles.configure("TButton",
+                                 padding=self.dims.internalPaddingButton,
+                                 relief="flat",
+                                 background="#555")
 
-            # SPECIFIC STYLES
+        self.ttkStyles.configure("TFrame",
+                                    background="#115")
+        self.ttkStyles.configure("TLabelFrame",
+                                    background="#ccc")
+        self.ttkStyles.configure("TLabel",
+                                    background="#ccc")
 
-            self.ttkStyles.map()
+        # SPECIFIC STYLES
+        # C.TButton represents a colored ttk Button
+        self.ttkStyles.map("C.TButton",
+                           foreground=[('pressed', 'red'), ('active', 'blue')],
+                           background=[('pressed', '!disabled', 'black'), ('active', 'white')])

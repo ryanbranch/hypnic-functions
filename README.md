@@ -37,3 +37,4 @@ I'm also thankful to the following specific resources which were referenced sign
 
 * [This document](http://coecsl.ece.illinois.edu/ge423/spring05/group8/finalproject/hsv_writeup.pdf) from The University of Illinois College of Engineering's GE 423 course, circa 2005
 * RapidTables' [tool](https://www.rapidtables.com/convert/color/hsv-to-rgb.html) for HSV-to-RGB conversion
+* The [kite.com](https://kite.com/python/docs/) Python documentation search
