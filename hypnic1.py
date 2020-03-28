@@ -1327,7 +1327,7 @@ class ImageManipulator:
                 # Before beginning manipulation, prints the beginning of a "percentage completion console output" line
                 # This is ignored if m is greater than self.numTotalManipulations
                 if m <= self.numTotalManipulations:
-                    print("M" + str(m) + " PROGRESS: ")
+                    print("M" + str(m) + " PROGRESS: ", end="")
                 # Loops through every pixel in the image (row by row from top left to bottom right) and manipulates
                 for y in range(min(y_bound_1, y_bound_2), max(y_bound_1, y_bound_2)):
 
@@ -1372,7 +1372,7 @@ class ImageManipulator:
         self.outputImagePath = Path(OUTPUT_IMG + "_" + str(self.currentImageIndex) + OUTPUT_IMG_EXTENSION)
         self.outputFileList.append(self.outputImagePath)
         self.imageOut.save(self.outputImagePath)
-        print("Output image " + str(self.currentImageIndex) + " rendered and saved.")
+        print("IMAGE " + str(self.currentImageIndex) + " rendered and saved.")
 
         if MANIPULATE_PREVIOUS_OUTPUT:
             self.imageReference = self.imageOut
