@@ -16,6 +16,7 @@ __name__ = "dimension_container"
 
 # Library Inputs
 import math
+from tkinter import CENTER
 
 class DimensionContainer():
 
@@ -31,6 +32,12 @@ class DimensionContainer():
         self.externalPaddingButton = 0 # FLAG: Hard-coded GUI parameter!
         self.defaultInternalPaddingGrid = 0 # FLAG: Hard-coded GUI parameter!
         self.defaultExternalPaddingGrid = 0 # FLAG: Hard-coded GUI parameter!
+
+        # Defaults related to the place() method of ttk Label objects
+        # Because the grid() method is used heavily, everything should be centered unless otherwise specified
+        self.defaultPlaceRelX = 0.5
+        self.defaultPlaceRelY = 0.5
+        self.defaultPlaceAnchor = CENTER
 
         # WINDOW AS A WHOLE
         self.windowPadX = self.defaultInternalPaddingGrid
