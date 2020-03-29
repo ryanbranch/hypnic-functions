@@ -39,12 +39,14 @@ class StyleContainer():
         self.frameStyles = []
         # A list of strings which specifically refer to ttk Label-related styles
         self.labelStyles = []
-        # A list of strings which specifically refer to styles for ttk IMAGE Labels
+        # A list of strings which specifically refer to styles for ttk Labels with an associated image
         self.imageLabelStyles = []
-        # A list of strings which specifically refer to styles for ttk BUTTON Labels
+        # A list of strings which specifically refer to styles for ttk BUTTON widgets
         self.buttonWidgetStyles = []
-        # A list of strings which specifically refer to styles for ttk TEXT Labels
+        # A list of strings which specifically refer to styles for ttk Labels with associated text
         self.textLabelStyles = []
+        # A list of strings which specifically refer to styles for ttk Labels with associated textvariable values
+        self.textvariableLabelStyles = []
         # A list of strings which specifically refer to styles for the ttk INPUT-RELATED Label styles
         # NOTE: This *CAN* include styles for things like Button Label objects,
         #       despite the fact that Button styles have their own wider-scoped list
@@ -99,8 +101,6 @@ class StyleContainer():
     #  tracking the length in a member variable. As long as I only call len() once per function below I'm not too
     #  concerned about it, however in the future it would be good to change how I'm handling this
 
-    #frame, label, buttonlabel, imagelabel, inputlabel
-
     # Returns a random element from self.styles
     def getRandomStyle(self):
         return self.styles[random.randrange(0, len(self.styles))]
@@ -118,10 +118,18 @@ class StyleContainer():
         return self.buttonWidgetStyles[random.randrange(0, len(self.buttonWidgetStyles))]
 
     # Returns a random element from self.imageLabelStyles
-    def getRandomButtonWidgetStyle(self):
+    def getRandomImageLabelStyle(self):
         return self.imageLabelStyles[random.randrange(0, len(self.imageLabelStyles))]
 
-    # Returns a random element from self.buttonWidgetStyles
-    def getRandomButtonWidgetStyle(self):
+    # Returns a random element from self.textLabelStyles
+    def getRandomTextLabelStyle(self):
+        return self.textLabelStyles[random.randrange(0, len(self.textLabelStyles))]
+
+    # Returns a random element from self.taxtvariableLabelStyles
+    def getRandomTextvariableLabelStyle(self):
+        return self.textvariableLabelStyles[random.randrange(0, len(self.textvariableLabelStyles))]
+
+    # Returns a random element from self.inputWidgetStyles
+    def getRandomInputWidgetStyle(self):
         return self.inputWidgetStyles[random.randrange(0, len(self.inputWidgetStyles))]
 

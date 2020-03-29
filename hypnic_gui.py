@@ -4,10 +4,18 @@
 #  C. Keys should be strings like "topToolbar", "imageFrameTR", etc.
 #    1. Don't have to write code to support SOLELY managing the objects via list operations
 #    2. But should still support it for keeping code clean and for using list operations WHERE REASONABLE.
-#  D. Consider creating a new widget_container.py file
+#  D. Consider creating a new widget_container.py file (or some other name with similar meaning)
 #    1. Not immediately necessary, but the GUI is gonna become more and more complicated so it may make more sense
 #       to handle initialization-related aspects of the program within a class
 #    2. A WidgetContainer object would likely hold the StyleContainer instance (which itself holds a DimensionContainer)
+#    3. It's REALLY not great practice that I'm initializing member variables like frames outside of __init__()
+#      a. Would be better to, at that point within defineGrid(), initialize a WidgetContainer() instance which holds
+#         those widgets as member variables AND defines them within its __init__ function
+#  E. If clearing IS important, consider using
+#             del tempList[:]
+#         But don't jump to conclusions on doing so
+#    1. Don't want to accidentally call any destructors for ttk objects and such,
+#       since many will be referenced by two or more lists
 
 __name__ = "hypnic_gui"
 
@@ -92,32 +100,65 @@ class HypnicGUI(tkinter.Tk):
     # Defines the GUI layout using tkinter's grid() and Frame() modules
     def defineGrid(self):
 
+        # tempList is a temporary list used to store elements which will be appended to member variable lists which
+        #   contain relevant ttk objects such as self.frames, self.widgets, etc.
+        # This is being done as a best practice for code readability as things can get ugly when dealing with appends
+        #   to more than just one of the member variable lists
+        tempList = []
+
         # Defines the main 4 containers: Top Toolbar, Main Content, Bottom Toolbar, and Bottom Infobar
         self.topToolbar = tkinter.ttk.Frame(self, height=self.scObj.dims.topToolbarHeight)
         self.mainContent = tkinter.ttk.Frame(self)
         self.bottomToolbar = tkinter.ttk.Frame(self, height=self.scObj.dims.bottomToolbarHeight)
         self.bottomInfobar = tkinter.ttk.Frame(self, height=self.scObj.dims.bottomInfobarHeight)
-        # Specifies that row 1 (Main Content) and column 0 (the only column) have priority for space-filling
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        # Arranges the 4 main containers
+        # Populates templist with the newly defined frames
+        tempList = [self.topToolbar, self.mainContent, self.bottomToolbar, self.bottomInfobar]
+        # Iterates through the newly-defined tempList, appending all values to the relevant widget lists
+        for e in tempList:
+            self.widgets.append(e)
+            self.frames.append(e)
+
+
+        # In this case because each element has separate values for padding, the current DimensionContainer framework
+        # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
+        # So we arrange the 4 main containers manually instead
         self.topToolbar.grid(row=0, sticky="nsew", ipadx=self.scObj.dims.topToolbarPadX, ipady=self.scObj.dims.topToolbarPadY)
         self.mainContent.grid(row=1, sticky="nsew", ipadx=self.scObj.dims.mainContentPadX, ipady=self.scObj.dims.mainContentPadY)
         self.bottomToolbar.grid(row=2, sticky="nsew", ipadx=self.scObj.dims.bottomToolbarPadX,
                                 ipady=self.scObj.dims.bottomToolbarPadY)
         self.bottomInfobar.grid(row=3, sticky="nsew", ipadx=self.scObj.dims.bottomInfobarPadX,
                                 ipady=self.scObj.dims.bottomInfobarPadY)
-        # Adds the frames to self.frames
-        self.frames.append(self.topToolbar)
-        self.frames.append(self.mainContent)
-        self.frames.append(self.bottomToolbar)
-        self.frames.append(self.bottomInfobar)
+        # NOTE: Clearing tempList just in case!
+        # TODO: See note at top of file about clearing tempList
+        tempList = []
 
 
 
-        # Defines the 2 containers within Main Content: Images Frame and Control Frame
+
+
+
+        # Defines the 3 container frames within Main Content: Images Frame, Control Frame, and Right Frame
+        # TODO: Rename Right Frame to something more meaningful
         self.imagesFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.imagesFrameWidth)
+        # NOTE: Ideally the width for controlFrame wouldn't have to be specified, since it should just span the
+        #       remaining space not filled by rightFrame and imagesFrame. However it seems to be shrinking to a width
+        #       of 0 ever since the addition of rightFrame, and for now the explicit definition of width fixes this
+        # TODO: Fix the (redundant) definition of controlFrame width, as described in the note above
+        #self.controlFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.controlFrameWidth)
         self.controlFrame = tkinter.ttk.Frame(self.mainContent)
+        self.rightFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.rightFrameWidth)
+
+        # Populates templist with the newly defined frames
+        tempList = [self.imagesFrame, self.controlFrame, self.rightFrame]
+        # Iterates through the newly-defined tempList, appending all values to the relevant widget lists
+        for e in tempList:
+            self.widgets.append(e)
+            self.frames.append(e)
+
+        # In this case because each element has separate values for padding, the current DimensionContainer framework
+        # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
+        # So we arrange each of the three column containers manually
+
         # Specifies that mainContent's row 0 (the only row) and column 1 (Control Frame) have priority for space-filling
         self.mainContent.grid_rowconfigure(0, weight=1)
         self.mainContent.grid_columnconfigure(1, weight=1)
@@ -126,10 +167,12 @@ class HypnicGUI(tkinter.Tk):
                               ipady=self.scObj.dims.imagesFramePadY)
         self.controlFrame.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.controlFramePadX,
                                ipady=self.scObj.dims.controlFramePadY)
+        self.rightFrame.grid(row=0, column=2, sticky="nsw", ipadx=self.scObj.dims.rightFramePadX,
+                             ipady=self.scObj.dims.rightFramePadY)
         # Adds the frames to self.frames
         self.frames.append(self.imagesFrame)
         self.frames.append(self.controlFrame)
-
+        self.frames.append(self.rightFrame)
 
 
         # Defines the individual image display frames within the Images Frame
@@ -187,6 +230,7 @@ class HypnicGUI(tkinter.Tk):
         self.imageLabelTR = tkinter.ttk.Label(self.imageFrameTR, image=self.img.tkImages[1])
         self.imageLabelBL = tkinter.ttk.Label(self.imageFrameBL, image=self.img.tkImages[2])
         self.imageLabelBR = tkinter.ttk.Label(self.imageFrameBR, image=self.img.tkImages[3])
+        # Populates templist with the newly defined labels
         tempList = [self.imageLabelTL, self.imageLabelTR, self.imageLabelBL, self.imageLabelBR]
         # Iterates through the newly-defined tempList, appending all values to the relevant widget lists
         # as well as carrying out the ttk.Label.place() method on each element
@@ -196,10 +240,7 @@ class HypnicGUI(tkinter.Tk):
             self.imageLabels.append(e)
             e.place(relx=0.5, rely=0.5, anchor=CENTER)
         # NOTE: Clearing tempList just in case!
-        # TODO: If clearing IS important, consider using
-        #           del tempList[:]
-        #       But don't jump to conclusions on doing so. Don't want to accidentally call any destructors for ttk
-        #       objects and such since many will be referenced by two or more lists
+        # TODO: See note at top of file about clearing tempList
         tempList = []
 
         # Old manual non-array method being stored here temporarily
@@ -217,9 +258,10 @@ class HypnicGUI(tkinter.Tk):
         # BUTTONS:
         self.buttonManipulate = tkinter.ttk.Button(self.controlFrame, text="Manipulate")
         self.buttonRevert = tkinter.ttk.Button(self.controlFrame, text="Revert")
-        self.buttonApply = tkinter.ttk.Button(self.controlFrame, text="Apply")
+        self.buttonSave = tkinter.ttk.Button(self.controlFrame, text="Save")
         self.buttonAdvance = tkinter.ttk.Button(self.controlFrame, text="Advance")
-        tempList = [self.buttonManipulate, self.buttonRevert, self.buttonApply, self.buttonAdvance]
+        # Populates templist with the newly defined buttons
+        tempList = [self.buttonManipulate, self.buttonRevert, self.buttonSave, self.buttonAdvance]
         # Iterates through the newly-defined tempList, appending all values to both self.labels and self.imageLabels
         # as well as carrying out the ttk.Label.place() method on each element
         for e in tempList:
@@ -232,14 +274,10 @@ class HypnicGUI(tkinter.Tk):
             yFac = random.randint(2,8) / 10.0
             e.place(relx=xFac, rely=yFac, anchor=CENTER)
         # NOTE: Clearing tempList just in case!
-        # TODO: If clearing IS important, consider using
-        #           del tempList[:]
-        #       But don't jump to conclusions on doing so. Don't want to accidentally call any destructors for ttk
-        #       objects and such since many will be referenced by two or more lists
+        # TODO: See note at top of file about clearing tempList
         tempList = []
 
-
-
+        # TODO: Remove the 4 lines below, they're only here for testing purposes
         self.imageLabelTL.place(relx=0.4, rely=0.4, anchor=CENTER)
         self.imageLabelTR.place(relx=0.6, rely=0.4, anchor=CENTER)
         self.imageLabelBL.place(relx=0.4, rely=0.6, anchor=CENTER)
