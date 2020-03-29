@@ -17,8 +17,8 @@ __name__ = "hypnic_helpers"
 # TODO: Really doesn't make sense to define these here... Probably best to do it within each function not only for
 #       comprehensibility but to get better results
 # The minimum value (integer from 0 to 255) for the high-value components when generating a random specific shade
-MIN_HIGH_VAL = 191
-MAX_LOW_VAL = 63
+MIN_HIGH_VAL = 191 # FLAG: Hard-coded GUI parameter!
+MAX_LOW_VAL = 63 # FLAG: Hard-coded GUI parameter!
 # The minimum value (integer from 0 to 255) for the low-value components when generating a random specific shade
 
 

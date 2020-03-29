@@ -49,15 +49,11 @@ class StyleContainer():
         # A list of strings which specifically refer to styles for ttk Labels with an associated image
         self.imageLabelStyles = []
         # A list of strings which specifically refer to styles for ttk BUTTON widgets
-        self.buttonWidgetStyles = []
+        self.buttonStyles = []
         # A list of strings which specifically refer to styles for ttk Labels with associated text
         self.textLabelStyles = []
         # A list of strings which specifically refer to styles for ttk Labels with associated textvariable values
         self.textvariableLabelStyles = []
-        # A list of strings which specifically refer to styles for the ttk INPUT-RELATED Label styles
-        # NOTE: This *CAN* include styles for things like Button Label objects,
-        #       despite the fact that Button styles have their own wider-scoped list
-        self.inputWidgetStyles = []
 
         # Defines and configures the GUI's ttk styles
         self.ttkStyleConfig()
@@ -119,9 +115,9 @@ class StyleContainer():
     def getRandomLabelStyle(self):
         return self.labelStyles[random.randrange(0, len(self.labelStyles))]
 
-    # Returns a random element from self.buttonWidgetStyles
-    def getRandomButtonWidgetStyle(self):
-        return self.buttonWidgetStyles[random.randrange(0, len(self.buttonWidgetStyles))]
+    # Returns a random element from self.buttonStyles
+    def getRandomButtonStyle(self):
+        return self.buttonStyles[random.randrange(0, len(self.buttonStyles))]
 
     # Returns a random element from self.imageLabelStyles
     def getRandomImageLabelStyle(self):
@@ -134,8 +130,3 @@ class StyleContainer():
     # Returns a random element from self.taxtvariableLabelStyles
     def getRandomTextvariableLabelStyle(self):
         return self.textvariableLabelStyles[random.randrange(0, len(self.textvariableLabelStyles))]
-
-    # Returns a random element from self.inputWidgetStyles
-    def getRandomInputWidgetStyle(self):
-        return self.inputWidgetStyles[random.randrange(0, len(self.inputWidgetStyles))]
-

@@ -1,14 +1,7 @@
 # TODO:
-#  0. CHANGE NAMING CONVENTIONS RELATED TO TTK OBJECTS (and lists of them)
-#    1. Really need to maintain readability from here on out. This should be done SOONER rather than LATER.
-#    2. This element was added on 2020-03-29 at 5:59 AM, for future reference
-
-# TODO: ================================( LINE TO EMPHASIZE THE ABOVE CONTENT )================================
-
-# TODO:
 #  A. Implement functionalities which result from changes in focus between frames
 #  B. Add member variable arrays to HypnicGUI which store the grid, frame, label objects in a dictionary
-#  C. Keys should be strings like "topToolbar", "imageFrameTR", etc.
+#  C. Keys should be strings like "topToolbar", "photoBoxTR", etc.
 #    1. Don't have to write code to support SOLELY managing the objects via list operations
 #    2. But should still support it for keeping code clean and for using list operations WHERE REASONABLE.
 #  D. Consider creating a new widget_container.py file (or some other name with similar meaning)
@@ -38,7 +31,7 @@ import hypnic_helpers
 # G L O B A L   V A R I A B L E S
 # Path to the text document which lists the paths to all input images
 # TODO: Remove this global and define it from user input at runtime
-INPUT_IMAGE_PATHS_FILE = "hypnic_images.txt"
+INPUT_IMAGE_PATHS_FILE = "hypnic_images.txt" # FLAG: Hard-coded GUI parameter!
 
 
 class HypnicGUI(tkinter.Tk):
@@ -62,22 +55,22 @@ class HypnicGUI(tkinter.Tk):
 
         # SPECIFIC FRAME LISTS (storing frames which do not have their own individual member variables)
 
-        # self.imageFrameFrames stores each of the 4 frames held within self.imageFrame
-        #   NOTE: self.imagesFrame is currently not defined until self.defineGrid()
+        # self.photoBoxFrames stores each of the 4 frames held within self.photoBox
+        #   NOTE: self.leftContent is currently not defined until self.defineGrid()
         #         This may change if something like a WidgetContainer/TtkContainer class is written for the purpose
         #           of ensuring that all member variables can be initialized within some class' __init__() function
         # TODO: I really don't feel great about this naming convention and should at least consider changing it
-        #  Perhaps "imageFrame" is a horrible name, since both "image" and "frame" will be incredibly common generic
+        #  Perhaps "photoBox" is a horrible name, since both "image" and "frame" will be incredibly common generic
         #  terms appearing within variable names
         #  Frame names like "mainContent", "topToolbar" etc. are pretty good
         #    Might be even better with the word "Frame" at the end to denote this!
-        self.imageFrameFrames = []
+        self.photoBoxFrames = []
 
-        # self.controlFrameFrames stores each frame from each row within self.controlFrame
-        #   NOTE: self.controlFrame is currently not defined until self.defineGrid()
+        # self.controlBoxFrames stores each frame from each row within self.controlBox
+        #   NOTE: self.controlBox is currently not defined until self.defineGrid()
         #         This may change if something like a WidgetContainer/TtkContainer class is written for the purpose
         #           of ensuring that all member variables can be initialized within some class' __init__() function
-        self.controlFrameFrames = []
+        self.controlBoxFrames = []
 
 
         # GENERAL LABEL LIST
@@ -87,8 +80,8 @@ class HypnicGUI(tkinter.Tk):
         # SPECIFIC LABEL LISTS (storing labels which do not have their own individual member variables)
         #   NOTE: There is no need to create a "SPECIFIC IMAGE LABEL LISTS" section, or anything of the sort
         #         Instead, it's enough to have a "Specific __ List" for each widget type (Frame, Label, etc.)
-        # self.imageFrameImageLabels stores each of the 4 Labels which hold each of the 4 "imageFrame" images
-        self.imageFrameImageLabels = []
+        # self.photoBoxImageLabels stores each of the 4 Labels which hold each of the 4 "photoBox" images
+        self.photoBoxImageLabels = []
 
         # Stores  the ttk Label objects which have an assigned image property
         # NOTE: If a Label doe not contain an image but is developed for the ability to contain one, include it in here
@@ -102,7 +95,7 @@ class HypnicGUI(tkinter.Tk):
         # NOTE: If a Label doe not contain a textvariable but is developed to potentially contain it, include it
         self.textvariableLabels = []
         # Stores  the ttk BUTTON objects
-        self.buttonWidgets = []
+        self.buttons = []
         # Stores  the ttk INPUT-RELATED widget instances.
         # NOTE: This *CAN* include ttk Butotn objects for example, even though they have their own wider-scoped list
         self.inputWidgets = []
@@ -130,6 +123,7 @@ class HypnicGUI(tkinter.Tk):
 
 
         # Configuring additional overarching GUI window properties
+        # It's completely fine for these to be hard-coded as it's not anything the user should have or need control over
         self.iconbitmap(default='media/hficon.ico')
         self.wm_title("hypnic-functions GUI Client")
         # NOTE: The line below can be uncommented in order to force a specific set of window dimensions
@@ -137,7 +131,7 @@ class HypnicGUI(tkinter.Tk):
         self.maxsize(width=self.scObj.dims.windowWidth, height=self.scObj.dims.windowHeight)
         self.state('zoomed')
 
-
+        # Calls functions related to constructing the GUI and initializes associated values
         self.defineGrid()
         self.colorFrames()
         self.fillGrid()
@@ -188,21 +182,20 @@ class HypnicGUI(tkinter.Tk):
 
 
         # FRAMES WHICH ARE CHILDREN OF self.mainContent
-        # Defines the 3 container frames within Main Content: Images Frame, Controls Frame, and Right Frame
-        # TODO: Rename Right Frame to something more meaningful
-        self.imagesFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.imagesFrameWidth)
-        self.controlsFrame = tkinter.ttk.Frame(self.mainContent)
-        # NOTE: Instead of hard-coding the width of rightFrame, can set it relative to controlsFrame by removing the
+        # Defines the 3 container frames within Main Content: Left Content, Center Content, and Right Content
+        self.leftContent = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.leftContentWidth)
+        self.centerContent = tkinter.ttk.Frame(self.mainContent)
+        # NOTE: Instead of hard-coding the width of rightContent, can set it relative to centerContent by removing the
         #       explicit width definition and calling grid_columnconfigure() for BOTH columns 1 AND 2
         # TODO: Consider implementing the above NOTE
-        self.rightFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.rightFrameWidth)
+        self.rightContent = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.rightContentWidth)
 
-        # Specifies that mainContent's row 0 (the only row) and column 1 (Controls Frame) have priority for space-filling
+        # Specifies that mainContent's row 0 (the only row) and column 1 (Center Content) have priority for space-filling
         self.mainContent.grid_rowconfigure(0, weight=1)
         self.mainContent.grid_columnconfigure(1, weight=1)
 
         # Populates templist with the newly defined frames
-        tempList = [self.imagesFrame, self.controlsFrame, self.rightFrame]
+        tempList = [self.leftContent, self.centerContent, self.rightContent]
         # Iterates through the newly-defined tempList, appending all values to the relevant widget lists
         for e in tempList:
             self.widgets.append(e)
@@ -211,82 +204,83 @@ class HypnicGUI(tkinter.Tk):
         # In this case because each element has separate values for padding, the current DimensionContainer framework
         # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
         # So we arrange each of the three column containers manually
-        self.imagesFrame.grid(row=0, column=0, sticky="nsew", ipadx=self.scObj.dims.imagesFramePadX,
-                              ipady=self.scObj.dims.imagesFramePadY)
-        self.controlsFrame.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.controlsFramePadX,
-                               ipady=self.scObj.dims.controlsFramePadY)
-        self.rightFrame.grid(row=0, column=2, sticky="nsw", ipadx=self.scObj.dims.rightFramePadX,
-                             ipady=self.scObj.dims.rightFramePadY)
+        self.leftContent.grid(row=0, column=0, sticky="nsew", ipadx=self.scObj.dims.leftContentPadX,
+                              ipady=self.scObj.dims.leftContentPadY)
+        self.centerContent.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.centerContentPadX,
+                               ipady=self.scObj.dims.centerContentPadY)
+        self.rightContent.grid(row=0, column=2, sticky="nsw", ipadx=self.scObj.dims.rightContentPadX,
+                             ipady=self.scObj.dims.rightContentPadY)
 
         # NOTE: Clearing tempList just in case!
         # TODO: See note at top of file about clearing tempList
         tempList = []
 
 
-        # FRAMES WHICH ARE CHILDREN OF self.imagesFrame
-        # Defines the individual image display frames within the Images Frame
-        self.imageFrameTL = tkinter.ttk.Frame(self.imagesFrame, width=self.scObj.dims.imageFrameWidth,
-                                          height=self.scObj.dims.imageFrameHeight)
-        self.imageFrameTR = tkinter.ttk.Frame(self.imagesFrame, width=self.scObj.dims.imageFrameWidth,
-                                          height=self.scObj.dims.imageFrameHeight)
-        self.imageFrameBL = tkinter.ttk.Frame(self.imagesFrame, width=self.scObj.dims.imageFrameWidth,
-                                          height=self.scObj.dims.imageFrameHeight)
-        self.imageFrameBR = tkinter.ttk.Frame(self.imagesFrame, width=self.scObj.dims.imageFrameWidth,
-                                          height=self.scObj.dims.imageFrameHeight)
+        # FRAMES WHICH ARE CHILDREN OF self.leftContent
+        # Defines the individual image display frames within the Left Content
+        self.photoBoxTL = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
+                                          height=self.scObj.dims.photoBoxHeight)
+        self.photoBoxTR = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
+                                          height=self.scObj.dims.photoBoxHeight)
+        self.photoBoxBL = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
+                                          height=self.scObj.dims.photoBoxHeight)
+        self.photoBoxBR = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
+                                          height=self.scObj.dims.photoBoxHeight)
 
-        # Specifies that each row and column within the Images Frame has equal priority for space-filling
-        self.imagesFrame.grid_rowconfigure(0, weight=1)
-        self.imagesFrame.grid_columnconfigure(0, weight=1)
-        self.imagesFrame.grid_rowconfigure(1, weight=1)
-        self.imagesFrame.grid_columnconfigure(1, weight=1)
+        # Specifies that each row and column within the Left Content has equal priority for space-filling
+        self.leftContent.grid_rowconfigure(0, weight=1)
+        self.leftContent.grid_columnconfigure(0, weight=1)
+        self.leftContent.grid_rowconfigure(1, weight=1)
+        self.leftContent.grid_columnconfigure(1, weight=1)
 
         # Populates templist with the newly defined frames
-        tempList = [self.imageFrameTL, self.imageFrameTR, self.imageFrameBL, self.imageFrameBR]
+        tempList = [self.photoBoxTL, self.photoBoxTR, self.photoBoxBL, self.photoBoxBR]
         # Iterates through the newly-defined tempList, appending all values to the relevant widget lists
-        # THIS INCLUDES self.imagesFrameFrames and it's important to keep this in mind!
+        # THIS INCLUDES self.leftContentFrames and it's important to keep this in mind!
         # Also arranges the grid elements, making use of getGridPos() from hypnic_helpers.py
         # e is the Frame object within tempList and i is the index of that object
         for i, e in enumerate(tempList):
             self.widgets.append(e)
             self.frames.append(e)
 
-            # TODO: !!!!!!!!!!!!!!!! Also append to the list of frames in imageFrame, when it exists
-            #       But imageFrame and many others are about to be renamed for readability so I'll keep that in mind.
+            # TODO: !!!!!!!!!!!!!!!! Also append to the list of frames in photoBox, when it exists
+            #       But photoBox and many others are about to be renamed for readability so I'll keep that in mind.
 
-            # imagesFrame has 2 rows and 2 columns
+            # leftContent has 2 rows and 2 columns
             # hypnic_helpers.getGridPos is used to convert i to a (row, col) tuple based on the 2 x 2 arrangement
             pos = hypnic_helpers.getGridPos(i, 2, 2)
-            e.grid(row=pos[0], column=pos[1], sticky="nsew", ipadx=self.scObj.dims.imageFramePadX,
-                   ipady=self.scObj.dims.imageFramePadY)
+            e.grid(row=pos[0], column=pos[1], sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
+                   ipady=self.scObj.dims.photoBoxPadY)
 
         # In this case because each element has separate values for row/column, I originally wrote the grid arrangement
         #   code in a non-iterative fashion. Keeping this down here just in case.
         """
         # TODO: Remove eventually, as it's now being done iteratively
-        self.imageFrameTL.grid(row=0, column=0, sticky="nsew", ipadx=self.scObj.dims.imageFramePadX,
-                               ipady=self.scObj.dims.imageFramePadY)
-        self.imageFrameTR.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.imageFramePadX,
-                               ipady=self.scObj.dims.imageFramePadY)
-        self.imageFrameBL.grid(row=1, column=0, sticky="nsew", ipadx=self.scObj.dims.imageFramePadX,
-                               ipady=self.scObj.dims.imageFramePadY)
-        self.imageFrameBR.grid(row=1, column=1, sticky="nsew", ipadx=self.scObj.dims.imageFramePadX,
-                               ipady=self.scObj.dims.imageFramePadY)
+        self.photoBoxTL.grid(row=0, column=0, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
+                               ipady=self.scObj.dims.photoBoxPadY)
+        self.photoBoxTR.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
+                               ipady=self.scObj.dims.photoBoxPadY)
+        self.photoBoxBL.grid(row=1, column=0, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
+                               ipady=self.scObj.dims.photoBoxPadY)
+        self.photoBoxBR.grid(row=1, column=1, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
+                               ipady=self.scObj.dims.photoBoxPadY)
         # Adds the frames to self.frames
-        self.frames.append(self.imageFrameTL)
-        self.frames.append(self.imageFrameTR)
-        self.frames.append(self.imageFrameBL)
-        self.frames.append(self.imageFrameBR)
+        self.frames.append(self.photoBoxTL)
+        self.frames.append(self.photoBoxTR)
+        self.frames.append(self.photoBoxBL)
+        self.frames.append(self.photoBoxBR)
         """
 
 
-        # FRAMES WHICH ARE CHILDREN OF self.controlsFrame
-        # Defines the individual control frames as rows within self.controlsFrame
+        # FRAMES WHICH ARE CHILDREN OF self.centerContent
+        # Defines the individual control frames as rows within self.centerContent
         # These are not stored as directly-callable member variables but instead exist within their own list.
-        #   This list, self.controlsFrames, is an even-more-specific list maintained IN ADDITION TO the other relevant
+        #   This list, self.centerContents, is an even-more-specific list maintained IN ADDITION TO the other relevant
         #   lists like self.frames as opposed to being a replacement
 
 
     # Colors the frames defined in self.defineGrid()
+    # NOTE: Currently based on random generation because I'm not concerned about this aspect of things
     def colorFrames(self):
         for f in range(len(self.frames)):
             self.frames[f].configure(style=self.scObj.frameStyles[f])
@@ -295,7 +289,7 @@ class HypnicGUI(tkinter.Tk):
     # Fills the previously-defined GUI with label elements
     def fillGrid(self):
         # tempList is a temporary list used to store elements which will be appended to member variable lists which
-        #   contain relevant ttk objects such as self.labels, self.imageLabels, self.buttonWidgets, etc.
+        #   contain relevant ttk objects such as self.labels, self.imageLabels, self.buttons, etc.
         # This is being done as a best practice for code readability as things can get ugly when dealing with appends
         #   to more than just one of the member variable lists
         tempList = []
@@ -306,11 +300,11 @@ class HypnicGUI(tkinter.Tk):
 
         # Places widgets within the bottom infobar
 
-        # Defines image Labels for each imageFrame of the imagesFrame
-        self.imageLabelTL = tkinter.ttk.Label(self.imageFrameTL, image=self.img.tkImages[0])
-        self.imageLabelTR = tkinter.ttk.Label(self.imageFrameTR, image=self.img.tkImages[1])
-        self.imageLabelBL = tkinter.ttk.Label(self.imageFrameBL, image=self.img.tkImages[2])
-        self.imageLabelBR = tkinter.ttk.Label(self.imageFrameBR, image=self.img.tkImages[3])
+        # Defines image Labels for each photoBox of the leftContent
+        self.imageLabelTL = tkinter.ttk.Label(self.photoBoxTL, image=self.img.tkImages[0])
+        self.imageLabelTR = tkinter.ttk.Label(self.photoBoxTR, image=self.img.tkImages[1])
+        self.imageLabelBL = tkinter.ttk.Label(self.photoBoxBL, image=self.img.tkImages[2])
+        self.imageLabelBR = tkinter.ttk.Label(self.photoBoxBR, image=self.img.tkImages[3])
         # Populates templist with the newly defined labels
         tempList = [self.imageLabelTL, self.imageLabelTR, self.imageLabelBL, self.imageLabelBR]
         # Iterates through the newly-defined tempList, appending all values to the relevant widget lists
@@ -337,16 +331,16 @@ class HypnicGUI(tkinter.Tk):
 
         # Places widgets within the controls frame
         # BUTTONS:
-        self.buttonUndo = tkinter.ttk.Button(self.controlsFrame, text="Undo")
-        self.buttonApply = tkinter.ttk.Button(self.controlsFrame, text="Apply")
-        self.buttonSave = tkinter.ttk.Button(self.controlsFrame, text="Save")
+        self.buttonUndo = tkinter.ttk.Button(self.centerContent, text="Undo")
+        self.buttonApply = tkinter.ttk.Button(self.centerContent, text="Apply")
+        self.buttonSave = tkinter.ttk.Button(self.centerContent, text="Save")
         # Populates templist with the newly defined buttons
         tempList = [self.buttonUndo, self.buttonApply, self.buttonSave]
         # Iterates through the newly-defined tempList, appending all values to both self.labels and self.imageLabels
         # as well as carrying out the ttk.Label.place() method on each element
         for e in tempList:
             self.widgets.append(e)
-            self.buttonWidgets.append(e)
+            self.buttons.append(e)
             self.inputWidgets.append(e)
 
             # TODO: Remove this random placement, it's only present for testing

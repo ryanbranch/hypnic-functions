@@ -7,10 +7,7 @@
 #      a. Functions at all widths between 33% and 100% of 1920px
 #      b. Functions at all heights between 50% and 100% of 1080px
 #      c. Functions at all aspect ratios between 4:3 and 16:9
-#  C. Rename "Right Frame" to something more meaningful
-#    1. Trying to have yellow text in all points of the code (even in other files) where the name comes up
-#    2. Will be more intuitive once I set a true plan for what to include in that frame
-#  D. Instead of hard-coding rightFrameWidth I can do percent scaling using the weight specifications
+#  D. Instead of hard-coding rightContentWidth I can do percent scaling using the weight specifications
 #     (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods!
 #    1. This is an amazing StackOverflow answer by Bryan Oakley (of course) which should make things intuitive
 #  E. Rename the subframes belonging to Controls Frame to something more meaningful than just integer names!
@@ -30,31 +27,31 @@ class DimensionContainer():
         # Unless specified otherwise, a widget exists within ROW 0 of its parent widget!
         # Unless specified otherwise, a widget exists within COLUMN (COL) 0 of its parent widget!
         # Unless specified otherwise, padding variables refer to internal padding!
-        self.internalPaddingButton = 0 # Hard coded dimension value!
-        self.externalPaddingButton = 0 # Hard coded dimension value!
-        self.defaultInternalPaddingGrid = 0 # Hard coded dimension value!
-        self.defaultExternalPaddingGrid = 0 # Hard coded dimension value!
+        self.internalPaddingButton = 0 # FLAG: Hard-coded GUI parameter!
+        self.externalPaddingButton = 0 # FLAG: Hard-coded GUI parameter!
+        self.defaultInternalPaddingGrid = 0 # FLAG: Hard-coded GUI parameter!
+        self.defaultExternalPaddingGrid = 0 # FLAG: Hard-coded GUI parameter!
 
         # WINDOW AS A WHOLE
         self.windowPadX = self.defaultInternalPaddingGrid
         self.windowPadY = self.defaultInternalPaddingGrid
-        self.windowWidth = 1800 # Hard coded dimension value!
-        self.windowHeight = 1000 # Hard coded dimension value!
+        self.windowWidth = 1800 # FLAG: Hard-coded GUI parameter!
+        self.windowHeight = 1000 # FLAG: Hard-coded GUI parameter!
 
         # TOP TOOLBAR (ROW 0 OF WINDOW)
         self.topToolbarPadX = self.defaultInternalPaddingGrid
         self.topToolbarPadY = self.defaultInternalPaddingGrid
-        self.topToolbarHeight = 60 # Hard coded dimension value!
+        self.topToolbarHeight = 60 # FLAG: Hard-coded GUI parameter!
 
         # BOTTOM TOOLBAR (ROW 2 OF WINDOW)
         self.bottomToolbarPadX = self.defaultInternalPaddingGrid
         self.bottomToolbarPadY = self.defaultInternalPaddingGrid
-        self.bottomToolbarHeight = 60 # Hard coded dimension value!
+        self.bottomToolbarHeight = 60 # FLAG: Hard-coded GUI parameter!
 
         # BOTTOM INFOBAR (ROW 3 OF WINDOW)
         self.bottomInfobarPadX = self.defaultInternalPaddingGrid
         self.bottomInfobarPadY = self.defaultInternalPaddingGrid
-        self.bottomInfobarHeight = 30 # Hard coded dimension value!
+        self.bottomInfobarHeight = 30 # FLAG: Hard-coded GUI parameter!
 
         # MAIN CONTENT (ROW 1 OF WINDOW)
         # Dependent on dimensions of ROW 0, ROW 2, and ROW 3
@@ -63,51 +60,46 @@ class DimensionContainer():
         self.mainContentHeight = self.windowHeight - self.windowPadY -\
                                  self.topToolbarHeight - self.bottomToolbarHeight - self.bottomInfobarHeight
 
-        # IMAGES FRAME (COL 0 OF MAIN CONTENT)
-        # The images frame is a square-shaped frame spanning the left side, and entire height, of mainContent
-        self.imagesFramePadX = self.defaultInternalPaddingGrid
-        self.imagesFramePadY = self.defaultInternalPaddingGrid
+        # LEFT CONTENT (COL 0 OF MAIN CONTENT)
+        # The left content is a square-shaped frame spanning the left side, and entire height, of mainContent
+        self.leftContentPadX = self.defaultInternalPaddingGrid
+        self.leftContentPadY = self.defaultInternalPaddingGrid
         # Height is equal to the internal height of mainContent
-        self.imagesFrameHeight = self.mainContentHeight - self.mainContentPadY
-        # the Images Frame is a square by design, so its width is initialized as its height
-        self.imagesFrameWidth = self.imagesFrameHeight
+        self.leftContentHeight = self.mainContentHeight - self.mainContentPadY
+        # the Left content is a square by design, so its width is initialized as its height
+        self.leftContentWidth = self.leftContentHeight
 
-        # IMAGE FRAMES ([0,0], [0,1], [1,0], [1,1] OF IMAGES FRAME)
-        # Each image frame has half the width and height of the imageFrame
+        # PHOTO BOXES ([0,0], [0,1], [1,0], [1,1] OF LEFT CONTENT)
+        # Each photo box has half the width and height of leftContent
         # They are arranged in a 2 x 2 square grid layout
-        self.imageFramePadX = self.defaultInternalPaddingGrid
-        self.imageFramePadY = self.defaultInternalPaddingGrid
-        self.imageFrameWidth = math.floor((self.imagesFrameWidth - self.imagesFramePadX) / 2)
-        self.imageFrameHeight = math.floor((self.imagesFrameHeight - self.imagesFramePadY) / 2)
+        self.photoBoxPadX = self.defaultInternalPaddingGrid
+        self.photoBoxPadY = self.defaultInternalPaddingGrid
+        self.photoBoxWidth = math.floor((self.leftContentWidth - self.leftContentPadX) / 2)
+        self.photoBoxHeight = math.floor((self.leftContentHeight - self.leftContentPadY) / 2)
 
-        # RIGHT FRAME (COL 2 OF MAIN CONTENT)
-        # The right frame is a temporarily named frame occupying the right side of mainContent, for its entire height
-        # TODO: Rename Right Frame to something more meaningful
-        self.rightFramePadX = self.defaultInternalPaddingGrid
-        self.rightFramePadY = self.defaultInternalPaddingGrid
-        # TODO: Instead of hard-coding rightFrameWidth I can do percent scaling using the weight specifications
+        # RIGHT CONTENT (COL 2 OF MAIN CONTENT)
+        self.rightContentPadX = self.defaultInternalPaddingGrid
+        self.rightContentPadY = self.defaultInternalPaddingGrid
+        # TODO: Instead of hard-coding rightContentWidth I can do percent scaling using the weight specifications
         #  (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods! See note at top of file.
-        self.rightFrameWidth = 300 # Hard coded dimension value!
-        # Height is equal to the internal height of mainContent, which has already been calculated for imagesFrame
-        self.rightFrameHeight = self.imagesFrameHeight
+        self.rightContentWidth = 300 # FLAG: Hard-coded GUI parameter!
+        # Height is equal to the internal height of mainContent, which has already been calculated for leftContent
+        self.rightContentHeight = self.leftContentHeight
 
-        # TODO: Consider entirely renaming from "Controls Frame" to "Controls Frames", since it's a parent frame which
-        #       will contain subframes that are all related to control.
-        #       This would be more in-line with the naming convention of "Images Frame"
-        # CONTROLS FRAME (COL 1 OF MAIN CONTENT)
+        # CENTER CONTENT (COL 1 OF MAIN CONTENT)
         # The controls frame fills the remaining space within mainContent that is not already occupied
-        # by either imagesFrame or rightFrame
-        # TODO: Rename Right Frame to something more meaningful [not in code below but in comment(s) above]
-        self.controlsFramePadX = self.defaultInternalPaddingGrid
-        self.controlsFramePadY = self.defaultInternalPaddingGrid
-        # controlsFrame's width is that of the entire window minus the widths of imagesFrame and rightFrame
-        self.controlsFrameWidth = self.windowWidth - self.windowPadX - self.imagesFrameWidth - self.rightFrameWidth
-        # Height is equal to the internal height of mainContent, which has already been calculated for imagesFrame
-        self.controlsFrameHeight = self.imagesFrameHeight
+        # by either leftContent or rightContent
+        self.centerContentPadX = self.defaultInternalPaddingGrid
+        self.centerContentPadY = self.defaultInternalPaddingGrid
+        # centerContent's width is that of the entire window minus the widths of leftContent and rightContent
+        self.centerContentWidth = self.windowWidth - self.windowPadX - self.leftContentWidth - self.rightContentWidth
+        # Height is equal to the internal height of mainContent, which has already been calculated for leftContent
+        self.centerContentHeight = self.leftContentHeight
 
-        # CONTROL FRAMES WITHIN CONTROLS FRAME
+        # CONTROL BOXES WITHIN CENTER CONTENT
         # Sets the number of rows into which the Controls Frame should be divided (evenly)
-        self.numControlRows = 5 # Hard coded dimension value!
-        # No need to define individual widths/heights for these frames as they are all relative to controlsFrame dims
-        self.controlFramePadX = self.defaultInternalPaddingGrid
-        self.controlFramePadY = self.defaultInternalPaddingGrid
+        self.numControlRows = 5 # FLAG: Hard-coded GUI parameter!
+        self.numControlColumns = 2 # FLAG: Hard-coded GUI parameter!
+        # No need to define individual widths/heights for these frames as they are all relative to centerContent dims
+        self.controlBoxPadX = self.defaultInternalPaddingGrid
+        self.controlBoxPadY = self.defaultInternalPaddingGrid
