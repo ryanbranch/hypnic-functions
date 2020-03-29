@@ -1,5 +1,12 @@
 # TODO:
-#  A. Placeholder
+#  A. Depending on order of definition/calculation, may be possible to simply set numFrameStyles based on
+#     len(HypnicGUI.frames).
+#    1. This would require storing a reference to the HypnicGUI instance as a member variable
+#       within this StyleContainer class.
+#    2. It would also increase the importance of ensuring that EVERY frame ends up in the HypnicGUI.frames list
+#      a. Detrimental in some ways since this could lead to bugs
+#      b. At the same time, could be good in serving as a visual indicator of whether some frames are missing
+#         from the frames list (whether due to never having been added, or somehow having been manipulated erroneously)
 
 __name__ = "style_container"
 
@@ -83,7 +90,7 @@ class StyleContainer():
         # Number of random ttk Frame styles to generate
         # TODO: Define this elsewhere, even better if based on parameters (hard-coded or user input)
         #  instead of being hard-coded in itself
-        numFrameStyles = 20
+        numFrameStyles = 30
         for i in range(numFrameStyles):
             # styleName values are "fs0.TFrame", "fs1.TFrame", etc
             styleName = ("fs" + str(i) + ".TFrame")

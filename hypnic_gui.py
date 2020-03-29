@@ -118,6 +118,11 @@ class HypnicGUI(tkinter.Tk):
             self.widgets.append(e)
             self.frames.append(e)
 
+        # Specifies that mainContent is the (only) row which should have expansion priority
+        self.grid_rowconfigure(1, weight=1)
+        # Specifies that column 0 (the only column, containing all of the 4 main frames) should expand to maximum width
+        # This is important so that columns within the frames of each mainContent row have proper width behavior
+        self.grid_columnconfigure(0, weight=1)
 
         # In this case because each element has separate values for padding, the current DimensionContainer framework
         # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
@@ -133,18 +138,9 @@ class HypnicGUI(tkinter.Tk):
         tempList = []
 
 
-
-
-
-
         # Defines the 3 container frames within Main Content: Images Frame, Control Frame, and Right Frame
         # TODO: Rename Right Frame to something more meaningful
         self.imagesFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.imagesFrameWidth)
-        # NOTE: Ideally the width for controlFrame wouldn't have to be specified, since it should just span the
-        #       remaining space not filled by rightFrame and imagesFrame. However it seems to be shrinking to a width
-        #       of 0 ever since the addition of rightFrame, and for now the explicit definition of width fixes this
-        # TODO: Fix the (redundant) definition of controlFrame width, as described in the note above
-        #self.controlFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.controlFrameWidth)
         self.controlFrame = tkinter.ttk.Frame(self.mainContent)
         self.rightFrame = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.rightFrameWidth)
 
@@ -155,24 +151,19 @@ class HypnicGUI(tkinter.Tk):
             self.widgets.append(e)
             self.frames.append(e)
 
-        # In this case because each element has separate values for padding, the current DimensionContainer framework
-        # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
-        # So we arrange each of the three column containers manually
-
         # Specifies that mainContent's row 0 (the only row) and column 1 (Control Frame) have priority for space-filling
         self.mainContent.grid_rowconfigure(0, weight=1)
         self.mainContent.grid_columnconfigure(1, weight=1)
-        # Arranges the Images Frame and Control Frame
+
+        # In this case because each element has separate values for padding, the current DimensionContainer framework
+        # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
+        # So we arrange each of the three column containers manually
         self.imagesFrame.grid(row=0, column=0, sticky="nsew", ipadx=self.scObj.dims.imagesFramePadX,
                               ipady=self.scObj.dims.imagesFramePadY)
         self.controlFrame.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.controlFramePadX,
                                ipady=self.scObj.dims.controlFramePadY)
         self.rightFrame.grid(row=0, column=2, sticky="nsw", ipadx=self.scObj.dims.rightFramePadX,
                              ipady=self.scObj.dims.rightFramePadY)
-        # Adds the frames to self.frames
-        self.frames.append(self.imagesFrame)
-        self.frames.append(self.controlFrame)
-        self.frames.append(self.rightFrame)
 
 
         # Defines the individual image display frames within the Images Frame

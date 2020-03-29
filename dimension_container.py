@@ -13,6 +13,7 @@
 #  D. Instead of hard-coding rightFrameWidth I can do percent scaling using the weight specifications
 #     (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods!
 #    1. This is an amazing StackOverflow answer by Bryan Oakley (of course) which should make things intuitive
+#  E. Rename the subframes belonging to Control Frame to something more meaningful than just integer names!
 
 __name__ = "dimension_container"
 
@@ -71,6 +72,7 @@ class DimensionContainer():
         # the Images Frame is a square by design, so its width is initialized as its height
         self.imagesFrameWidth = self.imagesFrameHeight
 
+        # IMAGE FRAMES ([0,0], [0,1], [1,0], [1,1] OF IMAGES FRAME)
         # Each image frame has half the width and height of the imageFrame
         # They are arranged in a 2 x 2 square grid layout
         self.imageFramePadX = self.defaultInternalPaddingGrid
@@ -78,6 +80,7 @@ class DimensionContainer():
         self.imageFrameWidth = math.floor((self.imagesFrameWidth - self.imagesFramePadX) / 2)
         self.imageFrameHeight = math.floor((self.imagesFrameHeight - self.imagesFramePadY) / 2)
 
+        # RIGHT FRAME (COL 2 OF MAIN CONTENT)
         # The right frame is a temporarily named frame occupying the right side of mainContent, for its entire height
         # TODO: Rename Right Frame to something more meaningful
         self.rightFramePadX = self.defaultInternalPaddingGrid
@@ -88,6 +91,7 @@ class DimensionContainer():
         # Height is equal to the internal height of mainContent, which has already been calculated for imagesFrame
         self.rightFrameHeight = self.imagesFrameHeight
 
+        # CONTROL FRAME (COL 1 OF MAIN CONTENT)
         # The control frame fills the remaining space within mainContent that is not already occupied
         # by either imagesFrame or rightFrame
         # TODO: Rename Right Frame to something more meaningful [not in code below but in comment(s) above]
