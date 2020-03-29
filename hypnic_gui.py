@@ -4,6 +4,10 @@
 #  C. Keys should be strings like "topToolbar", "imageFrameTR", etc.
 #    1. Don't have to write code to support SOLELY managing the objects via list operations
 #    2. But should still support it for keeping code clean and for using list operations WHERE REASONABLE.
+#  D. Consider creating a new widget_container.py file
+#    1. Not immediately necessary, but the GUI is gonna become more and more complicated so it may make more sense
+#       to handle initialization-related aspects of the program within a class
+#    2. A WidgetContainer object would likely hold the StyleContainer instance (which itself holds a DimensionContainer)
 
 __name__ = "hypnic_gui"
 
@@ -26,21 +30,33 @@ class HypnicGUI(tkinter.Tk):
 
     def __init__(self, wrapper_, *args, **kwargs):
 
+        # TODO: Consider using dicts instead of lists, for storing the ttk widgets and such
+
+        # Stores all of the ttk widgets that belong to the GUI
+        # Widgets include but are not limited to instances of Frame, Label, Button, etc.
+        self.widgets = []
         # Stores all of the ttk Frame objects that belong to the GUI
         # Any time a Frame is created, it should be placed in this list to support iteration
         self.frames = []
         # Stores all of the ttk Label objects that belong to the GUI
         # Any time a Label is created, it should be placed in this list to support iteration
         self.labels = []
-        # Stores specifically the ttk IMAGE Label objects
+        # Stores specifically the ttk Label objects which have an assigned image property
+        # NOTE: If a Label doe not contain an image but is developed for the ability to contain one, include it in here
         self.imageLabels = []
-        # Stores specifically the ttk BUTTON Label objects
-        self.buttonLabels = []
-        # Stores specifically the ttk TEXT-RELATED Label objects
+        # Stores specifically the ttk Label objects which have some assigned text property
+        # NOTE: If a Label doe not inherently/immediately contain text but is developed to contain it, include it
+        # TODO: Determine whether textvariable Label objects should also be included within the array for text Labels,
+        #       and/or vice versa, or kept mutually exclusive from one another
         self.textLabels = []
-        # Stores specifically the ttk INPUT-RELATED Label objects.
-        # NOTE: This *CAN* include button label objects for example, even though they have their own wider-scoped list
-        self.inputLabels = []
+        # Stores specifically the ttk Label objects which have some assigned textvariable property
+        # NOTE: If a Label doe not contain a textvariable but is developed to potentially contain it, include it
+        self.textvariableLabels = []
+        # Stores specifically the ttk BUTTON objects
+        self.buttonWidgets = []
+        # Stores specifically the ttk INPUT-RELATED widget instances.
+        # NOTE: This *CAN* include ttk Butotn objects for example, even though they have their own wider-scoped list
+        self.inputWidgets = []
 
         # self.wrapper should ALWAYS reference "app" from within hypnic_wrapper.py's main() function
         # a new HypnicWrapper instance should never be defined
@@ -154,6 +170,11 @@ class HypnicGUI(tkinter.Tk):
 
     # Fills the previously-defined GUI with label elements
     def fillGrid(self):
+        # tempList is a temporary list used to store elements which will be appended to member variable lists which
+        #   contain relevant ttk objects such as self.labels, self.imageLabels, self.buttonWidgets, etc.
+        # This is being done as a best practice for code readability as things can get ugly when dealing with appends
+        #   to more than just one of the member variable lists
+        tempList = []
 
         # Places widgets within the top toolbar
 
@@ -161,26 +182,68 @@ class HypnicGUI(tkinter.Tk):
 
         # Places widgets within the bottom infobar
 
-        # Places images within each imageFrame of the imagesFrame
+        # Defines image Labels for each imageFrame of the imagesFrame
         self.imageLabelTL = tkinter.ttk.Label(self.imageFrameTL, image=self.img.tkImages[0])
         self.imageLabelTR = tkinter.ttk.Label(self.imageFrameTR, image=self.img.tkImages[1])
         self.imageLabelBL = tkinter.ttk.Label(self.imageFrameBL, image=self.img.tkImages[2])
         self.imageLabelBR = tkinter.ttk.Label(self.imageFrameBR, image=self.img.tkImages[3])
+        tempList = [self.imageLabelTL, self.imageLabelTR, self.imageLabelBL, self.imageLabelBR]
+        # Iterates through the newly-defined tempList, appending all values to the relevant widget lists
+        # as well as carrying out the ttk.Label.place() method on each element
+        for e in tempList:
+            self.widgets.append(e)
+            self.labels.append(e)
+            self.imageLabels.append(e)
+            e.place(relx=0.5, rely=0.5, anchor=CENTER)
+        # NOTE: Clearing tempList just in case!
+        # TODO: If clearing IS important, consider using
+        #           del tempList[:]
+        #       But don't jump to conclusions on doing so. Don't want to accidentally call any destructors for ttk
+        #       objects and such since many will be referenced by two or more lists
+        tempList = []
+
+        # Old manual non-array method being stored here temporarily
+        # I don't think either will be used in the future but want to save both
+        """
         self.imageLabelTL.place(relx=0.5, rely=0.5, anchor=CENTER)
         self.imageLabelTR.place(relx=0.5, rely=0.5, anchor=CENTER)
         self.imageLabelBL.place(relx=0.5, rely=0.5, anchor=CENTER)
         self.imageLabelBR.place(relx=0.5, rely=0.5, anchor=CENTER)
-        # Adds the image labels to both the self.labels and self.imageLabels lists
-        self.labels.append(self.imageLabelTL)
-        self.labels.append(self.imageLabelTR)
-        self.labels.append(self.imageLabelBL)
-        self.labels.append(self.imageLabelBR)
-        self.imageLabels.append(self.imageLabelTL)
-        self.imageLabels.append(self.imageLabelTR)
-        self.imageLabels.append(self.imageLabelBL)
-        self.imageLabels.append(self.imageLabelBR)
+        """
+
+
 
         # Places widgets within the control frame
+        # BUTTONS:
+        self.buttonManipulate = tkinter.ttk.Button(self.controlFrame, text="Manipulate")
+        self.buttonRevert = tkinter.ttk.Button(self.controlFrame, text="Revert")
+        self.buttonApply = tkinter.ttk.Button(self.controlFrame, text="Apply")
+        self.buttonAdvance = tkinter.ttk.Button(self.controlFrame, text="Advance")
+        tempList = [self.buttonManipulate, self.buttonRevert, self.buttonApply, self.buttonAdvance]
+        # Iterates through the newly-defined tempList, appending all values to both self.labels and self.imageLabels
+        # as well as carrying out the ttk.Label.place() method on each element
+        for e in tempList:
+            self.widgets.append(e)
+            self.buttonWidgets.append(e)
+            self.inputWidgets.append(e)
+
+            import random
+            xFac = random.randint(2,8) / 10.0
+            yFac = random.randint(2,8) / 10.0
+            e.place(relx=xFac, rely=yFac, anchor=CENTER)
+        # NOTE: Clearing tempList just in case!
+        # TODO: If clearing IS important, consider using
+        #           del tempList[:]
+        #       But don't jump to conclusions on doing so. Don't want to accidentally call any destructors for ttk
+        #       objects and such since many will be referenced by two or more lists
+        tempList = []
+
+
+
+        self.imageLabelTL.place(relx=0.4, rely=0.4, anchor=CENTER)
+        self.imageLabelTR.place(relx=0.6, rely=0.4, anchor=CENTER)
+        self.imageLabelBL.place(relx=0.4, rely=0.6, anchor=CENTER)
+        self.imageLabelBR.place(relx=0.6, rely=0.6, anchor=CENTER)
 
     # Sets the necessary style parameters for each ttk-specific widget
     def styleWidgets(self):

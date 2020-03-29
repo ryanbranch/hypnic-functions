@@ -10,7 +10,7 @@ from tkinter import ttk
 
 # Local Imports
 import dimension_container
-import hypnic_helpers
+from hypnic_helpers import *
 
 # G L O B A L   V A R I A B L E S
 # DEFAULT STYLE PARAMETERS
@@ -42,13 +42,13 @@ class StyleContainer():
         # A list of strings which specifically refer to styles for ttk IMAGE Labels
         self.imageLabelStyles = []
         # A list of strings which specifically refer to styles for ttk BUTTON Labels
-        self.buttonLabelStyles = []
+        self.buttonWidgetStyles = []
         # A list of strings which specifically refer to styles for ttk TEXT Labels
         self.textLabelStyles = []
         # A list of strings which specifically refer to styles for the ttk INPUT-RELATED Label styles
         # NOTE: This *CAN* include styles for things like Button Label objects,
         #       despite the fact that Button styles have their own wider-scoped list
-        self.inputLabelStyles = []
+        self.inputWidgetStyles = []
 
         # Defines and configures the GUI's ttk styles
         self.ttkStyleConfig()
@@ -113,15 +113,15 @@ class StyleContainer():
     def getRandomLabelStyle(self):
         return self.labelStyles[random.randrange(0, len(self.labelStyles))]
 
-    # Returns a random element from self.buttonLabelStyles
-    def getRandomButtonLabelStyle(self):
-        return self.buttonLabelStyles[random.randrange(0, len(self.buttonLabelStyles))]
+    # Returns a random element from self.buttonWidgetStyles
+    def getRandomButtonWidgetStyle(self):
+        return self.buttonWidgetStyles[random.randrange(0, len(self.buttonWidgetStyles))]
 
     # Returns a random element from self.imageLabelStyles
-    def getRandomButtonLabelStyle(self):
+    def getRandomButtonWidgetStyle(self):
         return self.imageLabelStyles[random.randrange(0, len(self.imageLabelStyles))]
 
-    # Returns a random element from self.buttonLabelStyles
-    def getRandomButtonLabelStyle(self):
-        return self.inputLabelStyles[random.randrange(0, len(self.inputLabelStyles))]
+    # Returns a random element from self.buttonWidgetStyles
+    def getRandomButtonWidgetStyle(self):
+        return self.inputWidgetStyles[random.randrange(0, len(self.inputWidgetStyles))]
 
