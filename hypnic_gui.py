@@ -334,7 +334,7 @@ class HypnicGUI(tkinter.Tk):
             # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
             #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
             #       well could be the cause and I'll have to learn more about memory management in Python OOP
-            self.widgets.append(tkinter.ttk.Label(self.photoBoxFrames[i], image=self.img.tkImages[0]))
+            self.widgets.append(tkinter.ttk.Label(self.photoBoxFrames[i], image=self.img.tkImages[i]))
             # Appends the same Label to self.labels, self.imageLabels, and self.photoBoxImageLabels
             self.labels.append(self.widgets[-1])
             self.imageLabels.append(self.widgets[-1])
