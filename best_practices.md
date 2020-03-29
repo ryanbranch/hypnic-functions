@@ -1,6 +1,10 @@
+
 # Best Practices
 
-The goal of this file is to define the practices that should be used in development and usage of this program. 
+The goal of this file is to define the practices that should be used in both **development** and **usage** of this program. 
+<br>
+<br>
+<br>
 
 # Development
 
@@ -38,8 +42,6 @@ Since I'm developing this alone I won't be defining things like syntax practices
 <br>
 <br>
 <br>
-<br>
-<br>
 # Usage
 
 Following these guidelines while running the program will keep things running smoothly and avoid errors/crashes.
@@ -69,3 +71,23 @@ Support is not currently developed or guaranteed for image formats which can con
  - Many user-defined parameters are strictly designed to accept correct inputs
 	 - For example if you are asked to provide an integer but give a string instead, this will likely result in unexpected behavior
 	 - Error handling for such issues is considered low priority compared to the development of actual program functionality, and may never be implemented
+<br>
+<br>
+<br>
+# TODO:
+
+Many TODOs are already documented throughout my code, but I'd like to also keep track of those specific ones which inform or affect my own practices in writing and using this program. 
+
+ - Create an official naming convention to be followed for naming member variables of my own custom classes
+ 	- This is especially important for higher level objects such as ttk Frames and Labels
+	- The convention should attempt to be consistent between all files such that all names imply a clear function without needing to know to the class to which the variable belongs
+	- I consider it crucial that type can be discerned solely from name for the following types:
+		- ttk.Frame objects
+		- lists of ttk.Frame objects
+		- ttk.Label objects
+		- lists of ttk.Label objects
+		- ttk.Button objects
+		- lists of ttk.Button objects
+		- lists of names of custom-defined ttk styles
+- Define that naming convention (and any others) within this document
+	- Should consider defining conventions for [file/class/function/etc] names as well, but I see no current reason why this should be a priority
