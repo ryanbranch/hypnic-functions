@@ -39,6 +39,8 @@ def isEven(n_):
 # INVARIANT: n_ must be lower than the total number of cells
 # TODO: As described at the top of this file, consider going ALL-OUT with invariants when it comes to helper functions
 #       If doing so, would want to check input types for correctness (in this case, ensuring all are integers)
+# TODO: Consider prioritizing computational efficiency if I am ever calling this for grids with upwards of
+#       millions of elements, such as pixel coordinates within a photograph
 def getGridPos(n_, w_, h_):
     # Checks invariant
     # When this statement is entered then the invariant check has failed and we should likely quit as a result,

@@ -33,7 +33,7 @@ from tkinter import CENTER, ttk
 # Local Inputs
 import image_container
 import style_container
-from hypnic_helpers import *
+import hypnic_helpers
 
 # G L O B A L   V A R I A B L E S
 # Path to the text document which lists the paths to all input images
@@ -249,8 +249,13 @@ class HypnicGUI(tkinter.Tk):
         for i, e in enumerate(tempList):
             self.widgets.append(e)
             self.frames.append(e)
+
+            # TODO: !!!!!!!!!!!!!!!! Also append to the list of frames in imageFrame, when it exists
+            #       But imageFrame and many others are about to be renamed for readability so I'll keep that in mind.
+
             # imagesFrame has 2 rows and 2 columns
-            pos = getGridPos(i, 2, 2)
+            # hypnic_helpers.getGridPos is used to convert i to a (row, col) tuple based on the 2 x 2 arrangement
+            pos = hypnic_helpers.getGridPos(i, 2, 2)
             e.grid(row=pos[0], column=pos[1], sticky="nsew", ipadx=self.scObj.dims.imageFramePadX,
                    ipady=self.scObj.dims.imageFramePadY)
 
