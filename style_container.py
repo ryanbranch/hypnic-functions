@@ -17,7 +17,7 @@ from tkinter import ttk
 
 # Local Imports
 import dimension_container
-from hypnic_helpers import *
+import hypnic_helpers
 
 # G L O B A L   V A R I A B L E S
 # DEFAULT STYLE PARAMETERS
@@ -95,11 +95,10 @@ class StyleContainer():
             # styleName values are "fs0.TFrame", "fs1.TFrame", etc
             styleName = ("fs" + str(i) + ".TFrame")
             # Configures a style object, with key styleName, using random RGB values for each color
-            self.ttkStyleObj.configure(styleName, background=rgbToHex(getRandomBlue()))
+            self.ttkStyleObj.configure(styleName, background=hypnic_helpers.rgbToHex(hypnic_helpers.getRandomBlue()))
 
             # Adds styleName to self.frameStyles for future reference
             self.frameStyles.append(styleName)
-            print(styleName)
 
     # SET / GET METHODS
     # Good practice for use when modifying StyleContainer variables from externally (like from the HypnicGUI instance)

@@ -13,7 +13,7 @@
 #  D. Instead of hard-coding rightFrameWidth I can do percent scaling using the weight specifications
 #     (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods!
 #    1. This is an amazing StackOverflow answer by Bryan Oakley (of course) which should make things intuitive
-#  E. Rename the subframes belonging to Control Frame to something more meaningful than just integer names!
+#  E. Rename the subframes belonging to Controls Frame to something more meaningful than just integer names!
 
 __name__ = "dimension_container"
 
@@ -87,17 +87,27 @@ class DimensionContainer():
         self.rightFramePadY = self.defaultInternalPaddingGrid
         # TODO: Instead of hard-coding rightFrameWidth I can do percent scaling using the weight specifications
         #  (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods! See note at top of file.
-        self.rightFrameWidth = 200 # Hard coded dimension value!
+        self.rightFrameWidth = 300 # Hard coded dimension value!
         # Height is equal to the internal height of mainContent, which has already been calculated for imagesFrame
         self.rightFrameHeight = self.imagesFrameHeight
 
-        # CONTROL FRAME (COL 1 OF MAIN CONTENT)
-        # The control frame fills the remaining space within mainContent that is not already occupied
+        # TODO: Consider entirely renaming from "Controls Frame" to "Controls Frames", since it's a parent frame which
+        #       will contain subframes that are all related to control.
+        #       This would be more in-line with the naming convention of "Images Frame"
+        # CONTROLS FRAME (COL 1 OF MAIN CONTENT)
+        # The controls frame fills the remaining space within mainContent that is not already occupied
         # by either imagesFrame or rightFrame
         # TODO: Rename Right Frame to something more meaningful [not in code below but in comment(s) above]
+        self.controlsFramePadX = self.defaultInternalPaddingGrid
+        self.controlsFramePadY = self.defaultInternalPaddingGrid
+        # controlsFrame's width is that of the entire window minus the widths of imagesFrame and rightFrame
+        self.controlsFrameWidth = self.windowWidth - self.windowPadX - self.imagesFrameWidth - self.rightFrameWidth
+        # Height is equal to the internal height of mainContent, which has already been calculated for imagesFrame
+        self.controlsFrameHeight = self.imagesFrameHeight
+
+        # CONTROL FRAMES WITHIN CONTROLS FRAME
+        # Sets the number of rows into which the Controls Frame should be divided (evenly)
+        self.numControlRows = 5 # Hard coded dimension value!
+        # No need to define individual widths/heights for these frames as they are all relative to controlsFrame dims
         self.controlFramePadX = self.defaultInternalPaddingGrid
         self.controlFramePadY = self.defaultInternalPaddingGrid
-        # controlFrame's width is that of the entire window minus the widths of imagesFrame and rightFrame
-        self.controlFrameWidth = self.windowWidth - self.windowPadX - self.imagesFrameWidth - self.rightFrameWidth
-        # Height is equal to the internal height of mainContent, which has already been calculated for imagesFrame
-        self.controlFrameHeight = self.imagesFrameHeight
