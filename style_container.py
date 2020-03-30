@@ -16,7 +16,6 @@ import tkinter
 from tkinter import ttk
 
 # Local Imports
-import dimension_container
 import hypnic_helpers
 
 # G L O B A L   V A R I A B L E S
@@ -32,9 +31,12 @@ class StyleContainer():
         # So that the StyleContainer instance can refer to the HypnicGUI instance
         self.gui = gui_
 
+        # TODO: Remove this block comment; it's a relic from when DimensionContainer was initialized within this class
+        """
         # This class holds the DimensionContainer object instance, "dims",
         # in order to access things like padding specification variables. It is initialized here
-        self.dims = dimension_container.DimensionContainer()
+        self.dims = dimension_container.DimensionContainer(self.gui)
+        """
 
         # This class also holds the ttk Style object, which can be referenced from the HypnicGUI instance if needed
         self.ttkStyleObj = ttk.Style()
@@ -68,7 +70,7 @@ class StyleContainer():
         # These styles will apply to all relevant ttk widgets which are not given a custom style
         # TButton represents the default ttk Button (the class name for ttk::button is TButton)
         self.ttkStyleObj.configure("TButton",
-                                   padding=self.dims.internalPaddingButton,
+                                   padding=self.gui.dims.internalPaddingButton,
                                    relief="flat",
                                    background="#555")
         # TFrame : ttk.Frame

@@ -24,7 +24,13 @@ from tkinter import CENTER
 
 class DimensionContainer():
 
-    def __init__(self):
+    # Constructor has a gui_ parameter which is saved in self.gui in order to access the HypnicGUI members
+    def __init__(self, gui_):
+
+        # So that the DimensionContainer instance can refer to the HypnicGUI instance
+        self.gui = gui_
+
+        # MEMBER VARIABLES
         # I M P O R T A N T     N O T E S :
         # All of these are used by the GUI's StyleContainer instance, so these dimensions must be defined beforehand!
         # Column (COL) and Row (ROW) values provided are zero-indexed!

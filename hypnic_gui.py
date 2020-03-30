@@ -34,6 +34,7 @@ from tkinter import CENTER, ttk
 from functools import partial
 
 # Local Inputs
+import dimension_container
 import image_container
 import style_container
 import command_container
@@ -139,21 +140,23 @@ class HypnicGUI(tkinter.Tk):
 
 
 
+        # C U S T O M     O B J E C T     I N I T I A L I Z A T I O N
+        # MAKE SURE THIS STUFF IS DONE AFTER DEFINING THE EMPTY LISTS ABOVE, JUST IN CASE A CONSTRUCTOR NEEDS ACCESS
+        # DimensionContainer Object instance -- self.dims should be the ONLY DimensionContainer instance!!!
+        # StyleContainer.__init__() depends on self.dims so we must define self.dims before self.scObj!
+        self.dims = dimension_container.DimensionContainer(self)
 
-        # MAKE SURE THIS STUFF IS DONE AFTER DEFINING THE EMPLY LISTS ABOVE, JUST IN CASE A CONSTRUCTOR NEEDS ACCESS
-        # StyleContainer Object instance
-        # self.scObj should be the ONLY StyleContainer instance!
-        # it should hold a DimensionContainer instance at self.scObj.dims (defined within StyleContainer.__init__()!
-        # self.scObj.dims should be the ONLY DimensionContainer instance!
+        # StyleContainer Object instance -- self.scObj should be the ONLY StyleContainer instance!!!
+        # StyleContainer.__init__() depends on self.dims so self.dims MUST be initialized already!
         self.scObj = style_container.StyleContainer(self)
 
-        # ImageContainer Object Instance
-        # self.img should be the ONLY ImageContainer instance!
+        # ImageContainer Object Instance -- self.img should be the ONLY ImageContainer instance!!!
         # TODO: Replace INPUT_IMAGE_PATHS_FILE with runtime user input, the entire reason it's passed in by the GUI
         self.img = image_container.ImageContainer(self, INPUT_IMAGE_PATHS_FILE)
 
-        # CommandContainer Object Instance
-        # self.cmd should be the ONLY CommandContainer instance!
+        # CommandContainer Object Instance -- self.cmd should be the ONLY CommandContainer instance!!!
+        # Depends on a variety of things having already been defined, including dimensions and images
+        #  - For this reason, it's probably best to keep CommandContainer last in the instantiation order
         self.cmd = command_container.CommandContainer(self)
 
         # Configuring additional overarching GUI window properties
@@ -161,8 +164,8 @@ class HypnicGUI(tkinter.Tk):
         self.iconbitmap(default='media/hficon.ico')
         self.wm_title("hypnic-functions GUI Client")
         # NOTE: The line below can be uncommented in order to force a specific set of window dimensions
-        # self.minsize(width=self.scObj.dims.windowWidth, height=self.scObj.dims.windowHeight)
-        self.maxsize(width=self.scObj.dims.windowWidth, height=self.scObj.dims.windowHeight)
+        # self.minsize(width=self.dims.windowWidth, height=self.dims.windowHeight)
+        self.maxsize(width=self.dims.windowWidth, height=self.dims.windowHeight)
         self.state('zoomed')
 
         # Calls functions related to constructing the GUI and initializes associated values
@@ -186,10 +189,10 @@ class HypnicGUI(tkinter.Tk):
 
         # FRAMES WHICH ARE CHILDREN OF THE WINDOW AS A WHOLE
         # Defines the main 4 containers: Top Toolbar, Main Content, Bottom Toolbar, and Bottom Infobar
-        self.topToolbar = tkinter.ttk.Frame(self, height=self.scObj.dims.topToolbarHeight)
+        self.topToolbar = tkinter.ttk.Frame(self, height=self.dims.topToolbarHeight)
         self.mainContent = tkinter.ttk.Frame(self)
-        self.bottomToolbar = tkinter.ttk.Frame(self, height=self.scObj.dims.bottomToolbarHeight)
-        self.bottomInfobar = tkinter.ttk.Frame(self, height=self.scObj.dims.bottomInfobarHeight)
+        self.bottomToolbar = tkinter.ttk.Frame(self, height=self.dims.bottomToolbarHeight)
+        self.bottomInfobar = tkinter.ttk.Frame(self, height=self.dims.bottomInfobarHeight)
 
         # Specifies that mainContent is the (only) row which should have expansion priority
         self.grid_rowconfigure(1, weight=1)
@@ -207,26 +210,26 @@ class HypnicGUI(tkinter.Tk):
         # In this case because each element has separate values for padding, the current DimensionContainer framework
         # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
         # So we arrange the 4 main containers manually instead
-        self.topToolbar.grid(row=0, sticky="nsew", ipadx=self.scObj.dims.topToolbarPadX,
-                             ipady=self.scObj.dims.topToolbarPadY)
-        self.mainContent.grid(row=1, sticky="nsew", ipadx=self.scObj.dims.mainContentPadX,
-                              ipady=self.scObj.dims.mainContentPadY)
-        self.bottomToolbar.grid(row=2, sticky="nsew", ipadx=self.scObj.dims.bottomToolbarPadX,
-                                ipady=self.scObj.dims.bottomToolbarPadY)
-        self.bottomInfobar.grid(row=3, sticky="nsew", ipadx=self.scObj.dims.bottomInfobarPadX,
-                                ipady=self.scObj.dims.bottomInfobarPadY)
+        self.topToolbar.grid(row=0, sticky="nsew", ipadx=self.dims.topToolbarPadX,
+                             ipady=self.dims.topToolbarPadY)
+        self.mainContent.grid(row=1, sticky="nsew", ipadx=self.dims.mainContentPadX,
+                              ipady=self.dims.mainContentPadY)
+        self.bottomToolbar.grid(row=2, sticky="nsew", ipadx=self.dims.bottomToolbarPadX,
+                                ipady=self.dims.bottomToolbarPadY)
+        self.bottomInfobar.grid(row=3, sticky="nsew", ipadx=self.dims.bottomInfobarPadX,
+                                ipady=self.dims.bottomInfobarPadY)
         # NOTE: Clearing tempList just in case!
         # TODO: See note at top of file about clearing tempList
         tempList = []
 
         # FRAMES WHICH ARE CHILDREN OF self.mainContent
         # Defines the 3 container frames within Main Content: Left Content, Center Content, and Right Content
-        self.leftContent = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.leftContentWidth)
+        self.leftContent = tkinter.ttk.Frame(self.mainContent, width=self.dims.leftContentWidth)
         self.centerContent = tkinter.ttk.Frame(self.mainContent)
         # NOTE: Instead of hard-coding the width of rightContent, can set it relative to centerContent by removing the
         #       explicit width definition and calling grid_columnconfigure() for BOTH columns 1 AND 2
         # TODO: Consider implementing the above NOTE
-        self.rightContent = tkinter.ttk.Frame(self.mainContent, width=self.scObj.dims.rightContentWidth)
+        self.rightContent = tkinter.ttk.Frame(self.mainContent, width=self.dims.rightContentWidth)
 
         # Specifies that mainContent's row 0 (the only row) and column 1 (Center Content) have priority for space-filling
         self.mainContent.grid_rowconfigure(0, weight=1)
@@ -242,12 +245,12 @@ class HypnicGUI(tkinter.Tk):
         # In this case because each element has separate values for padding, the current DimensionContainer framework
         # does not support iteratively calling the ttk.Frame.grid() method for the newly created frames
         # So we arrange each of the three column containers manually
-        self.leftContent.grid(row=0, column=0, sticky="nsew", ipadx=self.scObj.dims.leftContentPadX,
-                              ipady=self.scObj.dims.leftContentPadY)
-        self.centerContent.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.centerContentPadX,
-                                ipady=self.scObj.dims.centerContentPadY)
-        self.rightContent.grid(row=0, column=2, sticky="nsw", ipadx=self.scObj.dims.rightContentPadX,
-                               ipady=self.scObj.dims.rightContentPadY)
+        self.leftContent.grid(row=0, column=0, sticky="nsew", ipadx=self.dims.leftContentPadX,
+                              ipady=self.dims.leftContentPadY)
+        self.centerContent.grid(row=0, column=1, sticky="nsew", ipadx=self.dims.centerContentPadX,
+                                ipady=self.dims.centerContentPadY)
+        self.rightContent.grid(row=0, column=2, sticky="nsw", ipadx=self.dims.rightContentPadX,
+                               ipady=self.dims.rightContentPadY)
 
         # NOTE: Clearing tempList just in case!
         # TODO: See note at top of file about clearing tempList
@@ -255,14 +258,14 @@ class HypnicGUI(tkinter.Tk):
 
         # FRAMES WHICH ARE CHILDREN OF self.leftContent
         # Defines the individual image display frames within the Left Content
-        self.photoBoxTL = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
-                                            height=self.scObj.dims.photoBoxHeight)
-        self.photoBoxTR = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
-                                            height=self.scObj.dims.photoBoxHeight)
-        self.photoBoxBL = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
-                                            height=self.scObj.dims.photoBoxHeight)
-        self.photoBoxBR = tkinter.ttk.Frame(self.leftContent, width=self.scObj.dims.photoBoxWidth,
-                                            height=self.scObj.dims.photoBoxHeight)
+        self.photoBoxTL = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
+                                            height=self.dims.photoBoxHeight)
+        self.photoBoxTR = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
+                                            height=self.dims.photoBoxHeight)
+        self.photoBoxBL = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
+                                            height=self.dims.photoBoxHeight)
+        self.photoBoxBR = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
+                                            height=self.dims.photoBoxHeight)
 
         # Specifies that each row and column within the Left Content has equal priority for space-filling
         self.leftContent.grid_rowconfigure(0, weight=1)
@@ -286,21 +289,21 @@ class HypnicGUI(tkinter.Tk):
             # hypnic_helpers.getGridPos is used to convert i to a (row, col) tuple based on the 2 x 2 arrangement
             pos = hypnic_helpers.getGridPos(i, 2, 2)
             # Uses pos to configure placement within the grid
-            e.grid(row=pos[0], column=pos[1], sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
-                   ipady=self.scObj.dims.photoBoxPadY)
+            e.grid(row=pos[0], column=pos[1], sticky="nsew", ipadx=self.dims.photoBoxPadX,
+                   ipady=self.dims.photoBoxPadY)
 
         # In this case because each element has separate values for row/column, I originally wrote the grid arrangement
         #   code in a non-iterative fashion. Keeping this down here just in case.
         """
         # TODO: Remove eventually, as it's now being done iteratively
-        self.photoBoxTL.grid(row=0, column=0, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
-                               ipady=self.scObj.dims.photoBoxPadY)
-        self.photoBoxTR.grid(row=0, column=1, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
-                               ipady=self.scObj.dims.photoBoxPadY)
-        self.photoBoxBL.grid(row=1, column=0, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
-                               ipady=self.scObj.dims.photoBoxPadY)
-        self.photoBoxBR.grid(row=1, column=1, sticky="nsew", ipadx=self.scObj.dims.photoBoxPadX,
-                               ipady=self.scObj.dims.photoBoxPadY)
+        self.photoBoxTL.grid(row=0, column=0, sticky="nsew", ipadx=self.dims.photoBoxPadX,
+                               ipady=self.dims.photoBoxPadY)
+        self.photoBoxTR.grid(row=0, column=1, sticky="nsew", ipadx=self.dims.photoBoxPadX,
+                               ipady=self.dims.photoBoxPadY)
+        self.photoBoxBL.grid(row=1, column=0, sticky="nsew", ipadx=self.dims.photoBoxPadX,
+                               ipady=self.dims.photoBoxPadY)
+        self.photoBoxBR.grid(row=1, column=1, sticky="nsew", ipadx=self.dims.photoBoxPadX,
+                               ipady=self.dims.photoBoxPadY)
         # Adds the frames to self.frames
         self.frames.append(self.photoBoxTL)
         self.frames.append(self.photoBoxTR)
@@ -315,8 +318,8 @@ class HypnicGUI(tkinter.Tk):
         #   lists like self.frames as opposed to being a replacement
 
         # Iterates through the number of rows and columns specified within dimension_container.py
-        for r in range(self.scObj.dims.numControlRows):
-            for c in range(self.scObj.dims.numControlColumns):
+        for r in range(self.dims.numControlRows):
+            for c in range(self.dims.numControlColumns):
                 # Initializes (and appends to self.widgets) a new Frame with self.centerContent as a parent
                 # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
                 #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
@@ -329,8 +332,8 @@ class HypnicGUI(tkinter.Tk):
                 self.centerContent.grid_rowconfigure(r, weight=1)
                 self.centerContent.grid_columnconfigure(c, weight=1)
                 # Specifies that the newly initialized Frame is a member of the grid cell at (row, col) in centerContent
-                self.widgets[-1].grid(row=r, column=c, sticky="nsew", ipadx=self.scObj.dims.controlBoxPadX,
-                                      ipady=self.scObj.dims.controlBoxPadY)
+                self.widgets[-1].grid(row=r, column=c, sticky="nsew", ipadx=self.dims.controlBoxPadX,
+                                      ipady=self.dims.controlBoxPadY)
 
     # Colors the frames defined in self.defineGrid()
     # NOTE: Currently based on random generation because I'm not concerned about this aspect of things
@@ -364,16 +367,16 @@ class HypnicGUI(tkinter.Tk):
             self.imageLabels.append(self.widgets[-1])
             self.photoBoxImageLabels.append(self.widgets[-1])
             # Places the Image Label within its frame
-            self.widgets[-1].place(relx=self.scObj.dims.defaultPlaceRelX,
-                                   rely=self.scObj.dims.defaultPlaceRelY,
-                                   anchor=self.scObj.dims.defaultPlaceAnchor)
+            self.widgets[-1].place(relx=self.dims.defaultPlaceRelX,
+                                   rely=self.dims.defaultPlaceRelY,
+                                   anchor=self.dims.defaultPlaceAnchor)
 
         #  - WIDGETS IN CENTER CONTENT
         #    - WIDGETS IN CONTROL BOX FRAMES
 
         # DEFINING BUTTONS for each controlBox within centerContent
         # Total number is number of rows multiplied by number of columns
-        for i in range(self.scObj.dims.numControlRows * self.scObj.dims.numControlColumns):
+        for i in range(self.dims.numControlRows * self.dims.numControlColumns):
             # Initializes (and appends to self.widgets) a new Button with the relevant self.controlBoxFrames elt as parent
             # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
             #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
@@ -384,9 +387,9 @@ class HypnicGUI(tkinter.Tk):
             self.inputWidgets.append(self.widgets[-1])
             self.controlBoxButtons.append(self.widgets[-1])
             # Places the Button within its frame
-            self.widgets[-1].place(relx=self.scObj.dims.defaultPlaceRelX,
-                                   rely=self.scObj.dims.defaultPlaceRelY,
-                                   anchor=self.scObj.dims.defaultPlaceAnchor)
+            self.widgets[-1].place(relx=self.dims.defaultPlaceRelX,
+                                   rely=self.dims.defaultPlaceRelY,
+                                   anchor=self.dims.defaultPlaceAnchor)
 
 
         # CONFIGURING TEXT for each BUTTON in self.controlBoxButtons
