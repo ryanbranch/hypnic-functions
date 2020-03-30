@@ -116,6 +116,8 @@ class ImageContainer():
                 p.close()
             # If the close() operation fails
             except:
+                # TODO: Update this output to be smarter and list relevant values one after another, instead of calling
+                #       all 7 of these print statements for each relevant value of ImageContainer.pilImages
                 # Console output for user
                 print("================================================================")
                 print("System could not close a file within the ImageContainer's list of PIL Image objects.")
