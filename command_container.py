@@ -52,17 +52,31 @@ class CommandContainer():
     # COMMAND FUNCTIONS
     # Functions beginning with "cmd" are designated for use in the "command" parameter of applicable ttk objects
 
+    # Test function used during development to ensure that commands are working
+    # Has a parameter variable, inVar, which can be specified by the widget with this command using partial()
+    def cmdDefault(self, inVar = None):
+        print("Executing CommandContainer.cmdDefault() with inVar:  " + str(inVar))
+        return inVar
+
     # Called when the "Undo" button is pressed
     def cmdButtonUndo(self):
-        print("Executing CommandContainer.commandButtonUndo()")
+        print("Executing CommandContainer.cmdButtonUndo()")
+        self.gui.photoBoxImageLabels[0].configure(image=self.gui.img.tkImages[0])
+        self.gui.photoBoxImageLabels[1].configure(image=self.gui.img.tkImages[0])
+        self.gui.photoBoxImageLabels[2].configure(image=self.gui.img.tkImages[0])
+        self.gui.photoBoxImageLabels[3].configure(image=self.gui.img.tkImages[0])
         return 1
 
     # Called when the "Apply" button is pressed
     def cmdButtonApply(self):
-        print("Executing CommandContainer.commandButtonApply()")
+        print("Executing CommandContainer.cmdButtonApply()")
+        self.gui.photoBoxImageLabels[0].configure(image=self.gui.img.tkImages[2])
+        self.gui.photoBoxImageLabels[1].configure(image=self.gui.img.tkImages[2])
+        self.gui.photoBoxImageLabels[2].configure(image=self.gui.img.tkImages[2])
+        self.gui.photoBoxImageLabels[3].configure(image=self.gui.img.tkImages[2])
         return 2
 
     # Called when the "Save" button is pressed
     def cmdButtonSave(self):
-        print("Executing CommandContainer.commandButtonSave()")
+        print("Executing CommandContainer.cmdButtonSave()")
         return 3

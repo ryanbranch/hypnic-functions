@@ -407,13 +407,6 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxButtonStrings[0] = "Undo"
         self.controlBoxButtonStrings[1] = "Apply"
         self.controlBoxButtonStrings[2] = "Save"
-        #self.controlBoxButtonStrings[3] = "Undo" # NOTE: Purposefully commented to test the next for loop
-        self.controlBoxButtonStrings[4] = "Undo"
-        self.controlBoxButtonStrings[5] = "Undo"
-        self.controlBoxButtonStrings[6] = "Undo"
-        self.controlBoxButtonStrings[7] = "Undo"
-        self.controlBoxButtonStrings[8] = "Undo"
-        self.controlBoxButtonStrings[9] = "Undo"
 
         # Sets any still-undefined strings to "Button [N]" where [N] is the current value of i
         # s is the string and i is the index of that string within self.controlBoxButtonStrings
@@ -425,12 +418,21 @@ class HypnicGUI(tkinter.Tk):
         for i, b in enumerate(self.controlBoxButtons):
             self.controlBoxButtons[i].configure(text=self.controlBoxButtonStrings[i])
 
+        # NOTE: The stuff below related to command handling (and some of the stuff directly above as well) is being
+        #       written as a very temporarily implementation. In the future, I'm gonna do a lot more with list-based
+        #       approaches and increasing the responsibility held by the CommandContainer instance.
+        # TODO: Implement this the right way
 
         # CONFIGURING COMMANDS for each BUTTON in self.controlBoxButtons
         # Iterates through self.controlBoxButtons and configures each such that upon being pressed,
         #   the buttonCommandHandler() function is called based on the Button's index
         for i, b in enumerate(self.controlBoxButtons):
-            b.configure(command=partial(self.buttonCommandHandler, i))
+            b.configure(command=partial(self.cmd.cmdDefault, i))
+
+        # Overwrites with some custom commands
+        self.controlBoxButtons[0].configure(command=partial(self.cmd.cmdButtonUndo))
+        self.controlBoxButtons[1].configure(command=partial(self.cmd.cmdButtonApply))
+        self.controlBoxButtons[2].configure(command=partial(self.cmd.cmdButtonSave))
 
 
         # WIDGETS IN BOTTOM TOOLBAR
