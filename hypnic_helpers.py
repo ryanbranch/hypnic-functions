@@ -128,3 +128,8 @@ def getRandomBlue():
 # Returns a shade of purple as an RGB tuple
 def getRandomPurple():
     return (random.randrange(0,MIN_HIGH_VAL), random.randrange(0,MAX_LOW_VAL), random.randrange(0,MIN_HIGH_VAL))
+
+# Returns a shade of gray as an RGB tuple
+def getRandomGray():
+    brightness = random.randrange(0,255)
+    return (brightness, brightness, brightness)

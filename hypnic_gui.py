@@ -1,4 +1,8 @@
 # TODO:
+#  ==============================================================================
+#  S. STRONGLY CONSIDER instance vs. class member variables and improve abstraction (as currently in D.)
+#     Explanation: https://dev.to/ogwurujohnson/distinguishing-instance-variables-from-class-variables-in-python-81
+#  ==============================================================================
 #  A. Implement functionalities which result from changes in focus between frames
 #  B. Add member variable arrays to HypnicGUI which store the grid, frame, label objects in a dictionary
 #  C. Keys should be strings like "topToolbar", "photoBoxTR", etc.
@@ -22,10 +26,17 @@ __name__ = "hypnic_gui"
 # Library Inputs
 import tkinter
 from tkinter import CENTER, ttk
+# The partial() module can be used to allow widgets like Buttons to pass arguments along with their commands
+# It is specifically useful where lambda can't be applied, like when such a parameter is being periodically changed
+#   throughout some sort of iterative process, such as configuring commands within the controlBox Frames
+# Credit to StackOverflow users "Dologan" and "Klamer Schutte" for their answer and associated comments on its use
+# The answer can be viewed at https://stackoverflow.com/a/22290388
+from functools import partial
 
 # Local Inputs
 import image_container
 import style_container
+import command_container
 import hypnic_helpers
 
 # G L O B A L   V A R I A B L E S
@@ -36,10 +47,20 @@ INPUT_IMAGE_PATHS_FILE = "hypnic_images.txt"  # FLAG: Hard-coded GUI parameter!
 
 class HypnicGUI(tkinter.Tk):
 
+    # Constructor has a wrapper_ argument for the program's HypnicWrapper instance
     def __init__(self, wrapper_, *args, **kwargs):
 
-        # TODO: Consider using dicts instead of lists, for storing the ttk widgets and such
+        # self.wrapper should ALWAYS reference "app" from within hypnic_wrapper.py's main() function
+        # a new HypnicWrapper instance should never be defined
+        # The HypnicGUI instance can refer to the HypnicWrapper isntance
+        # TODO: Since I'm writing all of these classes for use as single instances, it would seem to make the most
+        #       sense to transition such member variables to "above" the __init__()
+        self.wrapper = wrapper_
 
+        # Begins by running the initialization function for the basic instance of tkinter.Tk
+        tkinter.Tk.__init__(self, *args, **kwargs)
+
+        # TODO: Consider using dicts instead of lists, for storing the ttk widgets and such
         # I N I T I A L I Z A T I O N     O F     W I D G E T - R E L A T E D     V A R I A B L E S
         # GENERAL WIDGET LIST
         # Stores all of the ttk widgets that belong to the GUI
@@ -118,23 +139,22 @@ class HypnicGUI(tkinter.Tk):
 
 
 
-        # self.wrapper should ALWAYS reference "app" from within hypnic_wrapper.py's main() function
-        # a new HypnicWrapper instance should never be defined
-        self.wrapper = wrapper_
 
-        # Begins by running the initialization function for the basic instance of tkinter.Tk
-        tkinter.Tk.__init__(self, *args, **kwargs)
-
+        # MAKE SURE THIS STUFF IS DONE AFTER DEFINING THE EMPLY LISTS ABOVE, JUST IN CASE A CONSTRUCTOR NEEDS ACCESS
         # StyleContainer Object instance
         # self.scObj should be the ONLY StyleContainer instance!
         # it should hold a DimensionContainer instance at self.scObj.dims (defined within StyleContainer.__init__()!
         # self.scObj.dims should be the ONLY DimensionContainer instance!
-        self.scObj = style_container.StyleContainer()
+        self.scObj = style_container.StyleContainer(self)
 
         # ImageContainer Object Instance
         # self.img should be the ONLY ImageContainer instance!
         # TODO: Replace INPUT_IMAGE_PATHS_FILE with runtime user input, the entire reason it's passed in by the GUI
-        self.img = image_container.ImageContainer(INPUT_IMAGE_PATHS_FILE)
+        self.img = image_container.ImageContainer(self, INPUT_IMAGE_PATHS_FILE)
+
+        # CommandContainer Object Instance
+        # self.cmd should be the ONLY CommandContainer instance!
+        self.cmd = command_container.CommandContainer(self)
 
         # Configuring additional overarching GUI window properties
         # It's completely fine for these to be hard-coded as it's not anything the user should have or need control over
@@ -146,9 +166,13 @@ class HypnicGUI(tkinter.Tk):
         self.state('zoomed')
 
         # Calls functions related to constructing the GUI and initializes associated values
+        # The following must be done before calling defineGrid():
         self.defineGrid()
+        # The following must be done before calling colorFrames():
         self.colorFrames()
+        # The following must be done before calling fillGrid():
         self.fillGrid()
+        # The following must be done before calling styleWidgets():
         self.styleWidgets()
 
     # Defines the GUI layout using tkinter's grid() and Frame() modules
@@ -346,7 +370,9 @@ class HypnicGUI(tkinter.Tk):
 
         #  - WIDGETS IN CENTER CONTENT
         #    - WIDGETS IN CONTROL BOX FRAMES
-        # Defines buttons for each controlBox of centerContent (total number is rows multiplied by columns)
+
+        # DEFINING BUTTONS for each controlBox within centerContent
+        # Total number is number of rows multiplied by number of columns
         for i in range(self.scObj.dims.numControlRows * self.scObj.dims.numControlColumns):
             # Initializes (and appends to self.widgets) a new Button with the relevant self.controlBoxFrames elt as parent
             # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
@@ -361,39 +387,47 @@ class HypnicGUI(tkinter.Tk):
             self.widgets[-1].place(relx=self.scObj.dims.defaultPlaceRelX,
                                    rely=self.scObj.dims.defaultPlaceRelY,
                                    anchor=self.scObj.dims.defaultPlaceAnchor)
-        # Configures the text for each of the newly created buttons
+
+
+        # CONFIGURING TEXT for each BUTTON in self.controlBoxButtons
+        # Multiple properties can be changed with a single call of configure(), but I'm often
+        #   keeping things separate because this content is later going to be split up between many functions
         # For the time being, if I want to set human-defined button text within the code I could create a list where
         #   each element is a string and the number of elements is equal to the number of buttons, etc.
         # TODO: Either use the variable below or get rid of it entirely
-        self.controlBoxButtonStrings = []
+        # TODO: Actually consider making wider-scoped "buttonStrings"-type of list variables
+        # Initialized as a list of empty strings, where length is equal to the number of cells in centerContent
+        self.controlBoxButtonStrings = [""] * len(self.controlBoxButtons)
+        # Manual definition of button text
+        # NOTE: Doesn't really belong in this file at all, let alone here
+        # TODO: Remedy the above note by storing button text information in a new file, likely another custom class
+        self.controlBoxButtonStrings[0] = "Undo"
+        self.controlBoxButtonStrings[1] = "Apply"
+        self.controlBoxButtonStrings[2] = "Save"
+        #self.controlBoxButtonStrings[3] = "Undo" # NOTE: Purposefully commented to test the next for loop
+        self.controlBoxButtonStrings[4] = "Undo"
+        self.controlBoxButtonStrings[5] = "Undo"
+        self.controlBoxButtonStrings[6] = "Undo"
+        self.controlBoxButtonStrings[7] = "Undo"
+        self.controlBoxButtonStrings[8] = "Undo"
+        self.controlBoxButtonStrings[9] = "Undo"
+
+        # Sets any still-undefined strings to "Button [N]" where [N] is the current value of i
+        # s is the string and i is the index of that string within self.controlBoxButtonStrings
+        for i, s in enumerate(self.controlBoxButtonStrings):
+            if s == "":
+                self.controlBoxButtonStrings[i] = "Button " + str(i)
+
+        # Uses the newly-completed list of strings to configure each item in self.controlBoxButtons
         for i, b in enumerate(self.controlBoxButtons):
-            self.controlBoxButtons[i].configure(text=("Button " + str(i)))
-#
-#
-#
-#
-        self.buttonUndo = tkinter.ttk.Button(self.centerContent, text="Undo")
-        self.buttonApply = tkinter.ttk.Button(self.centerContent, text="Apply")
-        self.buttonSave = tkinter.ttk.Button(self.centerContent, text="Save")
+            self.controlBoxButtons[i].configure(text=self.controlBoxButtonStrings[i])
 
-        # Populates templist with the newly defined buttons
-        tempList = [self.buttonUndo, self.buttonApply, self.buttonSave]
-        # Iterates through the newly-defined tempList, appending all values to both self.labels and self.imageLabels
-        # as well as carrying out the ttk.Label.place() method on each element
-        for e in tempList:
-            self.widgets.append(e)
-            self.buttons.append(e)
-            self.inputWidgets.append(e)
 
-            # TODO: Remove this random placement, it's only present for testing
-            import random
-            xFac = random.randint(2, 8) / 10.0
-            yFac = random.randint(2, 8) / 10.0
-            e.place(relx=xFac, rely=yFac, anchor=self.scObj.dims.defaultPlaceAnchor)
-
-        # NOTE: Clearing tempList just in case!
-        # TODO: See note at top of file about clearing tempList
-        tempList = []
+        # CONFIGURING COMMANDS for each BUTTON in self.controlBoxButtons
+        # Iterates through self.controlBoxButtons and configures each such that upon being pressed,
+        #   the buttonCommandHandler() function is called based on the Button's index
+        for i, b in enumerate(self.controlBoxButtons):
+            b.configure(command=partial(self.buttonCommandHandler, i))
 
 
         # WIDGETS IN BOTTOM TOOLBAR
@@ -405,3 +439,9 @@ class HypnicGUI(tkinter.Tk):
     # Sets the necessary style parameters for each ttk-specific widget
     def styleWidgets(self):
         print("PLACEHOLDER FOR CONTENT WITHIN THE HypnicGUI.styleWidgets() function")
+
+    # Handles commands assigned to ttk.Button objects
+    # TODO: For functions which are inherently exclusive to ONE BUTTON, consider storing them in their own class.
+    #  This would allow a high degree of specificity without cluttering up the GUI class
+    def buttonCommandHandler(self, commandIndex):
+        print(commandIndex)

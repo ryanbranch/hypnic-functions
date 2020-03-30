@@ -15,7 +15,12 @@ STANDBY_IMAGE_PATH = "media/standby.jpg"
 
 class ImageContainer():
 
-    def __init__(self, imagesTxtPath_):
+    # Constructor has a gui_ parameter which is saved in self.gui in order to access the HypnicGUI members
+    # Also has an imagesTxtPath parameter but replacing this with runtime user input is a TODO
+    def __init__(self, gui_, imagesTxtPath_):
+
+        # So that the StyleContainer instance can refer to the HypnicGUI instance
+        self.gui = gui_
 
         self.imagesTxtPath = imagesTxtPath_
         self.inputPaths = []

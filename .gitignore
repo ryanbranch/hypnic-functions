@@ -5,6 +5,7 @@ venv/
 # Specific to hypnic-functions
 source-images/
 media/
+ignore/
 sandbox/
 hypnic2/
 hypnic3/

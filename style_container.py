@@ -26,7 +26,12 @@ DEFAULT_BG_COLOR = ""
 
 class StyleContainer():
 
-    def __init__(self):
+    # Constructor has a gui_ parameter which is saved in self.gui in order to access the HypnicGUI members
+    def __init__(self, gui_):
+
+        # So that the StyleContainer instance can refer to the HypnicGUI instance
+        self.gui = gui_
+
         # This class holds the DimensionContainer object instance, "dims",
         # in order to access things like padding specification variables. It is initialized here
         self.dims = dimension_container.DimensionContainer()
@@ -91,7 +96,7 @@ class StyleContainer():
             # styleName values are "fs0.TFrame", "fs1.TFrame", etc
             styleName = ("fs" + str(i) + ".TFrame")
             # Configures a style object, with key styleName, using random RGB values for each color
-            self.ttkStyleObj.configure(styleName, background=hypnic_helpers.rgbToHex(hypnic_helpers.getRandomBlue()))
+            self.ttkStyleObj.configure(styleName, background=hypnic_helpers.rgbToHex(hypnic_helpers.getRandomGray()))
 
             # Adds styleName to self.frameStyles for future reference
             self.frameStyles.append(styleName)

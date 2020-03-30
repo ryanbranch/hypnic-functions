@@ -1,4 +1,7 @@
 # TODO:
+#  ==============================================================================
+#  S. Placeholder for the MOST IMPORTANT/URGENT TASK
+#  ==============================================================================
 #  A. Shift responsibility for window dimension definition to hypnic_launcher.py
 #  B. Change dimensions to be less static and more scalable
 #    1. Some things still need to remain static, but overall want to write the GUI to support all standard resolutions
@@ -18,20 +21,20 @@ __name__ = "dimension_container"
 import math
 from tkinter import CENTER
 
+
 class DimensionContainer():
 
     def __init__(self):
-
         # I M P O R T A N T     N O T E S :
         # All of these are used by the GUI's StyleContainer instance, so these dimensions must be defined beforehand!
         # Column (COL) and Row (ROW) values provided are zero-indexed!
         # Unless specified otherwise, a widget exists within ROW 0 of its parent widget!
         # Unless specified otherwise, a widget exists within COLUMN (COL) 0 of its parent widget!
         # Unless specified otherwise, padding variables refer to internal padding!
-        self.internalPaddingButton = 0 # FLAG: Hard-coded GUI parameter!
-        self.externalPaddingButton = 0 # FLAG: Hard-coded GUI parameter!
-        self.defaultInternalPaddingGrid = 0 # FLAG: Hard-coded GUI parameter!
-        self.defaultExternalPaddingGrid = 0 # FLAG: Hard-coded GUI parameter!
+        self.internalPaddingButton = 0  # FLAG: Hard-coded GUI parameter!
+        self.externalPaddingButton = 0  # FLAG: Hard-coded GUI parameter!
+        self.defaultInternalPaddingGrid = 0  # FLAG: Hard-coded GUI parameter!
+        self.defaultExternalPaddingGrid = 0  # FLAG: Hard-coded GUI parameter!
 
         # Defaults related to the place() method of ttk Label objects
         # Because the grid() method is used heavily, everything should be centered unless otherwise specified
@@ -42,29 +45,29 @@ class DimensionContainer():
         # WINDOW AS A WHOLE
         self.windowPadX = self.defaultInternalPaddingGrid
         self.windowPadY = self.defaultInternalPaddingGrid
-        self.windowWidth = 1800 # FLAG: Hard-coded GUI parameter!
-        self.windowHeight = 1000 # FLAG: Hard-coded GUI parameter!
+        self.windowWidth = 1800  # FLAG: Hard-coded GUI parameter!
+        self.windowHeight = 1000  # FLAG: Hard-coded GUI parameter!
 
         # TOP TOOLBAR (ROW 0 OF WINDOW)
         self.topToolbarPadX = self.defaultInternalPaddingGrid
         self.topToolbarPadY = self.defaultInternalPaddingGrid
-        self.topToolbarHeight = 60 # FLAG: Hard-coded GUI parameter!
+        self.topToolbarHeight = 60  # FLAG: Hard-coded GUI parameter!
 
         # BOTTOM TOOLBAR (ROW 2 OF WINDOW)
         self.bottomToolbarPadX = self.defaultInternalPaddingGrid
         self.bottomToolbarPadY = self.defaultInternalPaddingGrid
-        self.bottomToolbarHeight = 60 # FLAG: Hard-coded GUI parameter!
+        self.bottomToolbarHeight = 60  # FLAG: Hard-coded GUI parameter!
 
         # BOTTOM INFOBAR (ROW 3 OF WINDOW)
         self.bottomInfobarPadX = self.defaultInternalPaddingGrid
         self.bottomInfobarPadY = self.defaultInternalPaddingGrid
-        self.bottomInfobarHeight = 30 # FLAG: Hard-coded GUI parameter!
+        self.bottomInfobarHeight = 30  # FLAG: Hard-coded GUI parameter!
 
         # MAIN CONTENT (ROW 1 OF WINDOW)
         # Dependent on dimensions of ROW 0, ROW 2, and ROW 3
         self.mainContentPadX = self.defaultInternalPaddingGrid
         self.mainContentPadY = self.defaultInternalPaddingGrid
-        self.mainContentHeight = self.windowHeight - self.windowPadY -\
+        self.mainContentHeight = self.windowHeight - self.windowPadY - \
                                  self.topToolbarHeight - self.bottomToolbarHeight - self.bottomInfobarHeight
 
         # LEFT CONTENT (COL 0 OF MAIN CONTENT)
@@ -89,7 +92,7 @@ class DimensionContainer():
         self.rightContentPadY = self.defaultInternalPaddingGrid
         # TODO: Instead of hard-coding rightContentWidth I can do percent scaling using the weight specifications
         #  (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods! See note at top of file.
-        self.rightContentWidth = 300 # FLAG: Hard-coded GUI parameter!
+        self.rightContentWidth = 300  # FLAG: Hard-coded GUI parameter!
         # Height is equal to the internal height of mainContent, which has already been calculated for leftContent
         self.rightContentHeight = self.leftContentHeight
 
@@ -105,8 +108,8 @@ class DimensionContainer():
 
         # CONTROL BOXES WITHIN CENTER CONTENT
         # Sets the number of rows into which the Controls Frame should be divided (evenly)
-        self.numControlRows = 5 # FLAG: Hard-coded GUI parameter!
-        self.numControlColumns = 2 # FLAG: Hard-coded GUI parameter!
+        self.numControlRows = 5  # FLAG: Hard-coded GUI parameter!
+        self.numControlColumns = 2  # FLAG: Hard-coded GUI parameter!
         # No need to define individual widths/heights for these frames as they are all relative to centerContent dims
         self.controlBoxPadX = self.defaultInternalPaddingGrid
         self.controlBoxPadY = self.defaultInternalPaddingGrid
