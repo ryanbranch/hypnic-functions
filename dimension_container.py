@@ -47,6 +47,12 @@ class DimensionContainer():
         self.defaultPlaceRelX = 0.5
         self.defaultPlaceRelY = 0.5
         self.defaultPlaceAnchor = CENTER
+        self.defaultLabelPlaceRelX = 0.5
+        self.defaultLabelPlaceRelY = 0.5
+        self.defaultLabelPlaceAnchor = CENTER
+        self.defaultButtonPlaceRelX = 0.0
+        self.defaultButtonPlaceRelY = 0.0
+        self.defaultButtonPlaceAnchor = "nw"
 
         # WINDOW AS A WHOLE
         self.windowPadX = self.defaultInternalPaddingGrid
@@ -103,7 +109,7 @@ class DimensionContainer():
         self.rightContentHeight = self.leftContentHeight
 
         # CENTER CONTENT (COL 1 OF MAIN CONTENT)
-        # The controls frame fills the remaining space within mainContent that is not already occupied
+        # The center content frame fills the remaining space within mainContent that is not already occupied
         # by either leftContent or rightContent
         self.centerContentPadX = self.defaultInternalPaddingGrid
         self.centerContentPadY = self.defaultInternalPaddingGrid
@@ -113,9 +119,16 @@ class DimensionContainer():
         self.centerContentHeight = self.leftContentHeight
 
         # CONTROL BOXES WITHIN CENTER CONTENT
-        # Sets the number of rows into which the Controls Frame should be divided (evenly)
-        self.numControlRows = 5  # FLAG: Hard-coded GUI parameter!
-        self.numControlColumns = 2  # FLAG: Hard-coded GUI parameter!
+        # Sets the number of rows and columns into which the CENTER CONTENT frame should be divided (evenly)
+        self.numControlBoxRows = 5  # FLAG: Hard-coded GUI parameter!
+        self.numControlBoxCols = 2  # FLAG: Hard-coded GUI parameter!
         # No need to define individual widths/heights for these frames as they are all relative to centerContent dims
         self.controlBoxPadX = self.defaultInternalPaddingGrid
         self.controlBoxPadY = self.defaultInternalPaddingGrid
+        # Sets the default number of buttons to use within each control box, unless otherwise specified
+        self.defaultControlBoxButtonCount = 1  # FLAG: Hard-coded GUI parameter!
+        # Sets the number of buttons within each control box cell, from left to right then top to bottom
+        self.controlBoxButtonCounts = [4, 4, 4, 4, 4, 0, 1, 1, 6, 6]
+        self.controlBoxButtonPlaceRelX = 0.0
+        self.controlBoxButtonPlaceRelY = 0.5
+        self.controlBoxButtonPlaceAnchor = "w"

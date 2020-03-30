@@ -187,6 +187,7 @@ class HypnicGUI(tkinter.Tk):
         #   to more than just one of the member variable lists
         tempList = []
 
+
         # FRAMES WHICH ARE CHILDREN OF THE WINDOW AS A WHOLE
         # Defines the main 4 containers: Top Toolbar, Main Content, Bottom Toolbar, and Bottom Infobar
         self.topToolbar = tkinter.ttk.Frame(self, height=self.dims.topToolbarHeight)
@@ -222,6 +223,7 @@ class HypnicGUI(tkinter.Tk):
         # TODO: See note at top of file about clearing tempList
         tempList = []
 
+
         # FRAMES WHICH ARE CHILDREN OF self.mainContent
         # Defines the 3 container frames within Main Content: Left Content, Center Content, and Right Content
         self.leftContent = tkinter.ttk.Frame(self.mainContent, width=self.dims.leftContentWidth)
@@ -256,6 +258,7 @@ class HypnicGUI(tkinter.Tk):
         # TODO: See note at top of file about clearing tempList
         tempList = []
 
+
         # FRAMES WHICH ARE CHILDREN OF self.leftContent
         # Defines the individual image display frames within the Left Content
         self.photoBoxTL = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
@@ -272,8 +275,6 @@ class HypnicGUI(tkinter.Tk):
         self.leftContent.grid_columnconfigure(0, weight=1)
         self.leftContent.grid_rowconfigure(1, weight=1)
         self.leftContent.grid_columnconfigure(1, weight=1)
-
-
 
         # Populates templist with the newly defined frames
         tempList = [self.photoBoxTL, self.photoBoxTR, self.photoBoxBL, self.photoBoxBR]
@@ -292,24 +293,6 @@ class HypnicGUI(tkinter.Tk):
             e.grid(row=pos[0], column=pos[1], sticky="nsew", ipadx=self.dims.photoBoxPadX,
                    ipady=self.dims.photoBoxPadY)
 
-        # In this case because each element has separate values for row/column, I originally wrote the grid arrangement
-        #   code in a non-iterative fashion. Keeping this down here just in case.
-        """
-        # TODO: Remove eventually, as it's now being done iteratively
-        self.photoBoxTL.grid(row=0, column=0, sticky="nsew", ipadx=self.dims.photoBoxPadX,
-                               ipady=self.dims.photoBoxPadY)
-        self.photoBoxTR.grid(row=0, column=1, sticky="nsew", ipadx=self.dims.photoBoxPadX,
-                               ipady=self.dims.photoBoxPadY)
-        self.photoBoxBL.grid(row=1, column=0, sticky="nsew", ipadx=self.dims.photoBoxPadX,
-                               ipady=self.dims.photoBoxPadY)
-        self.photoBoxBR.grid(row=1, column=1, sticky="nsew", ipadx=self.dims.photoBoxPadX,
-                               ipady=self.dims.photoBoxPadY)
-        # Adds the frames to self.frames
-        self.frames.append(self.photoBoxTL)
-        self.frames.append(self.photoBoxTR)
-        self.frames.append(self.photoBoxBL)
-        self.frames.append(self.photoBoxBR)
-        """
 
         # FRAMES WHICH ARE CHILDREN OF self.centerContent
         # Defines the individual control frames as rows within self.centerContent
@@ -318,8 +301,8 @@ class HypnicGUI(tkinter.Tk):
         #   lists like self.frames as opposed to being a replacement
 
         # Iterates through the number of rows and columns specified within dimension_container.py
-        for r in range(self.dims.numControlRows):
-            for c in range(self.dims.numControlColumns):
+        for r in range(self.dims.numControlBoxRows):
+            for c in range(self.dims.numControlBoxCols):
                 # Initializes (and appends to self.widgets) a new Frame with self.centerContent as a parent
                 # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
                 #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
@@ -334,6 +317,7 @@ class HypnicGUI(tkinter.Tk):
                 # Specifies that the newly initialized Frame is a member of the grid cell at (row, col) in centerContent
                 self.widgets[-1].grid(row=r, column=c, sticky="nsew", ipadx=self.dims.controlBoxPadX,
                                       ipady=self.dims.controlBoxPadY)
+
 
     # Colors the frames defined in self.defineGrid()
     # NOTE: Currently based on random generation because I'm not concerned about this aspect of things
@@ -367,29 +351,43 @@ class HypnicGUI(tkinter.Tk):
             self.imageLabels.append(self.widgets[-1])
             self.photoBoxImageLabels.append(self.widgets[-1])
             # Places the Image Label within its frame
-            self.widgets[-1].place(relx=self.dims.defaultPlaceRelX,
-                                   rely=self.dims.defaultPlaceRelY,
-                                   anchor=self.dims.defaultPlaceAnchor)
+            self.widgets[-1].place(relx=self.dims.defaultLabelPlaceRelX,
+                                   rely=self.dims.defaultLabelPlaceRelY,
+                                   anchor=self.dims.defaultLabelPlaceAnchor)
 
         #  - WIDGETS IN CENTER CONTENT
         #    - WIDGETS IN CONTROL BOX FRAMES
 
         # DEFINING BUTTONS for each controlBox within centerContent
-        # Total number is number of rows multiplied by number of columns
-        for i in range(self.dims.numControlRows * self.dims.numControlColumns):
-            # Initializes (and appends to self.widgets) a new Button with the relevant self.controlBoxFrames elt as parent
-            # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
-            #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
-            #       well could be the cause and I'll have to learn more about memory management in Python OOP
-            self.widgets.append(tkinter.ttk.Button(self.controlBoxFrames[i]))
-            # Appends the same Button to self.buttons, self.inputWidgets, and self.controlBoxImageLabels
-            self.buttons.append(self.widgets[-1])
-            self.inputWidgets.append(self.widgets[-1])
-            self.controlBoxButtons.append(self.widgets[-1])
-            # Places the Button within its frame
-            self.widgets[-1].place(relx=self.dims.defaultPlaceRelX,
-                                   rely=self.dims.defaultPlaceRelY,
-                                   anchor=self.dims.defaultPlaceAnchor)
+
+        # This array defines the number of rows of buttons to place within each control box Frame
+        # If empty or too short, the default value is used, currently from DimensionContainer.numControlBoxButtons
+        # NOTE: ONLY meant to be used for definition, shouldn't rely on this for anything long-term. Not a member var.
+        # iterates from zero stopping before (number of rows multiplied by number of columns)
+        for i in range(self.dims.numControlBoxRows * self.dims.numControlBoxCols):
+            # Number of buttons created is defined by DimensionContainer.numControlBoxButtons
+            buttonCount = self.dims.defaultControlBoxButtonCount
+            if i < len(self.dims.controlBoxButtonCounts):
+                buttonCount = self.dims.controlBoxButtonCounts[i]
+            for n in range(buttonCount):
+                # Initializes (and appends to self.widgets) a new Button with the relevant self.controlBoxFrames elt as parent
+                # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
+                #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
+                #       well could be the cause and I'll have to learn more about memory management in Python OOP
+                self.widgets.append(tkinter.ttk.Button(self.controlBoxFrames[i]))
+                # Appends the same Button to self.buttons, self.inputWidgets, and self.controlBoxImageLabels
+                self.buttons.append(self.widgets[-1])
+                self.inputWidgets.append(self.widgets[-1])
+                self.controlBoxButtons.append(self.widgets[-1])
+                self.widgets[-1].grid(row=n, column=0, sticky="nsew", ipadx=self.dims.controlBoxPadX,
+                   ipady=self.dims.controlBoxPadY)
+
+                """
+                # Places the Button within its frame
+                self.widgets[-1].place(relx=self.dims.controlBoxButtonPlaceRelX,
+                                       rely=((n + 1) / (buttonCount + 1)),
+                                       anchor=self.dims.controlBoxButtonPlaceAnchor)
+                """
 
 
         # CONFIGURING TEXT for each BUTTON in self.controlBoxButtons
@@ -404,9 +402,32 @@ class HypnicGUI(tkinter.Tk):
         # Manual definition of button text
         # NOTE: Doesn't really belong in this file at all, let alone here
         # TODO: Remedy the above note by storing button text information in a new file, likely another custom class
-        self.controlBoxButtonStrings[0] = "Undo"
-        self.controlBoxButtonStrings[1] = "Apply"
-        self.controlBoxButtonStrings[2] = "Save"
+        self.controlBoxButtonStrings[0] = "Load A"
+        self.controlBoxButtonStrings[1] = "Load B"
+        self.controlBoxButtonStrings[2] = "Load C"
+        self.controlBoxButtonStrings[3] = "Load D"
+
+        self.controlBoxButtonStrings[4] = "Save A"
+        self.controlBoxButtonStrings[5] = "Save B"
+        self.controlBoxButtonStrings[6] = "Save C"
+        self.controlBoxButtonStrings[7] = "Save D"
+
+        self.controlBoxButtonStrings[8] = "Undo A"
+        self.controlBoxButtonStrings[9] = "Undo B"
+        self.controlBoxButtonStrings[10] = "Undo C"
+        self.controlBoxButtonStrings[11] = "Undo D"
+
+        self.controlBoxButtonStrings[12] = "Redo A"
+        self.controlBoxButtonStrings[13] = "Redo B"
+        self.controlBoxButtonStrings[14] = "Redo C"
+        self.controlBoxButtonStrings[15] = "Redo D"
+
+        self.controlBoxButtonStrings[16] = "Apply A"
+        self.controlBoxButtonStrings[17] = "Apply B"
+        self.controlBoxButtonStrings[18] = "Apply C"
+        self.controlBoxButtonStrings[19] = "Apply D"
+
+
 
         # Sets any still-undefined strings to "Button [N]" where [N] is the current value of i
         # s is the string and i is the index of that string within self.controlBoxButtonStrings
@@ -418,10 +439,6 @@ class HypnicGUI(tkinter.Tk):
         for i, b in enumerate(self.controlBoxButtons):
             self.controlBoxButtons[i].configure(text=self.controlBoxButtonStrings[i])
 
-        # NOTE: The stuff below related to command handling (and some of the stuff directly above as well) is being
-        #       written as a very temporarily implementation. In the future, I'm gonna do a lot more with list-based
-        #       approaches and increasing the responsibility held by the CommandContainer instance.
-        # TODO: Implement this the right way
 
         # CONFIGURING COMMANDS for each BUTTON in self.controlBoxButtons
         # Iterates through self.controlBoxButtons and configures each such that upon being pressed,
@@ -430,9 +447,26 @@ class HypnicGUI(tkinter.Tk):
             b.configure(command=partial(self.cmd.cmdDefault, i))
 
         # Overwrites with some custom commands
-        self.controlBoxButtons[0].configure(command=partial(self.cmd.cmdButtonUndo))
-        self.controlBoxButtons[1].configure(command=partial(self.cmd.cmdButtonApply))
-        self.controlBoxButtons[2].configure(command=partial(self.cmd.cmdButtonSave))
+        self.controlBoxButtons[0].configure(command=partial(self.cmd.cmdButtonLoad, 0))
+        self.controlBoxButtons[1].configure(command=partial(self.cmd.cmdButtonLoad, 1))
+        self.controlBoxButtons[2].configure(command=partial(self.cmd.cmdButtonLoad, 2))
+        self.controlBoxButtons[3].configure(command=partial(self.cmd.cmdButtonLoad, 3))
+        self.controlBoxButtons[4].configure(command=partial(self.cmd.cmdButtonSave, 0))
+        self.controlBoxButtons[5].configure(command=partial(self.cmd.cmdButtonSave, 1))
+        self.controlBoxButtons[6].configure(command=partial(self.cmd.cmdButtonSave, 2))
+        self.controlBoxButtons[7].configure(command=partial(self.cmd.cmdButtonSave, 3))
+        self.controlBoxButtons[8].configure(command=partial(self.cmd.cmdButtonUndo, 0))
+        self.controlBoxButtons[9].configure(command=partial(self.cmd.cmdButtonUndo, 1))
+        self.controlBoxButtons[10].configure(command=partial(self.cmd.cmdButtonUndo, 2))
+        self.controlBoxButtons[11].configure(command=partial(self.cmd.cmdButtonUndo, 3))
+        self.controlBoxButtons[12].configure(command=partial(self.cmd.cmdButtonRedo, 0))
+        self.controlBoxButtons[13].configure(command=partial(self.cmd.cmdButtonRedo, 1))
+        self.controlBoxButtons[14].configure(command=partial(self.cmd.cmdButtonRedo, 2))
+        self.controlBoxButtons[15].configure(command=partial(self.cmd.cmdButtonRedo, 3))
+        self.controlBoxButtons[16].configure(command=partial(self.cmd.cmdButtonApply, 0))
+        self.controlBoxButtons[17].configure(command=partial(self.cmd.cmdButtonApply, 1))
+        self.controlBoxButtons[18].configure(command=partial(self.cmd.cmdButtonApply, 2))
+        self.controlBoxButtons[19].configure(command=partial(self.cmd.cmdButtonApply, 3))
 
 
         # WIDGETS IN BOTTOM TOOLBAR
