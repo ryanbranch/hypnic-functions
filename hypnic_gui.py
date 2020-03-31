@@ -35,6 +35,7 @@ from functools import partial
 
 # Local Inputs
 import dimension_container
+import state_container
 import image_container
 import style_container
 import edit_container
@@ -144,12 +145,17 @@ class HypnicGUI(tkinter.Tk):
         # C U S T O M     O B J E C T     I N I T I A L I Z A T I O N
         # MAKE SURE THIS STUFF IS DONE AFTER DEFINING THE EMPTY LISTS ABOVE, JUST IN CASE A CONSTRUCTOR NEEDS ACCESS
         # DimensionContainer Object instance -- self.dims should be the ONLY DimensionContainer instance!!!
-        # StyleContainer.__init__() depends on self.dims so we must define self.dims before self.scObj!
+        # StyleContainer.__init__() depends on self.dims so we must define self.dims before self.styleObj!
         self.dims = dimension_container.DimensionContainer(self)
 
-        # StyleContainer Object instance -- self.scObj should be the ONLY StyleContainer instance!!!
+        # StateContainer Object instance -- self.stateObj should be the ONLY StateContainer instance!!!
+        # Doesn't necessarily depend on other objects having been initialized. Its initialization simply serves to
+        #   define any default states of widgets like checkboxes/radiobuttons and store their new states when updated
+        self.stateObj = state_container.StateContainer(self)
+
+        # StyleContainer Object instance -- self.styleObj should be the ONLY StyleContainer instance!!!
         # StyleContainer.__init__() depends on self.dims so self.dims MUST be initialized already!
-        self.scObj = style_container.StyleContainer(self)
+        self.styleObj = style_container.StyleContainer(self)
 
         # CommandContainer Object Instance -- self.cmd should be the ONLY CommandContainer instance!!!
         # Depends on a variety of things having already been defined, including dimensions and images
@@ -329,7 +335,7 @@ class HypnicGUI(tkinter.Tk):
     # NOTE: Currently based on random generation because I'm not concerned about this aspect of things
     def colorFrames(self):
         for f in range(len(self.frames)):
-            self.frames[f].configure(style=self.scObj.frameStyles[f])
+            self.frames[f].configure(style=self.styleObj.frameStyles[f])
 
     # Fills the previously-defined GUI with label elements
     def fillGrid(self):
