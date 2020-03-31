@@ -91,8 +91,7 @@ class StyleContainer():
 
         # Frame Styles
         # Number of random ttk Frame styles to generate
-        # TODO: Define this elsewhere, even better if based on parameters (hard-coded or user input)
-        #  instead of being hard-coded in itself
+        # TODO: Define this elsewhere, and based on hard-coded parameters
         numFrameStyles = 30
         for i in range(numFrameStyles):
             # styleName values are "fs0.TFrame", "fs1.TFrame", etc
@@ -106,9 +105,6 @@ class StyleContainer():
     # SET / GET METHODS
     # Good practice for use when modifying StyleContainer variables from externally (like from the HypnicGUI instance)
     # Also good for clarity when pulling/calculating values from here to the GUI instance
-    # TODO: It's not great practice that I'm calling len() to find the number of elements in an array instead of
-    #  tracking the length in a member variable. As long as I only call len() once per function below I'm not too
-    #  concerned about it, however in the future it would be good to change how I'm handling this
 
     # Returns a random element from self.styles
     def getRandomStyle(self):

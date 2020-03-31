@@ -3,23 +3,19 @@
 #  S. STRONGLY CONSIDER instance vs. class member variables and improve abstraction (as currently in D.)
 #     Explanation: https://dev.to/ogwurujohnson/distinguishing-instance-variables-from-class-variables-in-python-81
 #  ==============================================================================
-#  A. Implement functionalities which result from changes in focus between frames
-#  B. Add member variable arrays to HypnicGUI which store the grid, frame, label objects in a dictionary
-#  C. Keys should be strings like "topToolbar", "photoBoxTR", etc.
-#    1. Don't have to write code to support SOLELY managing the objects via list operations
-#    2. But should still support it for keeping code clean and for using list operations WHERE REASONABLE.
-#  D. Consider creating a new widget_container.py file (or some other name with similar meaning)
+#  A. Consider creating a new widget_container.py file (or some other name with similar meaning)
 #    1. Not immediately necessary, but the GUI is gonna become more and more complicated so it may make more sense
 #       to handle initialization-related aspects of the program within a class
-#    2. A WidgetContainer object would likely hold the StyleContainer instance (which itself holds a DimensionContainer)
-#    3. It's REALLY not great practice that I'm initializing member variables like frames outside of __init__()
-#      a. Would be better to, at that point within defineGrid(), initialize a WidgetContainer() instance which holds
+#  B. It's REALLY not great practice that I'm initializing member variables like frames outside of __init__()
+#    1. Would be better to, at that point within defineGrid(), initialize a WidgetContainer() instance which holds
 #         those widgets as member variables AND defines them within its __init__ function
-#  E. If clearing IS important, consider using
+#  C. If clearing IS important, consider using
 #             del tempList[:]
 #         But don't jump to conclusions on doing so
 #    1. Don't want to accidentally call any destructors for ttk objects and such,
 #       since many will be referenced by two or more lists
+#  D. Create a TXT or CSV input system for defining all of the GUI parameters that are currently hard-coded
+#    1. Not at all concerned with this until I actually care about making things pretty beyond functionality
 
 __name__ = "hypnic_gui"
 
@@ -53,10 +49,8 @@ class HypnicGUI(tkinter.Tk):
     # Constructor has a wrapper_ argument for the program's HypnicWrapper instance
     def __init__(self, wrapper_, *args, **kwargs):
 
-        # self.wrapper should ALWAYS reference "app" from within hypnic_wrapper.py's main() function
-        # a new HypnicWrapper instance should never be defined
-        # The HypnicGUI instance can refer to the HypnicWrapper isntance
-        # TODO: Since I'm writing all of these classes for use as single instances, it would seem to make the most
+        # The HypnicGUI instance can refer to the HypnicWrapper instance
+        # TODO: Since I'm writing all of these classes for use as single instances, it amy make the most
         #       sense to transition such member variables to "above" the __init__()
         self.wrapper = wrapper_
 
@@ -78,100 +72,84 @@ class HypnicGUI(tkinter.Tk):
         # I N I T I A L I Z A T I O N     O F     F R A M E - R E L A T E D     V A R I A B L E S
         # GENERAL FRAME LIST
         # Stores all of the ttk Frame objects that belong to the GUI
-        # Any time a Frame is created, it should be placed in this list to support iteration
         self.frames = []
 
         # CUSTOM FRAME LISTS (mainly for storing frames which do not have their own individual member variables)
         #     - Also potentially useful for keeping narrow-scope groups of similar frames together
         # self.photoBoxFrames stores each of the 4 frames held within self.photoBox
-        #   NOTE: self.leftContent is currently not defined until self.defineGrid()
-        #         This may change if something like a WidgetContainer/TtkContainer class is written for the purpose
-        #           of ensuring that all member variables can be initialized within some class' __init__() function
-        # TODO: I really don't feel great about this naming convention and should at least consider changing it
-        #  Perhaps "photoBox" is a horrible name, since both "image" and "frame" will be incredibly common generic
-        #  terms appearing within variable names
-        #  Frame names like "mainContent", "topToolbar" etc. are pretty good
-        #    Might be even better with the word "Frame" at the end to denote this!
         self.photoBoxFrames = []
+
         # self.controlBoxFrames stores each frame from each row within self.controlBox
-        #   NOTE: self.controlBox is currently not defined until self.defineGrid()
-        #         This may change if something like a WidgetContainer/TtkContainer class is written for the purpose
-        #           of ensuring that all member variables can be initialized within some class' __init__() function
         self.controlBoxFrames = []
 
         # I N I T I A L I Z A T I O N     O F     L A B E L - R E L A T E D     V A R I A B L E S
         # GENERAL LABEL LIST
         # Stores all of the ttk Label objects that belong to the GUI
-        # Any time a Label is created, it should be placed in this list to support iteration
         self.labels = []
 
         # SPECIFIC LABEL LISTS
         # Divides labels into separate lists based on whether or not they contain associated images or text
-        #   NOTE: There is no need to create a "SPECIFIC IMAGE LABEL LISTS" section, or anything of the sort
-        #         Instead, it's enough to have a "Specific __ List" for each widget type (Frame, Label, etc.)
+
         # Stores  the ttk Label objects which have an assigned image property
-        # NOTE: If a Label doe not contain an image but is developed for the ability to contain one, include it in here
         self.imageLabels = []
         # Stores  the ttk Label objects which have some assigned text property
-        # NOTE: If a Label doe not inherently/immediately contain text but is developed to contain it, include it
         # TODO: Determine whether textvariable Label objects should also be included within the array for text Labels,
         #       and/or vice versa, or kept mutually exclusive from one another
         self.textLabels = []
         # Stores  the ttk Label objects which have some assigned textvariable property
-        # NOTE: If a Label doe not contain a textvariable but is developed to potentially contain it, include it
         self.textvariableLabels = []
 
-        # CUSTOM LABEL LISTS (Mainly for storing labels which do not have their own individual member variables)
-        #     - Also potentially useful for keeping narrow-scope groups of similar frames together
+        # CUSTOM LABEL LISTS
         # self.photoBoxImageLabels stores each of the 4 Labels which hold images for each of the 4 "photoBox*" frames
         self.photoBoxImageLabels = []
 
         # I N I T I A L I Z A T I O N     O F     B U T T O N - R E L A T E D     V A R I A B L E S
         # GENERAL BUTTON LIST
         # Stores all of the ttk Button objects that belong to the GUI
-        # Any time a Button is created, it should be placed in this list to support iteration
         self.buttons = []
 
-        # CUSTOM BUTTON LISTS (mainly for storing labels which do not have their own individual member variables)
-        #     - Also potentially useful for keeping narrow-scope groups of similar frames together
-
+        # CUSTOM BUTTON LISTS
         # Stores each of the buttons that fall within any of the Control Box frames in CenterContent
-        # The number of buttons in this array is currently based on the row/col vals set manually in DimensionContainer
-        # May support multiple buttons per grid cell in the future
         self.controlBoxButtons = []
 
+        # I N I T I A L I Z A T I O N     O F    R A D I O B U T T O N - R E L A T E D     V A R I A B L E S
+        # GENERAL RADIOBUTTON LIST
+        # Stores all of the ttk Radiobutton objects that belong to the GUI
+        self.radiobuttons = []
+
+        # CUSTOM RADIOBUTTON LISTS
+        # Stores each of the Radiobuttons that fall within any of the Control Box frames in CenterContent
+        self.controlBoxRadiobuttons = []
+
+        # I N I T I A L I Z A T I O N     O F    C H E C K B U T T O N - R E L A T E D     V A R I A B L E S
+        # GENERAL CHECKBUTTON LIST
+        # Stores all of the ttk Checkbutton objects that belong to the GUI
+        self.checkbuttons = []
+
+        # CUSTOM CHECKBUTTON LISTS
+        # Stores each of the Checkbuttons that fall within any of the Control Box frames in CenterContent
+        self.checkBoxRadiobuttons = []
 
 
-        # C U S T O M     O B J E C T     I N I T I A L I Z A T I O N
-        # MAKE SURE THIS STUFF IS DONE AFTER DEFINING THE EMPTY LISTS ABOVE, JUST IN CASE A CONSTRUCTOR NEEDS ACCESS
-        # DimensionContainer Object instance -- self.dims should be the ONLY DimensionContainer instance!!!
+
+        # C O N T A I N E R     C L A S S     I N I T I A L I Z A T I O N
+        # NOTE: THIS SHOULD ONLY BE DONE AFTER DEFINING THE EMPTY LISTS ABOVE, JUST IN CASE A CONSTRUCTOR NEEDS ACCESS
+
         # StyleContainer.__init__() depends on self.dims so we must define self.dims before self.styleObj!
         self.dims = dimension_container.DimensionContainer(self)
-
-        # StateContainer Object instance -- self.stateObj should be the ONLY StateContainer instance!!!
-        # Doesn't necessarily depend on other objects having been initialized. Its initialization simply serves to
-        #   define any default states of widgets like checkboxes/radiobuttons and store their new states when updated
         self.stateObj = state_container.StateContainer(self)
-
-        # StyleContainer Object instance -- self.styleObj should be the ONLY StyleContainer instance!!!
         # StyleContainer.__init__() depends on self.dims so self.dims MUST be initialized already!
         self.styleObj = style_container.StyleContainer(self)
-
-        # CommandContainer Object Instance -- self.cmd should be the ONLY CommandContainer instance!!!
-        # Depends on a variety of things having already been defined, including dimensions and images
-        #  - For this reason, it's probably best to keep CommandContainer last in the instantiation order
         self.edit = edit_container.EditContainer(self)
-
-        # ImageContainer Object Instance -- self.img should be the ONLY ImageContainer instance!!!
         # TODO: Replace INPUT_IMAGE_PATHS_FILE with runtime user input, the entire reason it's passed in by the GUI
         self.img = image_container.ImageContainer(self, INPUT_IMAGE_PATHS_FILE)
-
-        # CommandContainer Object Instance -- self.cmd should be the ONLY CommandContainer instance!!!
         # Depends on a variety of things having already been defined, including dimensions and images
         #  - For this reason, it's probably best to keep CommandContainer last in the instantiation order
         self.cmd = command_container.CommandContainer(self)
 
-        # Configuring additional overarching GUI window properties
+
+        # C O N F I G U R I N G     A D D I T I O N A L     G U I     P R O P E R T I E S
+
         # It's completely fine for these to be hard-coded as it's not anything the user should have or need control over
         self.iconbitmap(default='media/hficon.ico')
         self.wm_title("hypnic-functions GUI Client")
@@ -346,12 +324,18 @@ class HypnicGUI(tkinter.Tk):
         tempList = []
 
         # WIDGETS IN TOP TOOLBAR
-
-
         # WIDGETS IN MAIN CONTENT
         #  - WIDGETS IN LEFT CONTENT
         #    - WIDGETS IN PHOTO BOX FRAMES
-        # Defines image Labels for each photoBox of leftContent
+        self.fillPhotoBoxImages()
+        #  - WIDGETS IN CENTER CONTENT
+        #    - WIDGETS IN CONTROL BOX FRAMES
+        self.fillControlBoxButtons()
+        self.fillControlBoxRadiobuttons()
+
+
+    # Defines images for each of the 4 Photo Box Frames within leftContent
+    def fillPhotoBoxImages(self):
         for i in range(4):
             # Initializes (and appends to self.widgets) a new Label with the relevant self.photoBoxFrames elt as parent
             # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
@@ -367,14 +351,10 @@ class HypnicGUI(tkinter.Tk):
                                    rely=self.dims.defaultLabelPlaceRelY,
                                    anchor=self.dims.defaultLabelPlaceAnchor)
 
-        #  - WIDGETS IN CENTER CONTENT
-        #    - WIDGETS IN CONTROL BOX FRAMES
 
-        # DEFINING BUTTONS for each controlBox within centerContent
+    # Defines buttons for each controlBox within centerContent
+    def fillControlBoxButtons(self):
 
-        # This array defines the number of rows of buttons to place within each control box Frame
-        # If empty or too short, the default value is used, currently from DimensionContainer.numControlBoxButtons
-        # NOTE: ONLY meant to be used for definition, shouldn't rely on this for anything long-term. Not a member var.
         # iterates from zero stopping before (number of rows multiplied by number of columns)
         for i in range(self.dims.numControlBoxRows * self.dims.numControlBoxCols):
             # Number of buttons created is defined by DimensionContainer.numControlBoxButtons
@@ -387,7 +367,7 @@ class HypnicGUI(tkinter.Tk):
                 #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
                 #       well could be the cause and I'll have to learn more about memory management in Python OOP
                 self.widgets.append(tkinter.ttk.Button(self.controlBoxFrames[i]))
-                # Appends the same Button to self.buttons, self.inputWidgets, and self.controlBoxImageLabels
+                # Appends the same Button to self.buttons, self.inputWidgets, and self.controlBoxButtons
                 self.buttons.append(self.widgets[-1])
                 self.inputWidgets.append(self.widgets[-1])
                 self.controlBoxButtons.append(self.widgets[-1])
@@ -488,11 +468,72 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxButtons[22].configure(command=partial(self.cmd.cmdButtonApply, 2))
         self.controlBoxButtons[23].configure(command=partial(self.cmd.cmdButtonApply, 3))
 
+    # Defines Radiobuttons for each controlBox within centerContent
+    def fillControlBoxRadiobuttons(self):
 
-        # WIDGETS IN BOTTOM TOOLBAR
+        # iterates from zero stopping before (number of rows multiplied by number of columns)
+        for i in range(self.dims.numControlBoxRows * self.dims.numControlBoxCols):
+            # Number of radiobuttons created is defined by DimensionContainer.numControlBoxRadiobuttons
+            radiobuttonCount = self.dims.defaultControlBoxRadiobuttonCount
+            if i < len(self.dims.controlBoxRadiobuttonCounts):
+                radioButtonCount = self.dims.controlBoxRadiobuttonCounts[i]
+            for n in range(radioButtonCount):
+                # Initializes (and appends to self.widgets) a new Radiobutton with the relevant Frame as the parent
+                self.widgets.append(tkinter.ttk.Radiobutton(self.controlBoxFrames[i]))
+                # Appends the same Radiobutton to self.radiobuttons, self.inputWidgets, and self.controlBoxImageLabels
+                self.radiobuttons.append(self.widgets[-1])
+                self.inputWidgets.append(self.widgets[-1])
+                self.controlBoxRadiobuttons.append(self.widgets[-1])
+                # NOTE: A column value of 1 is used for Radiobuttons, as opposed to the 0 used for Buttons
+                self.widgets[-1].grid(row=n, column=1, sticky="nsew", ipadx=self.dims.controlBoxPadX,
+                                      ipady=self.dims.controlBoxPadY)
 
 
-        # WIDGETS IN BOTTOM INFOBAR
+        # CONFIGURING TEXT for each RADIOBUTTON in self.controlBoxRadiobuttons
+        # Initialized as a list of empty strings, where length is equal to the number of cells in centerContent
+        self.controlBoxRadiobuttonStrings = [""] * len(self.controlBoxRadiobuttons)
+        # Manual definition of radiobutton text
+        # NOTE: Doesn't really belong in this file at all, let alone here
+        # TODO: Remedy the above note by storing radiobutton text information in a new file, likely another custom class
+        self.controlBoxRadiobuttonStrings[0] = "Radio A"
+        self.controlBoxRadiobuttonStrings[1] = "Radio B"
+        self.controlBoxRadiobuttonStrings[2] = "Radio C"
+        self.controlBoxRadiobuttonStrings[3] = "Radio D"
+        self.controlBoxRadiobuttonStrings[4] = "Radio E"
+        self.controlBoxRadiobuttonStrings[5] = "Radio F"
+        self.controlBoxRadiobuttonStrings[6] = "Radio G"
+        self.controlBoxRadiobuttonStrings[7] = "Radio H"
+        self.controlBoxRadiobuttonStrings[8] = "Radio I"
+        self.controlBoxRadiobuttonStrings[9] = "Radio J"
+
+
+        # Sets any still-undefined strings to "Radio [N]" where [N] is the current value of i
+        # s is the string and i is the index of that string within self.controlBoxRadiobuttonStrings
+        for i, s in enumerate(self.controlBoxRadiobuttonStrings):
+            if s == "":
+                self.controlBoxRadiobuttonStrings[i] = "Radio " + str(i)
+
+        # Uses the newly-completed list of strings to configure each item in self.controlBoxRadiobuttons
+        for i, b in enumerate(self.controlBoxRadiobuttons):
+            self.controlBoxRadiobuttons[i].configure(text=self.controlBoxRadiobuttonStrings[i])
+
+        # CONFIGURING COMMANDS for each RADIOBUTTON in self.controlBoxRadiobuttons
+        # Iterates through self.controlBoxRadiobuttons and configures each such that upon being pressed,
+        #   the radiobuttonCommandHandler() function is called based on the Radiobutton's index
+        for i, b in enumerate(self.controlBoxRadiobuttons):
+            b.configure(command=partial(self.cmd.cmdDefault, i))
+
+        # Overwrites with some custom commands
+        self.controlBoxRadiobuttons[0].configure(variable=self.stateObj.raIntVar0, value=1)
+        self.controlBoxRadiobuttons[1].configure(variable=self.stateObj.raIntVar0, value=2)
+        self.controlBoxRadiobuttons[2].configure(variable=self.stateObj.raIntVar0, value=4)
+        self.controlBoxRadiobuttons[3].configure(variable=self.stateObj.raIntVar0, value=8)
+        self.controlBoxRadiobuttons[4].configure(variable=self.stateObj.raIntVar0, value=16)
+        self.controlBoxRadiobuttons[5].configure(variable=self.stateObj.raIntVar0, value=32)
+        self.controlBoxRadiobuttons[6].configure(variable=self.stateObj.raIntVar0, value=64)
+        self.controlBoxRadiobuttons[7].configure(variable=self.stateObj.raIntVar0, value=128)
+        self.controlBoxRadiobuttons[8].configure(variable=self.stateObj.raIntVar0, value=256)
+        self.controlBoxRadiobuttons[9].configure(variable=self.stateObj.raIntVar0, value=512)
 
 
     # Sets the necessary style parameters for each ttk-specific widget

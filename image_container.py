@@ -1,6 +1,8 @@
 # TODO:
-#  A. Implement array-based image referencing
-#    1. An associated text file for defining a list of input images would be great
+#  ==============================================================================
+#  S. Placeholder for the MOST IMPORTANT/URGENT TASK
+#  ==============================================================================
+#  A. Placeholder
 
 __name__ = "image_container"
 
@@ -32,8 +34,11 @@ class ImageContainer():
 
         # Member variables related to output
         # NOTE: The idea of this (FLAG) being hard-coded is temporary. TODO: Switch to a more user-friendly approach
-        self.outputImagePathStrings = ["media/output1.jpg", "media/output2.jpg", "media/output3.jpg", "media.output4.jpg"]
-        # TODO: store the file extension (".jpg") part in a separate variable so that a "counter suffix" can be appended
+        self.outputImagePathStrings = ["media/output0.jpg",
+                                       "media/output1.jpg",
+                                       "media/output2.jpg",
+                                       "media/output3.jpg"]
+        # TODO: store the file extension (".jpg") part in a separate variable so that a "count suffix" can be appended
 
         # Object Storage
         # Array of PIL Image objects directly corresponding to the path strings in self.inputPaths
@@ -41,6 +46,7 @@ class ImageContainer():
         # Array of PIL Tkinter PhotoImage objects directly corresponding to the path strings in self.inputPaths
         self.tkImages = []
 
+        # Loads images into memory
         self.getImages()
 
 
@@ -138,9 +144,10 @@ class ImageContainer():
         # Console output for user
         print("All PIL images have been released from memory.")
 
-    # To be called after a PIL image has been changed
+
     # Performs all necessary operations to update the GUI to display this changed image
     # i is the index of the newly changed image within self.img.pilImages
+    # NOTE: This function should be called every time a PIL image has been changed
     def updateImageLabel(self, i):
         print("Executing ImageContainer.updateImageLabel() with i = " + str(i))
         # Updates the relevant ImageTk PhotoImage

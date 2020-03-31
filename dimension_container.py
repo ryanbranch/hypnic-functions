@@ -10,10 +10,7 @@
 #      a. Functions at all widths between 33% and 100% of 1920px
 #      b. Functions at all heights between 50% and 100% of 1080px
 #      c. Functions at all aspect ratios between 4:3 and 16:9
-#  D. Instead of hard-coding rightContentWidth I can do percent scaling using the weight specifications
-#     (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods!
-#    1. This is an amazing StackOverflow answer by Bryan Oakley (of course) which should make things intuitive
-#  E. Rename the subframes belonging to Controls Frame to something more meaningful than just integer names!
+#  C. Rename the subframes belonging to Controls Frame to something more meaningful than just integer names!
 
 __name__ = "dimension_container"
 
@@ -50,9 +47,6 @@ class DimensionContainer():
         self.defaultLabelPlaceRelX = 0.5
         self.defaultLabelPlaceRelY = 0.5
         self.defaultLabelPlaceAnchor = CENTER
-        self.defaultButtonPlaceRelX = 0.0
-        self.defaultButtonPlaceRelY = 0.0
-        self.defaultButtonPlaceAnchor = "nw"
 
         # WINDOW AS A WHOLE
         self.windowPadX = self.defaultInternalPaddingGrid
@@ -110,8 +104,6 @@ class DimensionContainer():
         # RIGHT CONTENT (COL 2 OF MAIN CONTENT)
         self.rightContentPadX = self.defaultInternalPaddingGrid
         self.rightContentPadY = self.defaultInternalPaddingGrid
-        # TODO: Instead of hard-coding rightContentWidth I can do percent scaling using the weight specifications
-        #  (currently within HypnicGUI) in calls of the grid_[row/column]configure() methods! See note at top of file.
         self.rightContentWidth = 300  # FLAG: Hard-coded GUI parameter!
         # Height is equal to the internal height of mainContent, which has already been calculated for leftContent
         self.rightContentHeight = self.leftContentHeight
@@ -133,10 +125,15 @@ class DimensionContainer():
         # No need to define individual widths/heights for these frames as they are all relative to centerContent dims
         self.controlBoxPadX = self.defaultInternalPaddingGrid
         self.controlBoxPadY = self.defaultInternalPaddingGrid
+
+        # BUTTONS WITHIN CONTROL BOXES
         # Sets the default number of buttons to use within each control box, unless otherwise specified
         self.defaultControlBoxButtonCount = 1  # FLAG: Hard-coded GUI parameter!
         # Sets the number of buttons within each control box cell, from left to right then top to bottom
-        self.controlBoxButtonCounts = [4, 4, 4, 4, 4, 4, 1, 0, 6, 6]
-        self.controlBoxButtonPlaceRelX = 0.0
-        self.controlBoxButtonPlaceRelY = 0.5
-        self.controlBoxButtonPlaceAnchor = "w"
+        self.controlBoxButtonCounts = [4, 4, 4, 4, 4, 4, 1, 0, 6, 6]  # FLAG: Hard-coded GUI parameter!
+
+        # RADIOBUTTONS WITHIN CONTROL BOXES
+        # Sets the default number of Radiobuttons to use within each control box, unless otherwise specified
+        self.defaultControlBoxRadiobuttonCount = 1  # FLAG: Hard-coded GUI parameter!
+        # Sets the number of Radiobuttons within each control box cell, from left to right then top to bottom
+        self.controlBoxRadiobuttonCounts = [2, 2, 2, 2, 2, 2, 2, 0, 6, 6]  # FLAG: Hard-coded GUI parameter!

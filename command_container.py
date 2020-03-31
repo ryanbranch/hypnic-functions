@@ -70,7 +70,6 @@ class CommandContainer():
         print("Executing CommandContainer.cmdDefault() with i = " + str(i))
         return i
 
-
     # Called when the "Load" button is pressed
     def cmdButtonLoad(self, i=0):
         print("Executing CommandContainer.cmdButtonLoad() with i = " + str(i))
