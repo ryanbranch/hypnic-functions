@@ -9,15 +9,9 @@ __name__ = "command_container"
 
 # Library Imports
 import random
-import PIL
-from pathlib import Path
 
 # Local Imports
 import hypnic_helpers
-
-# G L O B A L   V A R I A B L E S
-# DEFAULT STYLE PARAMETERS
-DEFAULT_BG_COLOR = ""
 
 
 class CommandContainer():
@@ -107,23 +101,13 @@ class CommandContainer():
         print("Executing CommandContainer.cmdButtonRedo() with i = " + str(i))
         return i
 
+    # Called when the "Scale" button is pressed
+    def cmdButtonScale(self, i=0):
+        print("Executing CommandContainer.cmdButtonScale() with i = " + str(i))
+        self.gui.edit.scaleImage(i, False, 0.9, 0.9)  # FLAG: Hard-coded GUI parameter!
+        return i
+
     # Called when the "Apply" button is pressed
     def cmdButtonApply(self, i=0):
         print("Executing CommandContainer.cmdButtonApply() with i = " + str(i))
-        # Loads the PIL Image for editing
-        # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
-        pixels = self.gui.img.pilImages[i].load()
-        # The X and Y resolutions of the current element within ImageContainer.pilImages
-        xRes = self.gui.img.pilImages[i].size[0]
-        yRes = self.gui.img.pilImages[i].size[1]
-        # Iterates through each row and column of the image, manipulating pixels accordingly
-        for row in range(yRes):
-            for col in range(xRes):
-                if random.randint(0, 3) == 1:
-                    pixels[col, row] = hypnic_helpers.getRandomRGB()
-        # Updates the relevant ImageTk PhotoImage
-        # TODO: Consider shifting responsibility to ImageContainer so that we can avoid
-        #         using PIL for anything in the CommandComtainer class
-        self.gui.img.tkImages[i] = PIL.ImageTk.PhotoImage(image=self.gui.img.pilImages[i])
-        # Reconfigures the relevant image Label
-        self.gui.photoBoxImageLabels[i].configure(image=self.gui.img.tkImages[i])
+        self.gui.edit.randomizePixelColors(i, 0.2)  # FLAG: Hard-coded GUI parameter!

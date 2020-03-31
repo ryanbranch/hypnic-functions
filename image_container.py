@@ -129,3 +129,13 @@ class ImageContainer():
 
         # Console output for user
         print("All PIL images have been released from memory.")
+
+    # To be called after a PIL image has been changed
+    # Performs all necessary operations to update the GUI to display this changed image
+    # i is the index of the newly changed image within self.img.pilImages
+    def updateImageLabel(self, i):
+        print("Executing ImageContainer.updateImageLabel() with i = " + str(i))
+        # Updates the relevant ImageTk PhotoImage
+        self.tkImages[i] = PIL.ImageTk.PhotoImage(image=self.pilImages[i])
+        # Reconfigures the relevant GUI image Label
+        self.gui.photoBoxImageLabels[i].configure(image=self.tkImages[i])

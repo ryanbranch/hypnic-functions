@@ -99,6 +99,14 @@ class DimensionContainer():
         self.photoBoxWidth = math.floor((self.leftContentWidth - self.leftContentPadX) / 2)
         self.photoBoxHeight = math.floor((self.leftContentHeight - self.leftContentPadY) / 2)
 
+        # DIMENSIONS RELATED TO PHOTO LABELS (held within PHOTO BOXES)
+        # Scaling parameters used within EditContainer.scaleImage()
+        self.scaleImageDefaultAbsolute = 200  # FLAG: Hard-coded GUI parameter!
+        self.scaleImageDefaultRatio = 0.5  # FLAG: Hard-coded GUI parameter!
+        # NOTE: If scaling UP, the value used in EditContainer.scaleImage will never exceed these
+        self.scaleImageMaxAbsolute = 2000  # FLAG: Hard-coded GUI parameter!
+        self.scaleImageMaxRelative = 2.0  # FLAG: Hard-coded GUI parameter!
+
         # RIGHT CONTENT (COL 2 OF MAIN CONTENT)
         self.rightContentPadX = self.defaultInternalPaddingGrid
         self.rightContentPadY = self.defaultInternalPaddingGrid
@@ -128,7 +136,7 @@ class DimensionContainer():
         # Sets the default number of buttons to use within each control box, unless otherwise specified
         self.defaultControlBoxButtonCount = 1  # FLAG: Hard-coded GUI parameter!
         # Sets the number of buttons within each control box cell, from left to right then top to bottom
-        self.controlBoxButtonCounts = [4, 4, 4, 4, 4, 0, 1, 1, 6, 6]
+        self.controlBoxButtonCounts = [4, 4, 4, 4, 4, 4, 1, 0, 6, 6]
         self.controlBoxButtonPlaceRelX = 0.0
         self.controlBoxButtonPlaceRelY = 0.5
         self.controlBoxButtonPlaceAnchor = "w"

@@ -37,6 +37,7 @@ from functools import partial
 import dimension_container
 import image_container
 import style_container
+import edit_container
 import command_container
 import hypnic_helpers
 
@@ -149,6 +150,11 @@ class HypnicGUI(tkinter.Tk):
         # StyleContainer Object instance -- self.scObj should be the ONLY StyleContainer instance!!!
         # StyleContainer.__init__() depends on self.dims so self.dims MUST be initialized already!
         self.scObj = style_container.StyleContainer(self)
+
+        # CommandContainer Object Instance -- self.cmd should be the ONLY CommandContainer instance!!!
+        # Depends on a variety of things having already been defined, including dimensions and images
+        #  - For this reason, it's probably best to keep CommandContainer last in the instantiation order
+        self.edit = edit_container.EditContainer(self)
 
         # ImageContainer Object Instance -- self.img should be the ONLY ImageContainer instance!!!
         # TODO: Replace INPUT_IMAGE_PATHS_FILE with runtime user input, the entire reason it's passed in by the GUI
@@ -422,10 +428,15 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxButtonStrings[14] = "Redo C"
         self.controlBoxButtonStrings[15] = "Redo D"
 
-        self.controlBoxButtonStrings[16] = "Apply A"
-        self.controlBoxButtonStrings[17] = "Apply B"
-        self.controlBoxButtonStrings[18] = "Apply C"
-        self.controlBoxButtonStrings[19] = "Apply D"
+        self.controlBoxButtonStrings[16] = "Scale A"
+        self.controlBoxButtonStrings[17] = "Scale B"
+        self.controlBoxButtonStrings[18] = "Scale C"
+        self.controlBoxButtonStrings[19] = "Scale D"
+
+        self.controlBoxButtonStrings[20] = "Apply A"
+        self.controlBoxButtonStrings[21] = "Apply B"
+        self.controlBoxButtonStrings[22] = "Apply C"
+        self.controlBoxButtonStrings[23] = "Apply D"
 
 
 
@@ -463,10 +474,14 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxButtons[13].configure(command=partial(self.cmd.cmdButtonRedo, 1))
         self.controlBoxButtons[14].configure(command=partial(self.cmd.cmdButtonRedo, 2))
         self.controlBoxButtons[15].configure(command=partial(self.cmd.cmdButtonRedo, 3))
-        self.controlBoxButtons[16].configure(command=partial(self.cmd.cmdButtonApply, 0))
-        self.controlBoxButtons[17].configure(command=partial(self.cmd.cmdButtonApply, 1))
-        self.controlBoxButtons[18].configure(command=partial(self.cmd.cmdButtonApply, 2))
-        self.controlBoxButtons[19].configure(command=partial(self.cmd.cmdButtonApply, 3))
+        self.controlBoxButtons[16].configure(command=partial(self.cmd.cmdButtonScale, 0))
+        self.controlBoxButtons[17].configure(command=partial(self.cmd.cmdButtonScale, 1))
+        self.controlBoxButtons[18].configure(command=partial(self.cmd.cmdButtonScale, 2))
+        self.controlBoxButtons[19].configure(command=partial(self.cmd.cmdButtonScale, 3))
+        self.controlBoxButtons[20].configure(command=partial(self.cmd.cmdButtonApply, 0))
+        self.controlBoxButtons[21].configure(command=partial(self.cmd.cmdButtonApply, 1))
+        self.controlBoxButtons[22].configure(command=partial(self.cmd.cmdButtonApply, 2))
+        self.controlBoxButtons[23].configure(command=partial(self.cmd.cmdButtonApply, 3))
 
 
         # WIDGETS IN BOTTOM TOOLBAR
@@ -478,9 +493,3 @@ class HypnicGUI(tkinter.Tk):
     # Sets the necessary style parameters for each ttk-specific widget
     def styleWidgets(self):
         print("PLACEHOLDER FOR CONTENT WITHIN THE HypnicGUI.styleWidgets() function")
-
-    # Handles commands assigned to ttk.Button objects
-    # TODO: For functions which are inherently exclusive to ONE BUTTON, consider storing them in their own class.
-    #  This would allow a high degree of specificity without cluttering up the GUI class
-    def buttonCommandHandler(self, commandIndex):
-        print(commandIndex)

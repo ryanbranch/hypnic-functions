@@ -3,6 +3,9 @@
 
 __name__ = "hypnic_wrapper"
 
+# Library Inputs
+import random
+
 # Local Inputs
 import hypnic_gui
 
@@ -12,6 +15,11 @@ class HypnicWrapper():
         self.gui = hypnic_gui.HypnicGUI(self)
 
 def main():
+
+    # Seeds the random number generator
+    random.seed(333)
+
+    # Creates and launches the GUI instance
     app = HypnicWrapper()
     app.gui.mainloop()
 
