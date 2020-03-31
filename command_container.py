@@ -9,6 +9,7 @@ __name__ = "command_container"
 
 # Library Imports
 import random
+from pathlib import Path
 
 # Local Imports
 import hypnic_helpers
@@ -76,8 +77,10 @@ class CommandContainer():
         return i
 
     # Called when the "Save" button is pressed
+    # i represents the index of the image within self.gui.img.pilImages to be scaled
     def cmdButtonSave(self, i=0):
         print("Executing CommandContainer.cmdButtonSave() with i = " + str(i))
+        self.gui.img.pilImages[i].save(Path(self.gui.img.outputImagePathStrings[i]))
         return i
 
     # Called when the "Undo" button is pressed
@@ -102,12 +105,15 @@ class CommandContainer():
         return i
 
     # Called when the "Scale" button is pressed
+    # i represents the index of the image within self.gui.img.pilImages to be scaled
     def cmdButtonScale(self, i=0):
         print("Executing CommandContainer.cmdButtonScale() with i = " + str(i))
         self.gui.edit.scaleImage(i, False, 0.9, 0.9)  # FLAG: Hard-coded GUI parameter!
         return i
 
     # Called when the "Apply" button is pressed
+    # i represents the index of the image within self.gui.img.pilImages to be manipulated
     def cmdButtonApply(self, i=0):
         print("Executing CommandContainer.cmdButtonApply() with i = " + str(i))
         self.gui.edit.randomizePixelColors(i, 0.2)  # FLAG: Hard-coded GUI parameter!
+        return i

@@ -439,7 +439,6 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxButtonStrings[23] = "Apply D"
 
 
-
         # Sets any still-undefined strings to "Button [N]" where [N] is the current value of i
         # s is the string and i is the index of that string within self.controlBoxButtonStrings
         for i, s in enumerate(self.controlBoxButtonStrings):

@@ -16,18 +16,26 @@ STANDBY_IMAGE_PATH = "media/standby.jpg"
 class ImageContainer():
 
     # Constructor has a gui_ parameter which is saved in self.gui in order to access the HypnicGUI members
-    # Also has an imagesTxtPath parameter but replacing this with runtime user input is a TODO
+    # Also has an imagesTxtPath parameter. Replacing this with runtime user input is a TODO with low priority
     def __init__(self, gui_, imagesTxtPath_):
 
         # So that the StyleContainer instance can refer to the HypnicGUI instance
         self.gui = gui_
 
+        # Member variables related to input
         self.imagesTxtPath = imagesTxtPath_
         self.inputPaths = []
         # Array of booleans where a value of True denotes that the associated string within self.inputPaths is invalid
         # For the same indices at which self.missingFiles contains a value of True, the corresponding element within
         #   associated lists (e.g. self.pilImages and self.tkImages) are based on the standby image (STANDBY_IMAGE_PATH)
         self.missingFiles = []
+
+        # Member variables related to output
+        # NOTE: The idea of this (FLAG) being hard-coded is temporary. TODO: Switch to a more user-friendly approach
+        self.outputImagePathStrings = ["media/output1.jpg", "media/output2.jpg", "media/output3.jpg", "media.output4.jpg"]
+        # TODO: store the file extension (".jpg") part in a separate variable so that a "counter suffix" can be appended
+
+        # Object Storage
         # Array of PIL Image objects directly corresponding to the path strings in self.inputPaths
         self.pilImages = []
         # Array of PIL Tkinter PhotoImage objects directly corresponding to the path strings in self.inputPaths
