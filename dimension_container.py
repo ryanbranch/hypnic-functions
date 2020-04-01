@@ -145,7 +145,7 @@ class DimensionContainer():
         # Sets the number of Radiobuttons within each control box cell, from left to right then top to bottom
         self.controlBoxRadiobuttonCounts = [0, 0, 0, 0,
                                             0, 0, 0, 0,
-                                            5, 5, 0, 0,
+                                            5, 5, 4, 4,
                                             4, 4, 0, 0,
                                             0, 0, 0, 0,
                                             0, 0, 0, 0,
@@ -158,9 +158,9 @@ class DimensionContainer():
         # Sets the number of Checkbuttons within each control box cell, from left to right then top to bottom
         self.controlBoxCheckbuttonCounts = [0, 0, 0, 0,
                                             0, 0, 0, 0,
-                                            0, 0, 4, 4,
-                                            0, 0, 4, 4,
                                             0, 0, 0, 0,
+                                            0, 0, 4, 4,
+                                            0, 0, 4, 4,
                                             0, 0, 0, 0,
                                             0, 0, 0, 0,
                                             0, 0, 0, 0]  # FLAG: Hard-coded GUI parameter!

@@ -462,6 +462,9 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxButtons[17].configure(command=partial(self.cmd.cmdButtonScale, 1))
         self.controlBoxButtons[18].configure(command=partial(self.cmd.cmdButtonScale, 2))
         self.controlBoxButtons[19].configure(command=partial(self.cmd.cmdButtonScale, 3))
+        # TODO: Update these so that the second argument isn't necessarily equal to the first
+        #        - NOTE: This may involve reducing the number of arguments to cmdButtonApply() and instead specifying
+        #                things like primary/secondary input image indices through radiobuttons
         self.controlBoxButtons[20].configure(command=partial(self.cmd.cmdButtonApply, 0))
         self.controlBoxButtons[21].configure(command=partial(self.cmd.cmdButtonApply, 1))
         self.controlBoxButtons[22].configure(command=partial(self.cmd.cmdButtonApply, 2))
@@ -504,6 +507,14 @@ class HypnicGUI(tkinter.Tk):
                                                   "Function H",
                                                   "Function I",
                                                   "Function J"]
+        self.controlBoxRadiobuttonStrings[10:14] = ["Primary A",
+                                                    "Primary B",
+                                                    "Primary C",
+                                                    "Primary D",]
+        self.controlBoxRadiobuttonStrings[14:18] = ["Secondary A",
+                                                    "Secondary B",
+                                                    "Secondary C",
+                                                    "Secondary D", ]
 
         # Sets any still-undefined strings to "Radio [N]" where [N] is the current value of i
         # s is the string and i is the index of that string within self.controlBoxRadiobuttonStrings
@@ -525,6 +536,12 @@ class HypnicGUI(tkinter.Tk):
         for i in range(10):
             self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raManipType, value=i)
             self.controlBoxRadiobuttons[i].var = self.stateObj.raManipType
+        for i in range(10, 14):
+            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raPrimaryInputImage, value=i)
+            self.controlBoxRadiobuttons[i].var = self.stateObj.raPrimaryInputImage
+        for i in range(14, 18):
+            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raSecondaryInputImage, value=i)
+            self.controlBoxRadiobuttons[i].var = self.stateObj.raSecondaryInputImage
 
 
     # Defines Checkbuttons for each controlBox within centerContent

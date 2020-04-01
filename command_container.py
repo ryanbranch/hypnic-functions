@@ -115,18 +115,21 @@ class CommandContainer():
 
     # Called when the "Scale" button is pressed
     # i represents the index of the image within self.gui.img.pilImages to be scaled
+    # TODO: Change this so that the second "i" instance is specified via a radiobutton instead of being hard-coded here
     def cmdButtonScale(self, i=0):
         print("Executing CommandContainer.cmdButtonScale() with i = " + str(i))
-        self.gui.edit.scaleImage(i, False, 0.9, 0.9)  # FLAG: Hard-coded GUI parameter!
+        self.gui.edit.scaleImage(i,i, False, 0.9, 0.9)  # FLAG: Hard-coded GUI parameter!
         return i
 
     # Called when the "Apply" button is pressed
-    # i represents the index of the image within self.gui.img.pilImages to be manipulated
-    def cmdButtonApply(self, i=0):
+    # i represents the index of the target slot to which the result of the manipulation function should be saved
+    def cmdButtonApply(self, i):
         print("Executing CommandContainer.cmdButtonApply() with i = " + str(i))
         manipType = self.gui.stateObj.raManipType.get()
         if manipType == 0:
-            self.gui.edit.randomizePixelColors(i, 0.2)  # FLAG: Hard-coded GUI parameter!
+            # TODO: Change this so that the second "i" instance is specified
+            #         via a radiobutton instead of being hard-coded here
+            self.gui.edit.randomizePixelColors(i, i, 0.2)  # FLAG: Hard-coded GUI parameter!
         elif manipType == 1:
             print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 1")
         elif manipType == 2:

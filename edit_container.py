@@ -25,7 +25,9 @@ class EditContainer():
 
         self.defaultScaleResampleMode = PIL.Image.LANCZOS
 
-    # Resizes an image (at index i of the gui.img.pilImages list), preserving aspect ratio
+    # Resizes an image, preserving aspect ratio
+    # o is the index of the target image slot for output, within the ImageContainer's pilImages list
+    # i is the index of the image to be used for input
     # Essentially an extended implementation of PIL.Image.resize() with support for limitations and relative scaling
     # USAGE INSTRUCTIONS:
     # With absolute set to True, image will be scaled such that the pixel dimensions are equal to xParam and yParam
@@ -41,7 +43,7 @@ class EditContainer():
     #    - PIL.Image.BICUBIC
     #    - PIL.Image.LANCZOS (current choice and presumed to be the highest quality)
     #   Since scaling isn't happening much as of yet, high quality is preferred over optimizing algorithm speed
-    def scaleImage(self, i, absolute=True, xParam = 0, yParam = 0):  # FLAG: Hard-coded GUI parameter!
+    def scaleImage(self, o, i, absolute=True, xParam = 0, yParam = 0):  # FLAG: Hard-coded GUI parameter!
 
         print("Executing EditContainer.scaleImage() with i = " + str(i) +
               "; absolute = " + str(absolute) +
@@ -85,11 +87,13 @@ class EditContainer():
             print()
 
         # Gets the necessary image parameters
-        pilImage = self.gui.img.pilImages[i]
-        xResCurrent = pilImage.size[0]
-        yResCurrent = pilImage.size[1]
-        xResNew = xResCurrent
-        yResNew = yResCurrent
+        # TODO: Add some sort of invariant to ensure that pilImagesTemp is empty?
+        self.gui.img.pilImagesTemp = [self.gui.img.pilImages[i].copy()]
+        pixels = self.gui.img.pilImagesTemp[0].load()
+        # The X and Y resolutions of the current element within ImageContainer.pilImages
+        xResCurrent = self.gui.img.pilImages[i].size[0]
+        yResCurrent = self.gui.img.pilImages[i].size[1]
+
         # If absolute then the new resolutions are simply equal to the params
         if absolute:
             xResNew = xParam
@@ -101,26 +105,29 @@ class EditContainer():
             yResNew = math.ceil(yParam * yResCurrent)
 
         # Performs the scaling operation
-        self.gui.img.pilImages[i] = pilImage.resize((xResNew, yResNew), self.defaultScaleResampleMode)
+        self.gui.img.pilImagesTemp[0] = self.gui.img.pilImagesTemp[0].resize((xResNew, yResNew), self.defaultScaleResampleMode)
 
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
-        self.gui.img.updateImageLabel(i)
+        self.gui.img.updateImageLabel(o)
 
         return i
 
     # Turns some fraction of an image's pixels to random colors
-    # i is the index of the relevant image, within the ImageContainer's pilImages list
+    # o is the index of the target image slot for output, within the ImageContainer's pilImages list
+    # i is the index of the image to be used for input
     # ratio_ is a float between 0 and 1 inclusive representing the fraction of pixels to be transformed
     # If no value for ratio_ is provided, all pixels in the entire image will be randomized
-    def randomizePixelColors(self, i, ratio_ = 1.0):
+    def randomizePixelColors(self, o, i, ratio_ = 1.0):
 
         # Ensures that the ratio is not erroneously handled as an integer
         ratio = float(ratio_)
         print("Executing EditContainer.initializeCommandNames() with i = " + str(i) + "; ratio_ = " + str(ratio_))
 
-        # Loads the PIL Image for editing
+        # Loads the PIL Image into gui.img.pilImagesTemp for editing
         # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
-        pixels = self.gui.img.pilImages[i].load()
+        # TODO: Add some sort of invariant to ensure that pilImagesTemp is empty?
+        self.gui.img.pilImagesTemp = [self.gui.img.pilImages[i].copy()]
+        pixels = self.gui.img.pilImagesTemp[0].load()
         # The X and Y resolutions of the current element within ImageContainer.pilImages
         xRes = self.gui.img.pilImages[i].size[0]
         yRes = self.gui.img.pilImages[i].size[1]
@@ -131,6 +138,15 @@ class EditContainer():
                     pixels[col, row] = hypnic_helpers.getRandomRGB()
 
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
-        self.gui.img.updateImageLabel(i)
+        self.gui.img.updateImageLabel(o)
 
         return i
+
+    # Adds one image to another image
+    # i is the index of the target image, within the ImageContainer's pilImages list
+    # wrap is a boolean describing whether values should "wrap around" if they end up below 0 or above 255
+    #   When wrap is False (by default), any result below 0 will become 0, and above 255 will become 255
+    def addPixels(self, i, wrap=False):
+
+        return i
+

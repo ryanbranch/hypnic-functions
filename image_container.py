@@ -46,6 +46,9 @@ class ImageContainer():
         # Array of PIL Tkinter PhotoImage objects directly corresponding to the path strings in self.inputPaths
         self.tkImages = []
 
+        # PIL Image object used to temporarily hold a copy of an existing PIL image for editing
+        self.pilImagesTemp = []
+
         # Loads images into memory
         self.getImages()
 
@@ -57,7 +60,6 @@ class ImageContainer():
     #   unworried about making this function too rigorous. However, file-parsing functionality will likely be useful in
     #   the future so I'm ensuring that the function can handle simple formatting discrepancies
     def getImages(self):
-
         # Exception handling ensures that the text file actually exists and can be opened
         try:
             # Opens the text file containing a list of images
@@ -147,10 +149,36 @@ class ImageContainer():
 
     # Performs all necessary operations to update the GUI to display this changed image
     # i is the index of the newly changed image within self.img.pilImages
+    #     The actual image to be written to index i is based on self.pilImagesTemp
+    # When clearTemp is True (True by default) the pilImagesTemp list will be cleared at the end of the function
     # NOTE: This function should be called every time a PIL image has been changed
-    def updateImageLabel(self, i):
+    def updateImageLabel(self, i, clearTemp=True):
         print("Executing ImageContainer.updateImageLabel() with i = " + str(i))
-        # Updates the relevant ImageTk PhotoImage
+        # TODO: The line below using an index of 0 is based on the fact that pilImagesTemp is currently assumed to only
+        #         ever hold 1 element when functioning properly. This may change in the future, and in order to support
+        #         that I should allow this index to be supplied as a function input parameter as well
+        self.pilImages[i] = self.pilImagesTemp[0].copy()
         self.tkImages[i] = PIL.ImageTk.PhotoImage(image=self.pilImages[i])
         # Reconfigures the relevant GUI image Label
         self.gui.photoBoxImageLabels[i].configure(image=self.tkImages[i])
+
+        # Clears pilImagesTemp if necessary
+        if clearTemp:
+            for i, image in enumerate(self.gui.img.pilImagesTemp):
+                try:
+                    image.close()
+                # If the close() operation fails
+                except:
+                    # Console output for user
+                    print("================================================================")
+                    print("System could not close a file within the ImageContainer's list of TEMP PIL Image objects.")
+                    print(
+                        "This may imply a memory leak, or the close() method has already been called on this Image.")
+                    print("Relevant Python file:                           image_container.py")
+                    print("Relevant function:                              ImageContainer.updateImageLabel()")
+                    print("Relevant index within pilImagesTemp:            " + str(i))
+                    print()
+            # Clears the list now that each list element has been close()d
+            self.gui.img.pilImagesTemp = []
+
+

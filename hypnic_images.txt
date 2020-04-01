@@ -1,4 +1,4 @@
-media/image2.jpg
-media/image4.jpg
-media/image6.jpg
-media/image8.jpg
+media/eost-425p.jpg
+media/cat-425p.jpg
+media/cat2-425p.jpg
+media/glitch-425p.jpg
