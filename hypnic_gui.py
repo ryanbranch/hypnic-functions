@@ -476,8 +476,8 @@ class HypnicGUI(tkinter.Tk):
             # Number of radiobuttons created is defined by DimensionContainer.numControlBoxRadiobuttons
             radiobuttonCount = self.dims.defaultControlBoxRadiobuttonCount
             if i < len(self.dims.controlBoxRadiobuttonCounts):
-                radioButtonCount = self.dims.controlBoxRadiobuttonCounts[i]
-            for n in range(radioButtonCount):
+                radiobuttonCount = self.dims.controlBoxRadiobuttonCounts[i]
+            for n in range(radiobuttonCount):
                 # Initializes (and appends to self.widgets) a new Radiobutton with the relevant Frame as the parent
                 self.widgets.append(tkinter.ttk.Radiobutton(self.controlBoxFrames[i]))
                 # Appends the same Radiobutton to self.radiobuttons, self.inputWidgets, and self.controlBoxImageLabels
