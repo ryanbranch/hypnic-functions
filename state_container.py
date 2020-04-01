@@ -24,29 +24,29 @@ class StateContainer():
         # Variables beginning with "ch" signify a variable controlled by a checkbox
 
         # Temporary variables being used for test purposes TODO: REMOVE THESE (Everything in this block until END TODO)
-        self.raIntVar0 = tkinter.IntVar()
-        self.raIntVar1 = tkinter.IntVar()
-        self.raIntVar2 = tkinter.IntVar()
-        self.raIntVar3 = tkinter.IntVar()
-        self.raIntVar4 = tkinter.IntVar()
-        self.raIntVar5 = tkinter.IntVar()
-        self.raIntVar6 = tkinter.IntVar()
-        self.raIntVar7 = tkinter.IntVar()
-        self.raIntVar8 = tkinter.IntVar()
-        self.raIntVar9 = tkinter.IntVar()
+        self.chIntVar0 = tkinter.IntVar()
+        self.chIntVar1 = tkinter.IntVar()
+        self.chIntVar2 = tkinter.IntVar()
+        self.chIntVar3 = tkinter.IntVar()
+        self.chIntVar4 = tkinter.IntVar()
+        self.chIntVar5 = tkinter.IntVar()
+        self.chIntVar6 = tkinter.IntVar()
+        self.chIntVar7 = tkinter.IntVar()
+        self.chIntVar8 = tkinter.IntVar()
+        self.chIntVar9 = tkinter.IntVar()
 
-        self.raIntVars = []
-        self.raIntVars = [self.raIntVar0,
-                          self.raIntVar1,
-                          self.raIntVar2,
-                          self.raIntVar3,
-                          self.raIntVar4,
-                          self.raIntVar5,
-                          self.raIntVar6,
-                          self.raIntVar7,
-                          self.raIntVar8,
-                          self.raIntVar9]
-        for i, v in enumerate(self.raIntVars):
+        self.chIntVars = []
+        self.chIntVars = [self.chIntVar0,
+                          self.chIntVar1,
+                          self.chIntVar2,
+                          self.chIntVar3,
+                          self.chIntVar4,
+                          self.chIntVar5,
+                          self.chIntVar6,
+                          self.chIntVar7,
+                          self.chIntVar8,
+                          self.chIntVar9]
+        for i, v in enumerate(self.chIntVars):
             v.set(i)
         # END TODO: Above this is the content that needs to be removed
 
@@ -59,8 +59,7 @@ class StateContainer():
         self.raPrimaryInputImage.set(0)
         self.raSecondaryInputImage = tkinter.IntVar()
         self.raSecondaryInputImage.set(1)
-        self.raManipType = tkinter.StringVar()
-        self.raManipType.set("randomizePixelColors")
+        self.raManipType = tkinter.IntVar()
+        self.raManipType.set(-1)
         self.chTest = tkinter.IntVar()
         self.chTest.set(0)
-

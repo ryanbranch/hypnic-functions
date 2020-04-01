@@ -439,7 +439,7 @@ class HypnicGUI(tkinter.Tk):
 
         # CONFIGURING COMMANDS for each BUTTON in self.controlBoxButtons
         for i, b in enumerate(self.controlBoxButtons):
-            b.configure(command=partial(self.cmd.cmdDefault, i))
+            b.configure(command=partial(self.cmd.cmdButtonDefault, i))
 
         # Overwrites with some custom commands
         self.controlBoxButtons[0].configure(command=partial(self.cmd.cmdButtonLoad, 0))
@@ -467,56 +467,6 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxButtons[22].configure(command=partial(self.cmd.cmdButtonApply, 2))
         self.controlBoxButtons[23].configure(command=partial(self.cmd.cmdButtonApply, 3))
 
-    # Defines Radiobuttons for each controlBox within centerContent
-    def fillControlBoxRadiobuttons(self):
-
-        # iterates from zero stopping before (number of rows multiplied by number of columns)
-        for i in range(self.dims.numControlBoxRows * self.dims.numControlBoxCols):
-            # Number of radiobuttons created is defined by DimensionContainer.numControlBoxRadiobuttons
-            radiobuttonCount = self.dims.defaultControlBoxRadiobuttonCount
-            if i < len(self.dims.controlBoxRadiobuttonCounts):
-                radiobuttonCount = self.dims.controlBoxRadiobuttonCounts[i]
-            for n in range(radiobuttonCount):
-                # Initializes (and appends to self.widgets) a new Radiobutton with the relevant Frame as the parent
-                self.widgets.append(tkinter.ttk.Radiobutton(self.controlBoxFrames[i]))
-                # Appends the same Radiobutton to self.radiobuttons, self.inputWidgets, and self.controlBoxImageLabels
-                self.radiobuttons.append(self.widgets[-1])
-                self.inputWidgets.append(self.widgets[-1])
-                self.controlBoxRadiobuttons.append(self.widgets[-1])
-                # NOTE: A column value of 1 is used for Radiobuttons, as opposed to the 0 used for Buttons
-                self.widgets[-1].grid(row=n, column=1, sticky="nsew", ipadx=self.dims.controlBoxPadX,
-                                      ipady=self.dims.controlBoxPadY)
-
-        # CONFIGURING TEXT for each RADIOBUTTON in self.controlBoxRadiobuttons
-        # Initialized as a list of empty strings, where length is equal to the number of cells in centerContent
-        self.controlBoxRadiobuttonStrings = [""] * len(self.controlBoxRadiobuttons)
-        # Manual definition of radiobutton text
-        # NOTE: Doesn't really belong in this file at all, let alone here
-        # TODO: Remedy the above note by storing radiobutton text information in a new file, likely another custom class
-        for i in range(10):
-            self.controlBoxRadiobuttonStrings[i] = "Radio " + chr(65 + i)
-
-        # Sets any still-undefined strings to "Radio [N]" where [N] is the current value of i
-        # s is the string and i is the index of that string within self.controlBoxRadiobuttonStrings
-        for i, s in enumerate(self.controlBoxRadiobuttonStrings):
-            if s == "":
-                self.controlBoxRadiobuttonStrings[i] = "Radio " + str(i)
-
-        # Uses the newly-completed list of strings to configure each item in self.controlBoxRadiobuttons
-        for i, b in enumerate(self.controlBoxRadiobuttons):
-            b.configure(text=self.controlBoxRadiobuttonStrings[i])
-
-        # CONFIGURING COMMANDS for each RADIOBUTTON in self.controlBoxRadiobuttons
-        for i, b in enumerate(self.controlBoxRadiobuttons):
-            b.configure(command=partial(self.cmd.cmdDefault, i))
-
-        # Configures state variables for some of the radiobuttons
-        # Also attaches the variables to the widget reference objects, as described in the following reference:
-        # http://effbot.org/tkinterbook/checkbutton.htm
-        for i in range(10):
-            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raIntVars[i], value=(2 ** i))
-            self.controlBoxRadiobuttons[i].var = self.stateObj.raIntVars[i]
-
 
     # Defines Radiobuttons for each controlBox within centerContent
     def fillControlBoxRadiobuttons(self):
@@ -544,8 +494,16 @@ class HypnicGUI(tkinter.Tk):
         # Manual definition of radiobutton text
         # NOTE: Doesn't really belong in this file at all, let alone here
         # TODO: Remedy the above note by storing radiobutton text information in a new file, likely another custom class
-        for i in range(10):
-            self.controlBoxRadiobuttonStrings[i] = "Radio " + chr(65 + i)
+        self.controlBoxRadiobuttonStrings[:10] = ["Snow",
+                                                  "Function B",
+                                                  "Function C",
+                                                  "Function D",
+                                                  "Function E",
+                                                  "Function F",
+                                                  "Function G",
+                                                  "Function H",
+                                                  "Function I",
+                                                  "Function J"]
 
         # Sets any still-undefined strings to "Radio [N]" where [N] is the current value of i
         # s is the string and i is the index of that string within self.controlBoxRadiobuttonStrings
@@ -559,14 +517,14 @@ class HypnicGUI(tkinter.Tk):
 
         # CONFIGURING COMMANDS for each RADIOBUTTON in self.controlBoxRadiobuttons
         for i, b in enumerate(self.controlBoxRadiobuttons):
-            b.configure(command=partial(self.cmd.cmdDefault, i))
+            b.configure(command=partial(self.cmd.cmdRadiobuttonSetManipType, i))
 
         # Configures state variables for some of the radiobuttons
         # Also attaches the variables to the widget reference objects, as described in the following reference:
         # http://effbot.org/tkinterbook/checkbutton.htm
         for i in range(10):
-            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raIntVars[i], value=(2 ** i))
-            self.controlBoxRadiobuttons[i].var = self.stateObj.raIntVars[i]
+            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raManipType, value=i)
+            self.controlBoxRadiobuttons[i].var = self.stateObj.raManipType
 
 
     # Defines Checkbuttons for each controlBox within centerContent
@@ -604,20 +562,21 @@ class HypnicGUI(tkinter.Tk):
             if s == "":
                 self.controlBoxCheckbuttonStrings[i] = "Check " + str(i)
 
-        # Uses the newly-completed list of strings to configure each item in self.controlBoxCheckbuttons
+        # Uses the newly-completed list of strings to configure text for each item in self.controlBoxCheckbuttons
         for i, b in enumerate(self.controlBoxCheckbuttons):
             b.configure(text=self.controlBoxCheckbuttonStrings[i])
-
-        # CONFIGURING COMMANDS for each CHECKBUTTON in self.controlBoxCheckbuttons
-        for i, b in enumerate(self.controlBoxCheckbuttons):
-            b.configure(command=partial(self.cmd.cmdDefault, i))
 
         # Configures state variables for some of the checkbuttons
         # Also attaches the variables to the widget reference objects, as described in the following reference:
         # http://effbot.org/tkinterbook/checkbutton.htm
-        #for i in range(10):
-        #    self.controlBoxCheckbuttons[i].configure(variable=self.stateObj.raIntVars[i], value=(2 ** i))
-        #    self.controlBoxCheckbuttons[i].var = self.stateObj.raIntVars[i]
+        #     NOTE: Be sure to use the get() method
+        for i in range(10):
+            self.controlBoxCheckbuttons[i].configure(variable=self.stateObj.chIntVars[i], onvalue=(2 ** i), offvalue=0)
+            self.controlBoxCheckbuttons[i].var = self.stateObj.chIntVars[i]
+
+        # CONFIGURING COMMANDS for each CHECKBUTTON in self.controlBoxCheckbuttons
+        for i, b in enumerate(self.controlBoxCheckbuttons):
+            b.configure(command=partial(self.cmd.cmdCheckbuttonDefault, i))
 
 
     # Sets the necessary style parameters for each ttk-specific widget

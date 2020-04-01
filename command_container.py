@@ -65,9 +65,19 @@ class CommandContainer():
     #  - To save an image (PIL Image) to a file
     #      CODE: self.gui.img.pilImages[0].save(Path("string_representing/path_including/folders_and/file.extension"))
 
-    # Test function used during development to ensure that commands are working
-    def cmdDefault(self, i=0):
-        print("Executing CommandContainer.cmdDefault() with i = " + str(i))
+    # Test functions used during development to ensure that commands are working
+    def cmdButtonDefault(self, i=0):
+        print("Executing CommandContainer.cmdButtonDefault() with i = " + str(i))
+        return i
+
+    # Test functions used during development to ensure that commands are working
+    def cmdRadiobuttonDefault(self, i=0):
+        print("Executing CommandContainer.cmdRadiobuttonDefault() with i = " + str(i))
+        return i
+
+    # Test functions used during development to ensure that commands are working
+    def cmdCheckbuttonDefault(self, i=0):
+        print("Executing CommandContainer.cmdCheckbuttonDefault() with i = " + str(i))
         return i
 
     # Called when the "Load" button is pressed
@@ -114,5 +124,40 @@ class CommandContainer():
     # i represents the index of the image within self.gui.img.pilImages to be manipulated
     def cmdButtonApply(self, i=0):
         print("Executing CommandContainer.cmdButtonApply() with i = " + str(i))
-        self.gui.edit.randomizePixelColors(i, 0.2)  # FLAG: Hard-coded GUI parameter!
+        manipType = self.gui.stateObj.raManipType.get()
+        if manipType == 0:
+            self.gui.edit.randomizePixelColors(i, 0.2)  # FLAG: Hard-coded GUI parameter!
+        elif manipType == 1:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 1")
+        elif manipType == 2:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 2")
+        elif manipType == 3:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 3")
+        elif manipType == 4:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 4")
+        elif manipType == 5:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 5")
+        elif manipType == 6:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 6")
+        elif manipType == 7:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 7")
+        elif manipType == 8:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 8")
+        elif manipType == 9:
+            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 9")
+        else:
+            # Console output for user
+            print("================================================================")
+            print("Current value of StateContainer.raManipType is invalid for calls of the cmdButtonApply() method.")
+            print("A manipType value of -1 may imply that no manipulation function has yet been selected.")
+            print("Relevant Python file:                           command_container.py")
+            print("Relevant function:                              CommandContainer.cmdButtonApply()")
+            print("Relevant i value (index of \"Photo Box\" image):  " + str(i))
+            print("Relevant manipType value:                       " + str(manipType))
+            print()
+        return i
+
+    # Called whenever one of the manipulation-selection radiobuttons is clicked
+    def cmdRadiobuttonSetManipType(self, i=0):
+        print("Executing CommandContainer.cmdRadiobuttonSetManipType() with i = " + str(i))
         return i
