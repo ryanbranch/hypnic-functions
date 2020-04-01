@@ -120,20 +120,47 @@ class DimensionContainer():
 
         # CONTROL BOXES WITHIN CENTER CONTENT
         # Sets the number of rows and columns into which the CENTER CONTENT frame should be divided (evenly)
-        self.numControlBoxRows = 5  # FLAG: Hard-coded GUI parameter!
-        self.numControlBoxCols = 2  # FLAG: Hard-coded GUI parameter!
+        self.numControlBoxRows = 8  # FLAG: Hard-coded GUI parameter!
+        self.numControlBoxCols = 4  # FLAG: Hard-coded GUI parameter!
         # No need to define individual widths/heights for these frames as they are all relative to centerContent dims
         self.controlBoxPadX = self.defaultInternalPaddingGrid
         self.controlBoxPadY = self.defaultInternalPaddingGrid
 
         # BUTTONS WITHIN CONTROL BOXES
         # Sets the default number of buttons to use within each control box, unless otherwise specified
-        self.defaultControlBoxButtonCount = 1  # FLAG: Hard-coded GUI parameter!
+        self.defaultControlBoxButtonCount = 0  # FLAG: Hard-coded GUI parameter!
         # Sets the number of buttons within each control box cell, from left to right then top to bottom
-        self.controlBoxButtonCounts = [4, 4, 4, 4, 4, 4, 1, 0, 6, 6]  # FLAG: Hard-coded GUI parameter!
+        self.controlBoxButtonCounts = [4, 4, 4, 4,
+                                       4, 4, 4, 4,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       0, 0, 0, 0,
+                                       1, 1, 1, 1,
+                                       2, 2, 2, 2]  # FLAG: Hard-coded GUI parameter!
 
         # RADIOBUTTONS WITHIN CONTROL BOXES
         # Sets the default number of Radiobuttons to use within each control box, unless otherwise specified
-        self.defaultControlBoxRadiobuttonCount = 1  # FLAG: Hard-coded GUI parameter!
+        self.defaultControlBoxRadiobuttonCount = 0  # FLAG: Hard-coded GUI parameter!
         # Sets the number of Radiobuttons within each control box cell, from left to right then top to bottom
-        self.controlBoxRadiobuttonCounts = [2, 2, 2, 2, 2, 2, 2, 0, 6, 6]  # FLAG: Hard-coded GUI parameter!
+        self.controlBoxRadiobuttonCounts = [0, 0, 0, 0,
+                                            0, 0, 0, 0,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4]  # FLAG: Hard-coded GUI parameter!
+
+        # CHECKBUTTONS WITHIN CONTROL BOXES
+        # Sets the default number of Checkbuttons to use within each control box, unless otherwise specified
+        self.defaultControlBoxCheckbuttonCount = 0  # FLAG: Hard-coded GUI parameter!
+        # Sets the number of Checkbuttons within each control box cell, from left to right then top to bottom
+        self.controlBoxCheckbuttonCounts = [0, 0, 0, 0,
+                                            0, 0, 0, 0,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4,
+                                            4, 4, 4, 4]  # FLAG: Hard-coded GUI parameter!

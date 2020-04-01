@@ -51,6 +51,11 @@ In order to not only maintain readability but also to facilitate easier code nav
 		- does not require access to any class member variables
 
       Then it is likely a good candidate for **hypnic_helpers.py**
+	  
+## Naming
+
+- **Radiobutton** is one word and the "b" should not be capitalized unless absolutely necessary
+- **Checkbutton** is one word and the "b" should not be capitalized unless absolutely necessary
 
 ## GUI
 
