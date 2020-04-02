@@ -170,6 +170,9 @@ class CommandContainer():
 
 
     # Test functions used during development to ensure that commands are working
+    # TODO: Consider using this function to set some sort of non-tk variable
+    #           (could belong to gui or gui.cmd or elsewhere)
+    #       which EditContainer could grab, instead of its member functions having to process the tk IntVar into a bool
     def cmdCheckbuttonWrapColors(self, i=0):
         print("Executing CommandContainer.cmdCheckbuttonWrapColors() with i = " + str(i) + " and IntVar = " + str(self.gui.stateObj.chWrapColors.get()))
         return i
