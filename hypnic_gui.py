@@ -498,9 +498,9 @@ class HypnicGUI(tkinter.Tk):
         # NOTE: Doesn't really belong in this file at all, let alone here
         # TODO: Remedy the above note by storing radiobutton text information in a new file, likely another custom class
         self.controlBoxRadiobuttonStrings[:10] = ["Snow",
-                                                  "Function B",
-                                                  "Function C",
-                                                  "Function D",
+                                                  "Grayscale",
+                                                  "Add",
+                                                  "Subtract",
                                                   "Function E",
                                                   "Function F",
                                                   "Function G",

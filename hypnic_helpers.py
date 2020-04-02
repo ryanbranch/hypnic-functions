@@ -245,6 +245,21 @@ def getRandomGray():
 
 # COLOR MANIPULATION
 
-# Takes a 3-element RGB tuple as input
-def rgbToHex(rgb_):
-    return '#%02x%02x%02x' % rgb_
+# Fixes a 3-tuple such that all values fall between 0 and 255 inclusive
+# color is a tuple of 3 elements, already assumed to be integers
+# wrap is a boolean describing whether values should "wrap around" if they end up below 0 or above 255
+#   When wrap is False (by default), any result below 0 will become 0, and above 255 will become 255
+def fixOutOfRangeColors(color, wrap=False):
+    newColor = list(color)
+    for i, val in enumerate(color):
+        if val < 0:
+            if wrap:
+                newColor[i] %= 256
+            else:
+                newColor[i] = 0
+        if val > 255:
+            if wrap:
+                newColor[i] %= 256
+            else:
+                newColor[i] = 255
+    return tuple(newColor)

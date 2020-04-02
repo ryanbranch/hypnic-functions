@@ -1,6 +1,7 @@
 # TODO:
 #  ==============================================================================
-#  S. Placeholder for the MOST IMPORTANT/URGENT TASK
+#  S. Write some sort of "filtering" framework (maybe a new class) to make the application of simple filters (like
+#       grayscale, etc.) possible with shorter, more straightforward functions
 #  ==============================================================================
 #  A. Placeholder
 
@@ -43,7 +44,7 @@ class EditContainer():
     #    - PIL.Image.BICUBIC
     #    - PIL.Image.LANCZOS (current choice and presumed to be the highest quality)
     #   Since scaling isn't happening much as of yet, high quality is preferred over optimizing algorithm speed
-    def scaleImage(self, o, i, absolute=True, xParam = 0, yParam = 0):  # FLAG: Hard-coded GUI parameter!
+    def scaleImage(self, o, i, absolute=True, xParam=0, yParam=0):  # FLAG: Hard-coded GUI parameter!
 
         print("Executing EditContainer.scaleImage() with i = " + str(i) +
               "; absolute = " + str(absolute) +
@@ -105,29 +106,53 @@ class EditContainer():
             yResNew = math.ceil(yParam * yResCurrent)
 
         # Performs the scaling operation
-        self.gui.img.pilImagesTemp[0] = self.gui.img.pilImagesTemp[0].resize((xResNew, yResNew), self.defaultScaleResampleMode)
+        self.gui.img.pilImagesTemp[0] = self.gui.img.pilImagesTemp[0].resize((xResNew, yResNew),
+                                                                             self.defaultScaleResampleMode)
 
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)
 
-        return i
+        return o
+
+
+    # Turns an image into a grayscale version of itself
+    def grayscalePixels(self, o, i):
+
+        # Loads the PIL Image into gui.img.pilImagesTemp for editing
+        # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
+        # TODO: Add some sort of invariant to ensure that pilImagesTemp is empty?
+        self.gui.img.pilImagesTemp = [self.gui.img.pilImages[i].copy()]
+        pixelsEdit = self.gui.img.pilImagesTemp[0].load()
+        # The X and Y resolutions of the current element within ImageContainer.pilImages
+        xRes = self.gui.img.pilImages[i].size[0]
+        yRes = self.gui.img.pilImages[i].size[1]
+        # Iterates through each row and column of the image, manipulating pixels accordingly
+        for row in range(yRes):
+            for col in range(xRes):
+                grayscaleVal = hypnic_helpers.getLuminosity(pixelsEdit[col, row])
+                pixelsEdit[col, row] = (grayscaleVal, grayscaleVal, grayscaleVal)
+
+        # Updates the relevant ImageTk PhotoImage and GUI Image Label
+        self.gui.img.updateImageLabel(o)
+
+        return o
+
 
     # Turns some fraction of an image's pixels to random colors
     # o is the index of the target image slot for output, within the ImageContainer's pilImages list
     # i is the index of the image to be used for input
     # ratio_ is a float between 0 and 1 inclusive representing the fraction of pixels to be transformed
     # If no value for ratio_ is provided, all pixels in the entire image will be randomized
-    def randomizePixelColors(self, o, i, ratio_ = 1.0):
+    def randomizePixelColors(self, o, i, ratio_=1.0):
 
         # Ensures that the ratio is not erroneously handled as an integer
         ratio = float(ratio_)
-        print("Executing EditContainer.initializeCommandNames() with i = " + str(i) + "; ratio_ = " + str(ratio_))
 
         # Loads the PIL Image into gui.img.pilImagesTemp for editing
         # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
         # TODO: Add some sort of invariant to ensure that pilImagesTemp is empty?
         self.gui.img.pilImagesTemp = [self.gui.img.pilImages[i].copy()]
-        pixels = self.gui.img.pilImagesTemp[0].load()
+        pixelsEdit = self.gui.img.pilImagesTemp[0].load()
         # The X and Y resolutions of the current element within ImageContainer.pilImages
         xRes = self.gui.img.pilImages[i].size[0]
         yRes = self.gui.img.pilImages[i].size[1]
@@ -135,18 +160,73 @@ class EditContainer():
         for row in range(yRes):
             for col in range(xRes):
                 if random.random() <= ratio:
-                    pixels[col, row] = hypnic_helpers.getRandomRGB()
+                    pixelsEdit[col, row] = hypnic_helpers.getRandomRGB()
 
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)
 
-        return i
+        return o
 
     # Adds one image to another image
-    # i is the index of the target image, within the ImageContainer's pilImages list
-    # wrap is a boolean describing whether values should "wrap around" if they end up below 0 or above 255
-    #   When wrap is False (by default), any result below 0 will become 0, and above 255 will become 255
-    def addPixels(self, i, wrap=False):
+    # o is the index of the target image slot for output, within the ImageContainer's pilImages list
+    # i1 is the index of the primary image to be used for input
+    # i2 is the index of the secondary image to be used for input
+    def addPixels(self, o, i1, i2):
 
-        return i
+        # Loads the PIL Image into gui.img.pilImagesTemp for editing
+        # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
+        # TODO: Add some sort of invariant to ensure that pilImagesTemp is empty?
+        self.gui.img.pilImagesTemp = [self.gui.img.pilImages[i1].copy()]
+        pixelsEdit = self.gui.img.pilImagesTemp[0].load()
+        # Also creates and loads a copy of the secondary input image, to get its pixel color data
+        #   NOTE: No need to do this for the primary input image because it's stored in pixelsEdit already
+        pixelsIn2 = self.gui.img.pilImages[i2].copy().load()
+        # The X and Y resolutions over which to iterate are the minimums from each of the two input images
+        xRes = min(self.gui.img.pilImages[i1].size[0], self.gui.img.pilImages[i2].size[0])
+        yRes = min(self.gui.img.pilImages[i1].size[1], self.gui.img.pilImages[i2].size[1])
+        # Iterates through each row and column of the image, manipulating pixels accordingly
+        for row in range(yRes):
+            for col in range(xRes):
+                color1 = pixelsEdit[col, row]
+                color2 = pixelsIn2[col, row]
+                # uses fixOutOfRangeColors() from hypnic_helpers to ensure all values are between 0 and 255 inclusive
+                pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors((color1[0] + color2[0],
+                                                                           color1[1] + color2[1],
+                                                                           color1[2] + color2[2]),
+                                                                          True)  # TODO: Specify WRAP via a radiobutton!
+        # Updates the relevant ImageTk PhotoImage and GUI Image Label
+        self.gui.img.updateImageLabel(o)
 
+        return o
+
+    # Subtracts one image from another image
+    # o is the index of the target image slot for output, within the ImageContainer's pilImages list
+    # i1 is the index of the primary image to be used for input
+    # i2 is the index of the secondary image to be used for input
+    def subtractPixels(self, o, i1, i2):
+
+        # Loads the PIL Image into gui.img.pilImagesTemp for editing
+        # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
+        # TODO: Add some sort of invariant to ensure that pilImagesTemp is empty?
+        self.gui.img.pilImagesTemp = [self.gui.img.pilImages[i1].copy()]
+        pixelsEdit = self.gui.img.pilImagesTemp[0].load()
+        # Also creates and loads a copy of the secondary input image, to get its pixel color data
+        #   NOTE: No need to do this for the primary input image because it's stored in pixelsEdit already
+        pixelsIn2 = self.gui.img.pilImages[i2].copy().load()
+        # The X and Y resolutions over which to iterate are the minimums from each of the two input images
+        xRes = min(self.gui.img.pilImages[i1].size[0], self.gui.img.pilImages[i2].size[0])
+        yRes = min(self.gui.img.pilImages[i1].size[1], self.gui.img.pilImages[i2].size[1])
+        # Iterates through each row and column of the image, manipulating pixels accordingly
+        for row in range(yRes):
+            for col in range(xRes):
+                color1 = pixelsEdit[col, row]
+                color2 = pixelsIn2[col, row]
+                # uses fixOutOfRangeColors() from hypnic_helpers to ensure all values are between 0 and 255 inclusive
+                pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors((color1[0] - color2[0],
+                                                                           color1[1] - color2[1],
+                                                                           color1[2] - color2[2]),
+                                                                          True)  # TODO: Specify WRAP via a radiobutton!
+        # Updates the relevant ImageTk PhotoImage and GUI Image Label
+        self.gui.img.updateImageLabel(o)
+
+        return o

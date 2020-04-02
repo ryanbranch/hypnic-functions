@@ -126,17 +126,18 @@ class CommandContainer():
     def cmdButtonApply(self, i):
         print("Executing CommandContainer.cmdButtonApply() with i = " + str(i))
         manipType = self.gui.stateObj.raManipType.get()
+        # "Snow" Radiobutton
         if manipType == 0:
-            # TODO: Change this so that the second "i" instance is specified
-            #         via a radiobutton instead of being hard-coded here
-            print(self.gui.stateObj.raPrimaryInputImage.get())
             self.gui.edit.randomizePixelColors(i, self.gui.stateObj.raPrimaryInputImage.get(), 0.2)  # FLAG: Hard-coded GUI parameter!
+        # "Grayscale" Radiobutton
         elif manipType == 1:
-            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 1")
+            self.gui.edit.grayscalePixels(i, self.gui.stateObj.raPrimaryInputImage.get())
+        # "Add" Radiobutton
         elif manipType == 2:
-            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 2")
+            self.gui.edit.addPixels(i, self.gui.stateObj.raPrimaryInputImage.get(), self.gui.stateObj.raSecondaryInputImage.get())
+        # "Subtract" Radiobutton
         elif manipType == 3:
-            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 3")
+            self.gui.edit.subtractPixels(i, self.gui.stateObj.raPrimaryInputImage.get(), self.gui.stateObj.raSecondaryInputImage.get())
         elif manipType == 4:
             print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 4")
         elif manipType == 5:
