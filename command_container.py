@@ -77,7 +77,7 @@ class CommandContainer():
 
     # Test functions used during development to ensure that commands are working
     def cmdCheckbuttonDefault(self, i=0):
-        print("Executing CommandContainer.cmdCheckbuttonDefault() with i = " + str(i))
+        print("Executing CommandContainer.cmdCheckbuttonDefault() with i = " + str(i) + " and IntVar = " + str(self.gui.stateObj.chIntVars[i].get()))
         return i
 
     # Called when the "Load" button is pressed
@@ -162,7 +162,14 @@ class CommandContainer():
             print()
         return i
 
+
     # Called whenever one of the manipulation-selection radiobuttons is clicked
     def cmdRadiobuttonSetManipType(self, i=0):
         print("Executing CommandContainer.cmdRadiobuttonSetManipType() with i = " + str(i))
+        return i
+
+
+    # Test functions used during development to ensure that commands are working
+    def cmdCheckbuttonWrapColors(self, i=0):
+        print("Executing CommandContainer.cmdCheckbuttonWrapColors() with i = " + str(i) + " and IntVar = " + str(self.gui.stateObj.chWrapColors.get()))
         return i

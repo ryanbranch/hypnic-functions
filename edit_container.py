@@ -173,6 +173,13 @@ class EditContainer():
     # i2 is the index of the secondary image to be used for input
     def addPixels(self, o, i1, i2):
 
+        # Whether or not pixel colors should "wrap" when below 0 or above 255, instead of just min/maxing out
+        wrapInt = self.gui.stateObj.chWrapColors.get()
+        wrapBool = False
+        if wrapInt:
+            wrapBool = True
+        print("wrapInt = " + str(wrapInt) + ", wrapBool = " + str(wrapBool))
+
         # Loads the PIL Image into gui.img.pilImagesTemp for editing
         # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
         # TODO: Add some sort of invariant to ensure that pilImagesTemp is empty?
@@ -193,7 +200,7 @@ class EditContainer():
                 pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors((color1[0] + color2[0],
                                                                            color1[1] + color2[1],
                                                                            color1[2] + color2[2]),
-                                                                          True)  # TODO: Specify WRAP via a radiobutton!
+                                                                          wrapBool)
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)
 

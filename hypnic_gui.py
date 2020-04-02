@@ -581,6 +581,9 @@ class HypnicGUI(tkinter.Tk):
             if s == "":
                 self.controlBoxCheckbuttonStrings[i] = "Check " + str(i)
 
+        # Custom Checkbutton String definitions
+        self.controlBoxCheckbuttonStrings[0] = "Wrap Colors"
+
         # Uses the newly-completed list of strings to configure text for each item in self.controlBoxCheckbuttons
         for i, b in enumerate(self.controlBoxCheckbuttons):
             b.configure(text=self.controlBoxCheckbuttonStrings[i])
@@ -596,6 +599,11 @@ class HypnicGUI(tkinter.Tk):
         # CONFIGURING COMMANDS for each CHECKBUTTON in self.controlBoxCheckbuttons
         for i, b in enumerate(self.controlBoxCheckbuttons):
             b.configure(command=partial(self.cmd.cmdCheckbuttonDefault, i))
+
+        # Custom Checkbutton Configurations
+        self.controlBoxCheckbuttons[0].configure(variable=self.stateObj.chWrapColors, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[0].var = self.stateObj.chWrapColors
+        b.configure(command=partial(self.cmd.cmdCheckbuttonWrapColors, i))
 
 
     # Sets the necessary style parameters for each ttk-specific widget
