@@ -56,5 +56,12 @@ class StateContainer():
         self.raManipType.set(-1)
         self.chWrapColors = tkinter.IntVar()
         self.chWrapColors.set(1)
+        self.chRedChannel = tkinter.IntVar()
+        self.chRedChannel.set(1)
+        self.chGreenChannel = tkinter.IntVar()
+        self.chGreenChannel.set(1)
+        self.chBlueChannel = tkinter.IntVar()
+        self.chBlueChannel.set(1)
+
         self.chTest = tkinter.IntVar()
         self.chTest.set(0)

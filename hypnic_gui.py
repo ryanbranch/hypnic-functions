@@ -1,7 +1,6 @@
 # TODO:
 #  ==============================================================================
-#  S. STRONGLY CONSIDER instance vs. class member variables and improve abstraction (as currently in D.)
-#     Explanation: https://dev.to/ogwurujohnson/distinguishing-instance-variables-from-class-variables-in-python-81
+#  S. Learn about and implement text input boxes so that the user can provide numbers for filtering parameters
 #  ==============================================================================
 #  A. Consider creating a new widget_container.py file (or some other name with similar meaning)
 #    1. Not immediately necessary, but the GUI is gonna become more and more complicated so it may make more sense
@@ -16,6 +15,8 @@
 #       since many will be referenced by two or more lists
 #  D. Create a TXT or CSV input system for defining all of the GUI parameters that are currently hard-coded
 #    1. Not at all concerned with this until I actually care about making things pretty beyond functionality
+#  E. STRONGLY CONSIDER instance vs. class member variables and improve abstraction (as currently in D.)
+#     Explanation: https://dev.to/ogwurujohnson/distinguishing-instance-variables-from-class-variables-in-python-81
 
 __name__ = "hypnic_gui"
 
@@ -583,6 +584,9 @@ class HypnicGUI(tkinter.Tk):
 
         # Custom Checkbutton String definitions
         self.controlBoxCheckbuttonStrings[0] = "Wrap Colors"
+        self.controlBoxCheckbuttonStrings[1] = "Red Channel"
+        self.controlBoxCheckbuttonStrings[2] = "Green Channel"
+        self.controlBoxCheckbuttonStrings[3] = "Blue Channel"
 
         # Uses the newly-completed list of strings to configure text for each item in self.controlBoxCheckbuttons
         for i, b in enumerate(self.controlBoxCheckbuttons):
@@ -602,8 +606,15 @@ class HypnicGUI(tkinter.Tk):
 
         # Custom Checkbutton Configurations
         self.controlBoxCheckbuttons[0].configure(variable=self.stateObj.chWrapColors, onvalue=1, offvalue=0)
+        # NOTE: The line directly below serves no current purpose other than to maintain that ch commands are possible
+        self.controlBoxCheckbuttons[0].configure(command=partial(self.cmd.cmdCheckbuttonWrapColors, 333))  # FLAG: Hard-coded GUI parameter!
         self.controlBoxCheckbuttons[0].var = self.stateObj.chWrapColors
-        b.configure(command=partial(self.cmd.cmdCheckbuttonWrapColors, i))
+        self.controlBoxCheckbuttons[1].configure(variable=self.stateObj.chRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[1].var = self.stateObj.chRedChannel
+        self.controlBoxCheckbuttons[2].configure(variable=self.stateObj.chGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[2].var = self.stateObj.chGreenChannel
+        self.controlBoxCheckbuttons[3].configure(variable=self.stateObj.chBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[3].var = self.stateObj.chBlueChannel
 
 
     # Sets the necessary style parameters for each ttk-specific widget

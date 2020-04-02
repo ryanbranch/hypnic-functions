@@ -1,10 +1,15 @@
 # TODO:
 #  ==============================================================================
-#  S. Write some sort of "filtering" framework (maybe a new class) to make the application of simple filters (like
-#       grayscale, etc.) possible with shorter, more straightforward functions
+#  S. I'm running into some pretty major efficiency issues already (see grayscalePixels() for example) and really need
+#     to be careful about preventing things from going too far in that direction
+#    1. It's okay for now while I just focus on the possibility of functionality, BUT
+#    2. At the same time I don't want to back myself into a corner of requiring huge rework (like a new class) later on
 #  ==============================================================================
-#  A. Consider combining addPixels and subtractPixels (and future related functions) into one common function.
+#  A. Write some sort of "filtering" framework (maybe a new class) to make the application of simple filters (like
+#       grayscale, etc.) possible with shorter, more straightforward functions
+#  B. Consider combining addPixels and subtractPixels (and future related functions) into one common function.
 #    1. They are massively similar in content and, although not improving computational efficiency, would be pretty easy
+#  C. Write some sort of framework to make interpolation between colors (and extrapolation operations) more streamlined
 
 __name__ = "edit_container"
 
@@ -116,8 +121,13 @@ class EditContainer():
         return o
 
 
-    # Turns an image into a grayscale version of itself
-    def grayscalePixels(self, o, i):
+    # Turns an image (image i) into a grayscale version of itself and places that image into the Photo Box of index o
+    # ratio defines the magnitude of the change, which is 1.0 (100%) by default
+    #   e.g. 1.0 implies full transition to grayscale; 0.5 will cause each pixel to go halfway and 0.0 does nothing
+    def grayscalePixels(self, o, i, ratio_=1.0):
+
+        # Ensures that the ratio is not erroneously handled as an integer
+        ratio = float(ratio_)
 
         # Loads the PIL Image into gui.img.pilImagesTemp for editing
         # TODO: Look into PIL Image methods like load() and close(), test whether file saving+loading is needed, etc
@@ -130,8 +140,32 @@ class EditContainer():
         # Iterates through each row and column of the image, manipulating pixels accordingly
         for row in range(yRes):
             for col in range(xRes):
-                grayscaleVal = hypnic_helpers.getLuminosity(pixelsEdit[col, row])
-                pixelsEdit[col, row] = (grayscaleVal, grayscaleVal, grayscaleVal)
+                colorIn = pixelsEdit[col, row]
+                colorOut = list(colorIn)
+                luminosityVal = hypnic_helpers.getLuminosity(colorIn)
+
+                # If ratio is 1.0, then each of r/g/b are all equal to the luminosity
+                if ratio == 1.0:
+                    colorOut = [luminosityVal, luminosityVal, luminosityVal]
+                # If ratio is not 1.0, the change in each pixel is only partial
+                else:
+                    print("FUCK")
+                    # TODO: Replace this operation with a function for interpolation and extrapolation
+                    colorOut = [math.floor(colorIn[0] + ratio * (luminosityVal - colorIn[0])),
+                                math.floor(colorIn[1] + ratio * (luminosityVal - colorIn[1])),
+                                math.floor(colorIn[2] + ratio * (luminosityVal - colorIn[2]))]
+
+                # Excludes channels if necessary, based on the ch[Red/GreenBlue]Channel state variables
+                if not self.gui.stateObj.chRedChannel.get():
+                    colorOut[0] = colorIn[0]
+                if not self.gui.stateObj.chGreenChannel.get():
+                    colorOut[1] = colorIn[1]
+                if not self.gui.stateObj.chBlueChannel.get():
+                    colorOut[2] = colorIn[2]
+
+                # Updates the pixel color
+                pixelsEdit[col, row] = tuple(colorOut)
+
 
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)
