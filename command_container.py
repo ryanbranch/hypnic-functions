@@ -129,7 +129,8 @@ class CommandContainer():
         if manipType == 0:
             # TODO: Change this so that the second "i" instance is specified
             #         via a radiobutton instead of being hard-coded here
-            self.gui.edit.randomizePixelColors(i, i, 0.2)  # FLAG: Hard-coded GUI parameter!
+            print(self.gui.stateObj.raPrimaryInputImage.get())
+            self.gui.edit.randomizePixelColors(i, self.gui.stateObj.raPrimaryInputImage.get(), 0.2)  # FLAG: Hard-coded GUI parameter!
         elif manipType == 1:
             print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 1")
         elif manipType == 2:

@@ -527,7 +527,7 @@ class HypnicGUI(tkinter.Tk):
             b.configure(text=self.controlBoxRadiobuttonStrings[i])
 
         # CONFIGURING COMMANDS for each RADIOBUTTON in self.controlBoxRadiobuttons
-        for i, b in enumerate(self.controlBoxRadiobuttons):
+        for i, b in enumerate(self.controlBoxRadiobuttons[:10]):
             b.configure(command=partial(self.cmd.cmdRadiobuttonSetManipType, i))
 
         # Configures state variables for some of the radiobuttons
@@ -537,10 +537,12 @@ class HypnicGUI(tkinter.Tk):
             self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raManipType, value=i)
             self.controlBoxRadiobuttons[i].var = self.stateObj.raManipType
         for i in range(10, 14):
-            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raPrimaryInputImage, value=i)
+            # NOTE: (i - 10) is inherently based on this hard-coded stuff. TODO: Clean up eventually
+            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raPrimaryInputImage, value=(i - 10))
             self.controlBoxRadiobuttons[i].var = self.stateObj.raPrimaryInputImage
         for i in range(14, 18):
-            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raSecondaryInputImage, value=i)
+            # NOTE: (i - 14) is inherently based on this hard-coded stuff. TODO: Clean up eventually
+            self.controlBoxRadiobuttons[i].configure(variable=self.stateObj.raSecondaryInputImage, value=(i - 14))
             self.controlBoxRadiobuttons[i].var = self.stateObj.raSecondaryInputImage
 
 

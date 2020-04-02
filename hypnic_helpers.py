@@ -22,6 +22,7 @@ MAX_LOW_VAL = 63 # FLAG: Hard-coded GUI parameter!
 # The minimum value (integer from 0 to 255) for the low-value components when generating a random specific shade
 
 
+
 # H E L P E R   F U N C T I O N S
 
 # GENERAL MATH
@@ -64,9 +65,21 @@ def getGridPos(n_, w_, h_):
     c = n_ % w_
     return (r, c)
 
+# Returns the nearest integer to the distance between two X/Y coordinate pairs
+def calcDist(x1, y1, x2, y2):
+    return round(math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2))
+
+# Defines an algebraic function on the cartesian plane
+# Takes an X value as input and returns the Y value at X on that algebraic function
+# NOTE: Currently returns an error if slope is too negative or y intercept is too low
+#       NEED TO INVESTIGATE WHY THIS HAPPENS
+def calcCartesianFunc(xIn, slope, yIntercept):
+    yOut = round(xIn * slope + yIntercept)
+    return yOut
 
 
-# COLOR CONVERSION
+
+# COLOR CONVERSION AND MATH
 
 # Takes a 3-element tuple as input
 # Each value should be an integer between 0 and 255, representing the R, G, and B values for a color
@@ -83,8 +96,102 @@ def hexToRGB(hex_):
     hexStripped = hex_.lstrip("#")
     return tuple(int(hexStripped[i:i+2], 16) for i in (0, 2, 4))
 
+# Converts an RGB color value to an HSV color value
+# Based on algorithm (with modified domain) from:
+#     http://coecsl.ece.illinois.edu/ge423/spring05/group8/finalproject/hsv_writeup.pdf
+# R, G, and B are integers from 0 to 255 inclusive
+# H, S, and V are each measured on a continuous scale
+# H, conceptually, is measured in degrees and ranges from 0 <= H < 360
+# S is measured from 0 to 1 inclusive
+#   The lower S is, the more gray is present, causing it to appear faded
+# V is measured from 0 to 1 inclusive
+#   V represents brightness, where 0 is fully dark and 1 is fully bright
+#   If V is 0, then the color is always black, regardless of H or S
+def fromRGBtoHSV(rgb):
+
+    minRGB = float(min(rgb))
+    maxRGB = float(max(rgb))
+    deltaRGB = maxRGB - minRGB
+    h = 0
+    s = 0
+    v = maxRGB / 255
+    # r == g == b == 0
+    if maxRGB == 0:
+        return (h, s, v)
+    else:
+        s = deltaRGB / maxRGB
+
+    # Hue is null
+    if deltaRGB == 0:
+        return (h, s, v)
+    # Hue is non-null
+    else:
+        # Hue is between yellow and magenta
+        if rgb[0] == maxRGB:
+            h = round(60 * ((rgb[1] - rgb[2]) / (deltaRGB)))
+        # Hue is between cyan and yellow
+        elif rgb[1] == maxRGB:
+            h = round(60 * (2 + ((rgb[2] - rgb[0]) / (deltaRGB))))
+        # Hue is between magenta and cyan
+        else:
+            h = round(60 * (4 + ((rgb[0] - rgb[1]) / (deltaRGB))))
+        # Ensure that Hue is in the 0 <= H < 360 range
+        h %= 360
+
+    return (h, s, v)
+
+# Converts an HSV color value to an RGB color value
+# Based on algorithm (with modified domain) from:
+#     https://www.rapidtables.com/convert/color/hsv-to-rgb.html
+# R, G, and B are integers from 0 to 255 inclusive
+# H, S, and V are each measured on a continuous scale
+# H is measured in degrees on the domain of 0 <= H < 360
+# S and V range from 0 to 1 inclusive
+def fromHSVtoRGB(hsv):
+
+    c = hsv[1] * hsv[2]
+    x = c * (1 - abs((hsv[0] / 60.0) % 2 - 1))
+    m = hsv[2] - c
+
+    if hsv[0] < 180:
+        if hsv[0] < 120:
+            # 0 <= H < 60
+            if hsv[0] < 60:
+                rgb = [c, x, 0]
+            # 60 <= H < 120
+            else:
+                rgb = [x, c, 0]
+        # 120 <= H < 180
+        else:
+            rgb = [0, c, x]
+    else:
+        # 180 <= H < 240
+        if hsv[0] < 240:
+            rgb = [0, x, c]
+        else:
+
+            # 240 <= H < 300
+            if hsv[0] < 300:
+                rgb = [x, 0, c]
+            # 300 <= H < 360
+            else:
+                rgb = [c, 0, x]
+
+    rgb[0] = int(round(255 * (rgb[0] + m)))
+    rgb[1] = int(round(255 * (rgb[1] + m)))
+    rgb[2] = int(round(255 * (rgb[2] + m)))
+    return tuple(rgb)
+
+# Takes a 3-element RGB tuple as input and returns the luminosity, which also has a magnitude of 0 to 255
+# Luminosity is usually considered the best approach for turning images to grayscale
+# Based on the explanation from https://www.johndcook.com/blog/2009/08/24/algorithms-convert-color-grayscale/
+def getLuminosity(rgb):
+    return math.floor((0.21 * rgb[0]) + (0.72 * rgb[1]) + (0.07 * rgb[2]))
+
+
 
 # COLOR GENERATION
+
 # NOTE: For ease of readability and avoiding extraneous code, if writing a large number of highly specific functions,
 #       (e.g. to get a random shade of blue, green, yellow, orange, etc.) I will only write RGB versions,
 #       and simply pass their output into self.rgbToHex when necessary.
@@ -133,3 +240,11 @@ def getRandomPurple():
 def getRandomGray():
     brightness = random.randrange(0,255)
     return (brightness, brightness, brightness)
+
+
+
+# COLOR MANIPULATION
+
+# Takes a 3-element RGB tuple as input
+def rgbToHex(rgb_):
+    return '#%02x%02x%02x' % rgb_
