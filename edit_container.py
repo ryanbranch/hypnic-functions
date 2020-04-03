@@ -149,7 +149,6 @@ class EditContainer():
                     colorOut = [luminosityVal, luminosityVal, luminosityVal]
                 # If ratio is not 1.0, the change in each pixel is only partial
                 else:
-                    print("FUCK")
                     # TODO: Replace this operation with a function for interpolation and extrapolation
                     colorOut = [math.floor(colorIn[0] + ratio * (luminosityVal - colorIn[0])),
                                 math.floor(colorIn[1] + ratio * (luminosityVal - colorIn[1])),
@@ -230,11 +229,18 @@ class EditContainer():
             for col in range(xRes):
                 color1 = pixelsEdit[col, row]
                 color2 = pixelsIn2[col, row]
+                colorOut = list(color1)
+
+                # Excludes channels if necessary, based on the ch[Red/GreenBlue]Channel state variables
+                if self.gui.stateObj.chRedChannel.get():
+                    colorOut[0] += color2[0]
+                if self.gui.stateObj.chGreenChannel.get():
+                    colorOut[1] += color2[1]
+                if self.gui.stateObj.chBlueChannel.get():
+                    colorOut[2] += color2[2]
                 # uses fixOutOfRangeColors() from hypnic_helpers to ensure all values are between 0 and 255 inclusive
-                pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors((color1[0] + color2[0],
-                                                                           color1[1] + color2[1],
-                                                                           color1[2] + color2[2]),
-                                                                          wrapBool)
+                pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors(tuple(colorOut), wrapBool)
+
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)
 
@@ -268,11 +274,18 @@ class EditContainer():
             for col in range(xRes):
                 color1 = pixelsEdit[col, row]
                 color2 = pixelsIn2[col, row]
+                colorOut = list(color1)
+
+                # Excludes channels if necessary, based on the ch[Red/GreenBlue]Channel state variables
+                if self.gui.stateObj.chRedChannel.get():
+                    colorOut[0] -= color2[0]
+                if self.gui.stateObj.chGreenChannel.get():
+                    colorOut[1] -= color2[1]
+                if self.gui.stateObj.chBlueChannel.get():
+                    colorOut[2] -= color2[2]
                 # uses fixOutOfRangeColors() from hypnic_helpers to ensure all values are between 0 and 255 inclusive
-                pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors((color1[0] - color2[0],
-                                                                           color1[1] - color2[1],
-                                                                           color1[2] - color2[2]),
-                                                                          wrapBool)  # TODO: Specify WRAP via a radiobutton!
+                pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors(tuple(colorOut), wrapBool)
+
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)
 
