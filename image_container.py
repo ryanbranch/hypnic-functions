@@ -1,6 +1,8 @@
 # TODO:
 #  ==============================================================================
-#  S. Placeholder for the MOST IMPORTANT/URGENT TASK
+#  S. self.getImages() currently breaks if hypnic_images.txt isn't long enough.
+#    1. Fix this so that any unspecified lines will be filled with the image at STANDBY_IMAGE_PATH
+#    2. IN DOING SO, ALSO ENSURE THAT EXTRA UNNECESSARY IMAGES (BEYOND ROWxCOL plus others out-of-frame) ARE EXCLUDED
 #  ==============================================================================
 #  A. Placeholder
 

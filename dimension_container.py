@@ -86,12 +86,15 @@ class DimensionContainer():
         self.leftContentWidth = self.leftContentHeight
 
         # PHOTO BOXES ([0,0], [0,1], [1,0], [1,1] OF LEFT CONTENT)
-        # Each photo box has half the width and height of leftContent
+        # Each photo box has some equivalent fraction of the width and height of leftContent
+        # Sets the number of rows and columns into which the CENTER CONTENT frame should be divided (evenly)
+        self.numPhotoBoxRows = 3  # FLAG: Hard-coded GUI parameter!
+        self.numPhotoBoxCols = 3  # FLAG: Hard-coded GUI parameter!
         # They are arranged in a 2 x 2 square grid layout
         self.photoBoxPadX = self.defaultInternalPaddingGrid
         self.photoBoxPadY = self.defaultInternalPaddingGrid
-        self.photoBoxWidth = math.floor((self.leftContentWidth - self.leftContentPadX) / 2)
-        self.photoBoxHeight = math.floor((self.leftContentHeight - self.leftContentPadY) / 2)
+        self.photoBoxWidth = math.floor((self.leftContentWidth - self.leftContentPadX) / self.numPhotoBoxCols)
+        self.photoBoxHeight = math.floor((self.leftContentHeight - self.leftContentPadY) / self.numPhotoBoxRows)
 
         # DIMENSIONS RELATED TO PHOTO LABELS (held within PHOTO BOXES)
         # Scaling parameters used within EditContainer.scaleImage()

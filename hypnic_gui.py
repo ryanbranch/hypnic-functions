@@ -251,38 +251,26 @@ class HypnicGUI(tkinter.Tk):
 
 
         # FRAMES WHICH ARE CHILDREN OF self.leftContent
-        # Defines the individual image display frames within the Left Content
-        self.photoBoxTL = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
-                                            height=self.dims.photoBoxHeight)
-        self.photoBoxTR = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
-                                            height=self.dims.photoBoxHeight)
-        self.photoBoxBL = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
-                                            height=self.dims.photoBoxHeight)
-        self.photoBoxBR = tkinter.ttk.Frame(self.leftContent, width=self.dims.photoBoxWidth,
-                                            height=self.dims.photoBoxHeight)
 
-        # Specifies that each row and column within the Left Content has equal priority for space-filling
-        self.leftContent.grid_rowconfigure(0, weight=1)
-        self.leftContent.grid_columnconfigure(0, weight=1)
-        self.leftContent.grid_rowconfigure(1, weight=1)
-        self.leftContent.grid_columnconfigure(1, weight=1)
-
-        # Populates templist with the newly defined frames
-        tempList = [self.photoBoxTL, self.photoBoxTR, self.photoBoxBL, self.photoBoxBR]
-        # Iterates through the newly-defined tempList,
-        # Also arranges the grid elements, making use of getGridPos() from hypnic_helpers.py
-        # e is the Frame object within tempList and i is the index of that object
-        for i, e in enumerate(tempList):
-            # Appends to the relevant lists
-            self.widgets.append(e)
-            self.frames.append(e)
-            self.photoBoxFrames.append(e)
-            # leftContent has 2 rows and 2 columns
-            # hypnic_helpers.getGridPos is used to convert i to a (row, col) tuple based on the 2 x 2 arrangement
-            pos = hypnic_helpers.getGridPos(i, 2, 2)
-            # Uses pos to configure placement within the grid
-            e.grid(row=pos[0], column=pos[1], sticky="nsew", ipadx=self.dims.photoBoxPadX,
-                   ipady=self.dims.photoBoxPadY)
+        # Iterates through the number of rows and columns specified within dimension_container.py
+        for r in range(self.dims.numPhotoBoxRows):
+            for c in range(self.dims.numPhotoBoxCols):
+                # Initializes (and appends to self.widgets) a new Frame with self.leftContent as a parent
+                # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
+                #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
+                #       well could be the cause and I'll have to learn more about memory management in Python OOP
+                self.widgets.append(tkinter.ttk.Frame(self.leftContent,
+                                                      width=self.dims.photoBoxWidth,
+                                                      height=self.dims.photoBoxHeight))
+                # Appends the same Frame to self.frames and self.photoBoxFrames
+                self.frames.append(self.widgets[-1])
+                self.photoBoxFrames.append(self.widgets[-1])
+                # Specifies that the relevant row and column of self.leftContent has equal priority for space-filling
+                self.leftContent.grid_rowconfigure(r, weight=1)
+                self.leftContent.grid_columnconfigure(c, weight=1)
+                # Specifies that the newly initialized Frame is a member of the grid cell at (row, col) in centerContent
+                self.widgets[-1].grid(row=r, column=c, sticky="nsew", ipadx=self.dims.photoBoxPadX,
+                                      ipady=self.dims.photoBoxPadY)
 
 
         # FRAMES WHICH ARE CHILDREN OF self.centerContent
@@ -338,7 +326,8 @@ class HypnicGUI(tkinter.Tk):
 
     # Defines images for each of the 4 Photo Box Frames within leftContent
     def fillPhotoBoxImages(self):
-        for i in range(4):
+        # for i in range(self.dims.numPhotoBoxRows * self.dims.numPhotoBoxCols):
+        for i in range(self.dims.numPhotoBoxRows * self.dims.numPhotoBoxCols):
             # Initializes (and appends to self.widgets) a new Label with the relevant self.photoBoxFrames elt as parent
             # TODO: I BELIEVE that my appending to a member variable which was initialized in __init__, all of those
             #       Frame entities should continue to exist indefinitely. But if I run into problems, this very
