@@ -26,8 +26,8 @@ class ImageContainer():
 
         # Member variables related to input
         self.imagesTxtPath = imagesTxtPath_
-        self.inputPaths = []
-        # Array of booleans where a value of True denotes that the associated string within self.inputPaths is invalid
+        self.inputImagePathStrings = []
+        # Array of booleans where a value of True denotes that the associated string within self.inputImagePathStrings is invalid
         # For the same indices at which self.missingFiles contains a value of True, the corresponding element within
         #   associated lists (e.g. self.pilImages and self.tkImages) are based on the standby image (STANDBY_IMAGE_PATH)
         self.missingFiles = []
@@ -41,9 +41,9 @@ class ImageContainer():
         # TODO: store the file extension (".jpg") part in a separate variable so that a "count suffix" can be appended
 
         # Object Storage
-        # Array of PIL Image objects directly corresponding to the path strings in self.inputPaths
+        # Array of PIL Image objects directly corresponding to the path strings in self.inputImagePathStrings
         self.pilImages = []
-        # Array of PIL Tkinter PhotoImage objects directly corresponding to the path strings in self.inputPaths
+        # Array of PIL Tkinter PhotoImage objects directly corresponding to the path strings in self.inputImagePathStrings
         self.tkImages = []
 
         # PIL Image object used to temporarily hold a copy of an existing PIL image for editing
@@ -66,9 +66,9 @@ class ImageContainer():
             with open(self.imagesTxtPath) as f:
                 # Creates and iterates through a list of strings (lines) from the document at self.imagesTxtPath
                 for path in f.read().splitlines():
-                    # Ignoring blank lines, appends each specified path to the self.inputPaths list
+                    # Ignoring blank lines, appends each specified path to the self.inputImagePathStrings list
                     if path:
-                        self.inputPaths.append(path)
+                        self.inputImagePathStrings.append(path)
         # Triggers when the open() operation fails
         except:
             # Console output for user
@@ -84,7 +84,7 @@ class ImageContainer():
 
         # Triggers if the file has been closed and no images were obtained
         # Not inherently a catastrophic error, but should raise red flags to the user
-        if not self.inputPaths:
+        if not self.inputImagePathStrings:
             # Console output for user
             print("================================================================")
             print("System could not parse any file paths from the image path definition text document.")
@@ -97,7 +97,7 @@ class ImageContainer():
         # Otherwise, can proceed normally and populate the relevant lists
         else:
             # Iterates through all file paths identified from the image path definition text document
-            for p in self.inputPaths:
+            for p in self.inputImagePathStrings:
                 # Creates a Path object instance based on the current p value
                 fileObject = Path(p)
                 # Makes the path absolute, and in doing so checks whether the file exists
@@ -122,32 +122,64 @@ class ImageContainer():
                     self.pilImages.append(PIL.Image.open(str(fileObject)))
                     self.tkImages.append(PIL.ImageTk.PhotoImage(image=self.pilImages[-1]))
 
-    # Destructor for ImageContainer, called upon deletion
-    def __del__(self):
 
-        # For each PIL Image: Closes the file pointer, destroys the image core and releases its memory
-        for p in self.pilImages:
-            # Attempts to close
-            try:
-                p.close()
-            # If the close() operation fails
-            except:
-                # TODO: Update this output to be smarter and list relevant values one after another, instead of calling
-                #       all 7 of these print statements for each relevant value of ImageContainer.pilImages
-                # Console output for user
-                print("================================================================")
-                print("System could not close a file within the ImageContainer's list of PIL Image objects.")
-                print("This may be a bug where the list contains items of the wrong type, or a sign of a memory leak.")
-                print("Relevant Python file:                           image_container.py")
-                print("Relevant function:                              ImageContainer.__del__(self)")
-                print("Relevant ImageContainer.pilImages value:        " + str(p))
-                print()
-
-        # Console output for user
-        print("All PIL images have been released from memory.")
+    # Placeholder
+    def copyImageLabel(self, i1, i2):
+        print("Executing ImageContainer.loadImageLabel() with i1 = " + str(i1) + "; i2 = " + str(i2))
 
 
-    # Performs all necessary operations to update the GUI to display this changed image
+    # Placeholder
+    def swapImageLabels(self, i1, i2):
+        print("Executing ImageContainer.loadImageLabel() with i1 = " + str(i1) + "; i2 = " + str(i2))
+
+
+    # (Re)Loads the image from the ith Photo Box, based on filenames present in the imagesTxtPath file at launch-time
+    def loadImageLabel(self, i):
+        print("Executing ImageContainer.loadImageLabel() with i = " + str(i))
+        # Attempts to close any open image currently occupying slot i
+        try:
+            self.pilImages[i].close()
+        # If the close() operation fails
+        except:
+            # Console output for user
+            print("================================================================")
+            print("System could not close a file within the ImageContainer's list of PIL Image objects.")
+            print("This may be a bug where the list contains items of the wrong type, or a sign of a memory leak.")
+            print("Relevant Python file:                           image_container.py")
+            print("Relevant function:                              ImageContainer.loadImageLabel)")
+            print("Relevant i value:                               " + str(i))
+            print()
+
+        # Creates a Path object instance based on the current p value
+        fileObject = Path(self.inputImagePathStrings[i])
+        # Makes the path absolute, and in doing so checks whether the file exists
+        try:
+            fileObject.resolve(strict=True)
+        # If the file does not exist, a value of "True" is appended to self.missingFiles to denote this
+        except FileNotFoundError:
+            self.missingFiles[i] = True
+            self.pilImages[i] = PIL.Image.open(STANDBY_IMAGE_PATH)
+            self.tkImages[i] = PIL.ImageTk.PhotoImage(image=self.pilImages[i])
+            # Reconfigures the relevant GUI image Label
+            self.gui.photoBoxImageLabels[i].configure(image=self.tkImages[i])
+            # Console output for user
+            print("================================================================")
+            print("System could not open a file specified within the image path definition text document.")
+            print("The path shown below may point to a file which does not actually exist.")
+            print("Relevant Python file:                           image_container.py")
+            print("Relevant function:                              ImageContainer.getImages()")
+            print("Value of fileObject variable:                   " + str(fileObject))
+            print()
+        # Otherwise, the file can be treated normally
+        else:
+            self.missingFiles[i] = False
+            self.pilImages[i] = PIL.Image.open(str(fileObject))
+            self.tkImages[i] = PIL.ImageTk.PhotoImage(image=self.pilImages[i])
+            # Reconfigures the relevant GUI image Label
+            self.gui.photoBoxImageLabels[i].configure(image=self.tkImages[i])
+
+
+    # Performs all necessary operations to update the GUI to change a (displayed) image after it has been edited
     # i is the index of the newly changed image within self.img.pilImages
     #     The actual image to be written to index i is based on self.pilImagesTemp
     # When clearTemp is True (True by default) the pilImagesTemp list will be cleared at the end of the function
@@ -182,3 +214,26 @@ class ImageContainer():
             self.gui.img.pilImagesTemp = []
 
 
+    # Destructor for ImageContainer, called upon deletion
+    def __del__(self):
+
+        # For each PIL Image: Closes the file pointer, destroys the image core and releases its memory
+        for p in self.pilImages:
+            # Attempts to close
+            try:
+                p.close()
+            # If the close() operation fails
+            except:
+                # TODO: Update this output to be smarter and list relevant values one after another, instead of calling
+                #       all 7 of these print statements for each relevant value of ImageContainer.pilImages
+                # Console output for user
+                print("================================================================")
+                print("System could not close a file within the ImageContainer's list of PIL Image objects.")
+                print("This may be a bug where the list contains items of the wrong type, or a sign of a memory leak.")
+                print("Relevant Python file:                           image_container.py")
+                print("Relevant function:                              ImageContainer.__del__(self)")
+                print("Relevant ImageContainer.pilImages value:        " + str(p))
+                print()
+
+        # Console output for user
+        print("All PIL images have been released from memory.")

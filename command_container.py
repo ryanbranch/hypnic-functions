@@ -83,6 +83,7 @@ class CommandContainer():
     # Called when the "Load" button is pressed
     def cmdButtonLoad(self, i=0):
         print("Executing CommandContainer.cmdButtonLoad() with i = " + str(i))
+        self.gui.img.loadImageLabel(i)
         return i
 
     # Called when the "Save" button is pressed
@@ -128,7 +129,7 @@ class CommandContainer():
         manipType = self.gui.stateObj.raManipType.get()
         # "Snow" Radiobutton
         if manipType == 0:
-            self.gui.edit.randomizePixelColors(i, self.gui.stateObj.raPrimaryInputImage.get(), 0.2)  # FLAG: Hard-coded GUI parameter!
+            self.gui.edit.fill(i)
         # "Grayscale" Radiobutton
         elif manipType == 1:
             self.gui.edit.grayscalePixels(i, self.gui.stateObj.raPrimaryInputImage.get())
@@ -149,7 +150,7 @@ class CommandContainer():
         elif manipType == 8:
             print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 8")
         elif manipType == 9:
-            print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 9")
+            self.gui.edit.randomizePixelColors(i, self.gui.stateObj.raPrimaryInputImage.get(), 0.2)  # FLAG: Hard-coded GUI parameter!
         else:
             # Console output for user
             print("================================================================")

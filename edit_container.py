@@ -16,6 +16,7 @@ __name__ = "edit_container"
 # Library Imports
 import random
 import PIL
+from PIL import Image
 import math
 
 # Local Imports
@@ -117,6 +118,23 @@ class EditContainer():
 
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)
+
+        return o
+
+
+    # Replaces the image in Photo Box o with a solid color (based on RGB channel selection)
+    # NOTE: No need to call updateImageLabel before or after this function. pilImagesTemp is NOT INVOLVED!
+    def fill(self, o):
+        # Defines the fill color based on checkbutton selections
+        # TODO: Update this to take text input into account
+        color = (255 * self.gui.stateObj.chRedChannel.get(),
+                 255 * self.gui.stateObj.chGreenChannel.get(),
+                 255 * self.gui.stateObj.chBlueChannel.get())
+
+        self.gui.img.pilImages[o] = Image.new("RGB", self.gui.img.pilImages[o].size, color)
+        self.gui.img.tkImages[o] = PIL.ImageTk.PhotoImage(image=self.gui.img.pilImages[o])
+        # Reconfigures the relevant GUI image Label
+        self.gui.photoBoxImageLabels[o].configure(image=self.gui.img.tkImages[o])
 
         return o
 

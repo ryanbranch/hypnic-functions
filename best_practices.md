@@ -124,6 +124,9 @@ Support is not currently developed or guaranteed for image formats which can con
 
 Many **TODO**s are already documented throughout my code, but I'd like to also keep track of those specific ones which inform or affect my own practices in writing and using this program. 
 
+ - Improve efficiency, especially in regards to image manipulation operations and associated function calls
+	- "Numba" and its "stencil" package may be useful for this
+		- [Gaussian Blur Example](https://github.com/numba/numba/blob/master/examples/gaussian-blur/gaussian-blur-pa.py) with Numba and PIL
  - Increase the amount of abstraction to keep **hypnic_gui.py** shorter and more comprehensible
 	- One consideration was to make a WidgetContainer class
 	- Now actually considering a separate class for each widget type depending on how they're handled
