@@ -66,7 +66,7 @@ class StyleContainer():
         self.ttkStyleConfig()
 
     def ttkStyleConfig(self):
-        # DEFAULT STYLES
+        # D E F A U L T     S T Y L E S
         # These styles will apply to all relevant ttk widgets which are not given a custom style
         # TButton represents the default ttk Button (the class name for ttk::button is TButton)
         self.ttkStyleObj.configure("TButton",
@@ -83,13 +83,10 @@ class StyleContainer():
         self.ttkStyleObj.configure("TLabel",
                                    background="#9D3")
 
-        # CUSTOM STYLES
-        # Button Styles
-        self.ttkStyleObj.configure("c.TButton",
-                             foreground=[('pressed', 'red'), ('active', 'blue')],
-                             background=[('pressed', '!disabled', 'black'), ('active', 'white')])
+        # C U S T O M     S T Y L E S
 
-        # Frame Styles
+        # FRAME STYLES
+        # Creates an assortment of Frame styles with random background colors to keep grid elements visually distinct
         # Number of random ttk Frame styles to generate
         # TODO: Define this elsewhere, and based on hard-coded parameters
         numFrameStyles = 50
@@ -111,6 +108,10 @@ class StyleContainer():
 
             # Adds styleName to self.frameStyles for future reference
             self.frameStyles.append(styleName)
+
+        # COMBOBOX STYLES
+        # TODO: Custom combobox style to save space when dealing with single-character Comboboxes
+        self.ttkStyleObj.configure("singleChar.TCombobox")
 
     # SET / GET METHODS
     # Good practice for use when modifying StyleContainer variables from externally (like from the HypnicGUI instance)

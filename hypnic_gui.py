@@ -622,7 +622,6 @@ class HypnicGUI(tkinter.Tk):
         # Generates the tuple representing the choices available within each dropdown
         #   Specifically, a list of consecutive characters beginning with "A"
         imageChoiceList = [chr(n + 65) for n in range(self.dims.numPhotoBoxRows * self.dims.numPhotoBoxCols)]
-        imageChoiceTuple = tuple(imageChoiceList)
 
         # iterates from zero stopping before (number of rows multiplied by number of columns)
         for i in range(self.dims.numControlBoxRows * self.dims.numControlBoxCols):
@@ -632,8 +631,11 @@ class HypnicGUI(tkinter.Tk):
                 comboboxCount = self.dims.controlBoxComboboxCounts[i]
             for n in range(comboboxCount):
                 # Initializes (and appends to self.widgets) a new Combobox with the relevant Frame as the parent
+                # state is set to "readonly" so that the user can only choose from pre-defined options
                 # Also provides the list of choices generated prior to this for loop block
-                self.widgets.append(tkinter.ttk.Combobox(self.controlBoxFrames[i], values=imageChoiceList))
+                self.widgets.append(tkinter.ttk.Combobox(self.controlBoxFrames[i], state="readonly", values=imageChoiceList))
+                # Configures the first (0th) element to be selected upon initialization
+                self.widgets[-1].current(0)
                 # Appends the same Combobox to self.comboboxes, self.inputWidgets, and self.controlBoxImageLabels
                 self.comboboxes.append(self.widgets[-1])
                 self.inputWidgets.append(self.widgets[-1])

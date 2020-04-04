@@ -132,13 +132,18 @@ class CommandContainer():
             self.gui.edit.fill(i)
         # "Grayscale" Radiobutton
         elif manipType == 1:
-            self.gui.edit.grayscalePixels(i, self.gui.stateObj.raPrimaryInputImage.get())
+            self.gui.edit.grayscalePixels(self.gui.controlBoxComboboxes[0].current(),
+                                          self.gui.controlBoxComboboxes[1].current())
         # "Add" Radiobutton
         elif manipType == 2:
-            self.gui.edit.addPixels(i, self.gui.stateObj.raPrimaryInputImage.get(), self.gui.stateObj.raSecondaryInputImage.get())
+            self.gui.edit.addPixels(self.gui.controlBoxComboboxes[0].current(),
+                                    self.gui.controlBoxComboboxes[1].current(),
+                                    self.gui.controlBoxComboboxes[2].current())
         # "Subtract" Radiobutton
         elif manipType == 3:
-            self.gui.edit.subtractPixels(i, self.gui.stateObj.raPrimaryInputImage.get(), self.gui.stateObj.raSecondaryInputImage.get())
+            self.gui.edit.subtractPixels(self.gui.controlBoxComboboxes[0].current(),
+                                         self.gui.controlBoxComboboxes[1].current(),
+                                         self.gui.controlBoxComboboxes[2].current())
         elif manipType == 4:
             print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 4")
         elif manipType == 5:
@@ -150,7 +155,7 @@ class CommandContainer():
         elif manipType == 8:
             print("PLACEHOLDER FOR CommandContainer.cmdButtonApply to invoke manipulation function 8")
         elif manipType == 9:
-            self.gui.edit.randomizePixelColors(i, self.gui.stateObj.raPrimaryInputImage.get(), 0.2)  # FLAG: Hard-coded GUI parameter!
+            self.gui.edit.randomizePixelColors(self.gui.controlBoxComboboxes[0].current(), self.gui.stateObj.raPrimaryInputImage.get(), 0.2)  # FLAG: Hard-coded GUI parameter!
         else:
             # Console output for user
             print("================================================================")
