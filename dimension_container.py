@@ -133,10 +133,10 @@ class DimensionContainer():
         # Sets the default number of buttons to use within each control box, unless otherwise specified
         self.defaultControlBoxButtonCount = 0  # FLAG: Hard-coded GUI parameter!
         # Sets the number of buttons within each control box cell, from left to right then top to bottom
-        self.controlBoxButtonCounts = [4, 4, 4, 4,
+        self.controlBoxButtonCounts = [0, 0, 0, 0,
+                                       0, 0, 0, 0,
                                        4, 4, 4, 4,
-                                       0, 0, 0, 0,
-                                       0, 0, 0, 0,
+                                       4, 4, 4, 4,
                                        0, 0, 0, 0,
                                        0, 0, 0, 0,
                                        1, 1, 1, 1,
@@ -147,10 +147,10 @@ class DimensionContainer():
         self.defaultControlBoxRadiobuttonCount = 0  # FLAG: Hard-coded GUI parameter!
         # Sets the number of Radiobuttons within each control box cell, from left to right then top to bottom
         self.controlBoxRadiobuttonCounts = [0, 0, 0, 0,
-                                            0, 0, 0, 0,
                                             5, 5, 4, 4,
-                                            4, 4, 0, 0,
                                             0, 0, 0, 0,
+                                            0, 0, 0, 0,
+                                            4, 4, 0, 0,
                                             0, 0, 0, 0,
                                             0, 0, 0, 0,
                                             0, 0, 0, 0]  # FLAG: Hard-coded GUI parameter!
@@ -162,8 +162,21 @@ class DimensionContainer():
         self.controlBoxCheckbuttonCounts = [0, 0, 0, 0,
                                             0, 0, 0, 0,
                                             0, 0, 0, 0,
-                                            0, 0, 4, 4,
-                                            0, 0, 4, 4,
                                             0, 0, 0, 0,
+                                            0, 0, 4, 4,
+                                            0, 0, 4, 4,
                                             0, 0, 0, 0,
                                             0, 0, 0, 0]  # FLAG: Hard-coded GUI parameter!
+
+        # COMBOBOXES WITHIN CONTROL BOXES
+        # Sets the default number of Comboboxes to use within each control box, unless otherwise specified
+        self.defaultControlBoxComboboxCount = 0  # FLAG: Hard-coded GUI parameter!
+        # Sets the number of Comboboxes within each control box cell, from left to right then top to bottom
+        self.controlBoxComboboxCounts = [1, 1, 1, 1,
+                                         0, 0, 0, 0,
+                                         0, 0, 0, 0,
+                                         0, 0, 0, 0,
+                                         0, 0, 0, 0,
+                                         0, 0, 0, 0,
+                                         0, 0, 0, 0,
+                                         0, 0, 0, 0]  # FLAG: Hard-coded GUI parameter!

@@ -1,6 +1,7 @@
 # TODO:
 #  ==============================================================================
 #  S. Learn about and implement text input boxes so that the user can provide numbers for filtering parameters
+#    1. Do the same for the OptionMenu widget class, dropdowns for selecting primary, secondary, tertiary inputs
 #  ==============================================================================
 #  A. Consider creating a new widget_container.py file (or some other name with similar meaning)
 #    1. Not immediately necessary, but the GUI is gonna become more and more complicated so it may make more sense
@@ -130,6 +131,15 @@ class HypnicGUI(tkinter.Tk):
         # CUSTOM CHECKBUTTON LISTS
         # Stores each of the Checkbuttons that fall within any of the Control Box frames in CenterContent
         self.controlBoxCheckbuttons = []
+
+        # I N I T I A L I Z A T I O N     O F    C O M B O B O X - R E L A T E D     V A R I A B L E S
+        # GENERAL COMBOBOX LIST
+        # Stores all of the ttk Combobox objects that belong to the GUI
+        self.comboboxes = []
+
+        # CUSTOM COMBOBOX LISTS
+        # Stores each of the Comboboxes that fall within any of the Control Box frames in CenterContent
+        self.controlBoxComboboxes = []
 
 
 
@@ -322,6 +332,7 @@ class HypnicGUI(tkinter.Tk):
         self.fillControlBoxButtons()
         self.fillControlBoxRadiobuttons()
         self.fillControlBoxCheckbuttons()
+        self.fillControlBoxComboboxes()
 
 
     # Defines images for each of the 4 Photo Box Frames within leftContent
@@ -493,9 +504,9 @@ class HypnicGUI(tkinter.Tk):
                                                   "Subtract",
                                                   "Copy",
                                                   "Swap",
-                                                  "Function G",
-                                                  "Function H",
-                                                  "Function I",
+                                                  "Average",
+                                                  "Multiply",
+                                                  "Divide",
                                                   "Snow"]
         self.controlBoxRadiobuttonStrings[10:14] = ["Primary A",
                                                     "Primary B",
@@ -604,6 +615,32 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxCheckbuttons[2].var = self.stateObj.chGreenChannel
         self.controlBoxCheckbuttons[3].configure(variable=self.stateObj.chBlueChannel, onvalue=1, offvalue=0)
         self.controlBoxCheckbuttons[3].var = self.stateObj.chBlueChannel
+
+    # Defines Comboboxes for each controlBox within centerContent
+    def fillControlBoxComboboxes(self):
+
+        # Generates the tuple representing the choices available within each dropdown
+        #   Specifically, a list of consecutive characters beginning with "A"
+        imageChoiceList = [chr(n + 65) for n in range(self.dims.numPhotoBoxRows * self.dims.numPhotoBoxCols)]
+        imageChoiceTuple = tuple(imageChoiceList)
+
+        # iterates from zero stopping before (number of rows multiplied by number of columns)
+        for i in range(self.dims.numControlBoxRows * self.dims.numControlBoxCols):
+            # Number of comboboxes created is defined by DimensionContainer.numControlBoxComboboxes
+            comboboxCount = self.dims.defaultControlBoxComboboxCount
+            if i < len(self.dims.controlBoxComboboxCounts):
+                comboboxCount = self.dims.controlBoxComboboxCounts[i]
+            for n in range(comboboxCount):
+                # Initializes (and appends to self.widgets) a new Combobox with the relevant Frame as the parent
+                # Also provides the list of choices generated prior to this for loop block
+                self.widgets.append(tkinter.ttk.Combobox(self.controlBoxFrames[i], values=imageChoiceList))
+                # Appends the same Combobox to self.comboboxes, self.inputWidgets, and self.controlBoxImageLabels
+                self.comboboxes.append(self.widgets[-1])
+                self.inputWidgets.append(self.widgets[-1])
+                self.controlBoxComboboxes.append(self.widgets[-1])
+                # NOTE: A column value of 2 is used for Comboboxes, as opposed to the 1/0 used by Radio/Buttons
+                self.widgets[-1].grid(row=n, column=2, sticky="nsew", ipadx=self.dims.controlBoxPadX,
+                                      ipady=self.dims.controlBoxPadY)
 
 
     # Sets the necessary style parameters for each ttk-specific widget

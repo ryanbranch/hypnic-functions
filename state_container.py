@@ -22,6 +22,7 @@ class StateContainer():
         # Initializes (and sets default values, if applicable) for tkinter control variables
         # Variables beginning with "ra" signify a variable controlled by radiobuttons
         # Variables beginning with "ch" signify a variable controlled by a checkbox
+        # Variables beginning with "co" signify a variable controlled by a combobox
 
         # Temporary variables being used for test purposes TODO: REMOVE THESE (Everything in this block until END TODO)
         self.chIntVar0 = tkinter.IntVar()
@@ -52,6 +53,8 @@ class StateContainer():
         self.raPrimaryInputImage.set(0)
         self.raSecondaryInputImage = tkinter.IntVar()
         self.raSecondaryInputImage.set(1)
+        self.raTertiaryInputImage = tkinter.IntVar()
+        self.raTertiaryInputImage.set(2)
         self.raManipType = tkinter.IntVar()
         self.raManipType.set(-1)
         self.chWrapColors = tkinter.IntVar()
@@ -62,6 +65,14 @@ class StateContainer():
         self.chGreenChannel.set(1)
         self.chBlueChannel = tkinter.IntVar()
         self.chBlueChannel.set(1)
+        self.coPrimaryOutputImage = tkinter.IntVar()
+        self.coPrimaryOutputImage.set(0)
+        self.coPrimaryInputImage = tkinter.IntVar()
+        self.coPrimaryInputImage.set(0)
+        self.coSecondaryInputImage = tkinter.IntVar()
+        self.coSecondaryInputImage.set(0)
+        self.coTertiaryInputImage = tkinter.IntVar()
+        self.coTertiaryInputImage.set(0)
 
         self.chTest = tkinter.IntVar()
         self.chTest.set(0)
