@@ -98,8 +98,8 @@ class DimensionContainer():
 
         # DIMENSIONS RELATED TO PHOTO LABELS (held within PHOTO BOXES)
         # Scaling parameters used within EditContainer.scaleImage()
-        self.scaleImageDefaultAbsolute = 200  # FLAG: Hard-coded GUI parameter!
-        self.scaleImageDefaultRatio = 0.5  # FLAG: Hard-coded GUI parameter!
+        self.scaleImageDefaultAbsolute = 250  # FLAG: Hard-coded GUI parameter!
+        self.scaleImageDefaultRelative = 0.9  # FLAG: Hard-coded GUI parameter!
         # NOTE: If scaling UP, the value used in EditContainer.scaleImage will never exceed these
         self.scaleImageMaxAbsolute = 2000  # FLAG: Hard-coded GUI parameter!
         self.scaleImageMaxRelative = 2.0  # FLAG: Hard-coded GUI parameter!
@@ -135,7 +135,7 @@ class DimensionContainer():
         # Sets the number of buttons within each control box cell, from left to right then top to bottom
         self.controlBoxButtonCounts = [0, 0, 0, 0,
                                        0, 0, 0, 0,
-                                       4, 4, 4, 4,
+                                       0, 0, 4, 4,
                                        4, 4, 4, 4,
                                        0, 0, 0, 0,
                                        0, 0, 0, 0,
@@ -159,9 +159,9 @@ class DimensionContainer():
         # Sets the default number of Checkbuttons to use within each control box, unless otherwise specified
         self.defaultControlBoxCheckbuttonCount = 0  # FLAG: Hard-coded GUI parameter!
         # Sets the number of Checkbuttons within each control box cell, from left to right then top to bottom
-        self.controlBoxCheckbuttonCounts = [0, 0, 0, 0,
+        self.controlBoxCheckbuttonCounts = [1, 3, 3, 3,
                                             0, 0, 0, 0,
-                                            0, 0, 0, 0,
+                                            3, 0, 0, 0,
                                             0, 0, 0, 0,
                                             0, 0, 4, 4,
                                             0, 0, 4, 4,

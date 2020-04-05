@@ -2,8 +2,8 @@ media/eost-425p.jpg
 media/cat-425p.jpg
 media/cat2-425p.jpg
 media/glitch-425p.jpg
-media/eost-425p.jpg
-media/cat-425p.jpg
-media/cat2-425p.jpg
-media/glitch-425p.jpg
-media/eost-425p.jpg
+media/car2-280p.jpg
+media/car2-280p.jpg
+media/car2-280p.jpg
+media/car2-280p.jpg
+media/car2-280p.jpg

@@ -51,7 +51,7 @@ class EditContainer():
     #    - PIL.Image.BICUBIC
     #    - PIL.Image.LANCZOS (current choice and presumed to be the highest quality)
     #   Since scaling isn't happening much as of yet, high quality is preferred over optimizing algorithm speed
-    def scaleImage(self, o, i, absolute=True, xParam=0, yParam=0):  # FLAG: Hard-coded GUI parameter!
+    def scaleImage(self, o, i, absolute=False, xParam=0, yParam=0):  # FLAG: Hard-coded GUI parameter!
 
         print("Executing EditContainer.scaleImage() with i = " + str(i) +
               "; absolute = " + str(absolute) +
@@ -63,18 +63,18 @@ class EditContainer():
         warnRejectedY = False
         # (Re)sets xParam and yParam values if necessary
         if absolute:
-            if (xParam is None) or (xParam > self.gui.dims.scaleImageMaxAbsolute) or (xParam < 1):
+            if (xParam > self.gui.dims.scaleImageMaxAbsolute) or (xParam < 1):
                 xParam = self.gui.dims.scaleImageDefaultAbsolute
                 warnRejectedX = True
-            if (yParam is None) or (yParam > self.gui.dims.scaleImageMaxAbsolute) or (yParam < 1):
+            if (yParam > self.gui.dims.scaleImageMaxAbsolute) or (yParam < 1):
                 yParam = self.gui.dims.scaleImageDefaultAbsolute
                 warnRejectedY = True
         else:
-            if (xParam is None) or (xParam > self.gui.dims.scaleImageMaxRelative) or (xParam <= 0):
-                xParam = self.gui.dims.scaleImageDefaultRatio
+            if (xParam > self.gui.dims.scaleImageMaxRelative) or (xParam <= 0):
+                xParam = self.gui.dims.scaleImageDefaultRelative
                 warnRejectedX = True
-            if (yParam == None) or (yParam > self.gui.dims.scaleImageMaxRelative) or (yParam <= 0):
-                yParam = self.gui.dims.scaleImageDefaultRatio
+            if (yParam > self.gui.dims.scaleImageMaxRelative) or (yParam <= 0):
+                yParam = self.gui.dims.scaleImageDefaultRelative
                 warnRejectedY = True
             # In the RELATIVE CASE, regardless of reset: Ensures that the ratios are not mistakenly handled as integers
             xParam = float(xParam)

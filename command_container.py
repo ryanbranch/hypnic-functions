@@ -83,14 +83,15 @@ class CommandContainer():
     # Called when the "Load" button is pressed
     def cmdButtonLoad(self, i=0):
         print("Executing CommandContainer.cmdButtonLoad() with i = " + str(i))
-        self.gui.img.loadImageLabel(i)
+        self.gui.img.loadImageLabel(self.gui.controlBoxComboboxes[0].current())
         return i
 
     # Called when the "Save" button is pressed
     # i represents the index of the image within self.gui.img.pilImages to be scaled
     def cmdButtonSave(self, i=0):
         print("Executing CommandContainer.cmdButtonSave() with i = " + str(i))
-        self.gui.img.pilImages[i].save(Path(self.gui.img.outputImagePathStrings[i]))
+        self.gui.img.pilImages[self.gui.controlBoxComboboxes[0].current()].save(
+            Path(self.gui.img.outputImagePathStrings[self.gui.controlBoxComboboxes[0].current()]))
         return i
 
     # Called when the "Undo" button is pressed
@@ -119,7 +120,8 @@ class CommandContainer():
     # TODO: Change this so that the second "i" instance is specified via a radiobutton instead of being hard-coded here
     def cmdButtonScale(self, i=0):
         print("Executing CommandContainer.cmdButtonScale() with i = " + str(i))
-        self.gui.edit.scaleImage(i,i, False, 0.9, 0.9)  # FLAG: Hard-coded GUI parameter!
+        self.gui.edit.scaleImage(self.gui.controlBoxComboboxes[0].current(),
+                                 self.gui.controlBoxComboboxes[1].current())  # FLAG: Hard-coded GUI parameter!
         return i
 
     # Called when the "Apply" button is pressed

@@ -146,11 +146,12 @@ class HypnicGUI(tkinter.Tk):
         # C O N T A I N E R     C L A S S     I N I T I A L I Z A T I O N
         # NOTE: THIS SHOULD ONLY BE DONE AFTER DEFINING THE EMPTY LISTS ABOVE, JUST IN CASE A CONSTRUCTOR NEEDS ACCESS
 
-        # StyleContainer.__init__() depends on self.dims so we must define self.dims before self.styleObj!
+        # DimensionContainer instance must exist before self.styleObj or self.edit are initialized!
         self.dims = dimension_container.DimensionContainer(self)
         self.stateObj = state_container.StateContainer(self)
         # StyleContainer.__init__() depends on self.dims so self.dims MUST be initialized already!
         self.styleObj = style_container.StyleContainer(self)
+        # EditContainer.__init__() depends on self.dims so self.dims MUST be initialized already!
         self.edit = edit_container.EditContainer(self)
         # TODO: Replace INPUT_IMAGE_PATHS_FILE with runtime user input, the entire reason it's passed in by the GUI
         self.img = image_container.ImageContainer(self, INPUT_IMAGE_PATHS_FILE)
@@ -333,6 +334,7 @@ class HypnicGUI(tkinter.Tk):
         self.fillControlBoxRadiobuttons()
         self.fillControlBoxCheckbuttons()
         self.fillControlBoxComboboxes()
+
 
 
     # Defines images for each of the 4 Photo Box Frames within leftContent
@@ -564,7 +566,10 @@ class HypnicGUI(tkinter.Tk):
                 self.inputWidgets.append(self.widgets[-1])
                 self.controlBoxCheckbuttons.append(self.widgets[-1])
                 # NOTE: A column value of 2 is used for Checkbuttons, as opposed to the 1/0 used by Radio/Buttons
-                self.widgets[-1].grid(row=n, column=2, sticky="nsew", ipadx=self.dims.controlBoxPadX,
+                # NOTE: A row value of (n + 1) is used to ensure that checkbuttons appear below the comboboxes in row 0
+                #  - This is not meant to be permanent and is just a quick fix for earlier versions of the program
+                #  - TODO: Define actual widget rows correctly for each control box, instead of this (n + 1) method
+                self.widgets[-1].grid(row=(n + 1), column=2, sticky="nsew", ipadx=self.dims.controlBoxPadX,
                                       ipady=self.dims.controlBoxPadY)
 
         # CONFIGURING TEXT for each CHECKBUTTON in self.controlBoxCheckbuttons
@@ -573,7 +578,7 @@ class HypnicGUI(tkinter.Tk):
         # Manual definition of checkbutton text
         # NOTE: Doesn't really belong in this file at all, let alone here
         # TODO: Remedy the above note by storing checkbutton text information in a new file, likely another custom class
-        for i in range(10):
+        for i in range(20):  # FLAG: Hard-coded GUI parameter!
             self.controlBoxCheckbuttonStrings[i] = "Check " + chr(65 + i)
 
         # Sets any still-undefined strings to "Check [N]" where [N] is the current value of i
@@ -587,6 +592,15 @@ class HypnicGUI(tkinter.Tk):
         self.controlBoxCheckbuttonStrings[1] = "Red Channel"
         self.controlBoxCheckbuttonStrings[2] = "Green Channel"
         self.controlBoxCheckbuttonStrings[3] = "Blue Channel"
+        self.controlBoxCheckbuttonStrings[4] = "Red Channel"
+        self.controlBoxCheckbuttonStrings[5] = "Green Channel"
+        self.controlBoxCheckbuttonStrings[6] = "Blue Channel"
+        self.controlBoxCheckbuttonStrings[7] = "Red Channel"
+        self.controlBoxCheckbuttonStrings[8] = "Green Channel"
+        self.controlBoxCheckbuttonStrings[9] = "Blue Channel"
+        self.controlBoxCheckbuttonStrings[10] = "LEGACY Red Channel"
+        self.controlBoxCheckbuttonStrings[11] = "LEGACY Green Channel"
+        self.controlBoxCheckbuttonStrings[12] = "LEGACY Blue Channel"
 
         # Uses the newly-completed list of strings to configure text for each item in self.controlBoxCheckbuttons
         for i, b in enumerate(self.controlBoxCheckbuttons):
@@ -609,12 +623,30 @@ class HypnicGUI(tkinter.Tk):
         # NOTE: The line directly below serves no current purpose other than to maintain that ch commands are possible
         self.controlBoxCheckbuttons[0].configure(command=partial(self.cmd.cmdCheckbuttonWrapColors, 333))  # FLAG: Hard-coded GUI parameter!
         self.controlBoxCheckbuttons[0].var = self.stateObj.chWrapColors
-        self.controlBoxCheckbuttons[1].configure(variable=self.stateObj.chRedChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[1].var = self.stateObj.chRedChannel
-        self.controlBoxCheckbuttons[2].configure(variable=self.stateObj.chGreenChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[2].var = self.stateObj.chGreenChannel
-        self.controlBoxCheckbuttons[3].configure(variable=self.stateObj.chBlueChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[3].var = self.stateObj.chBlueChannel
+        self.controlBoxCheckbuttons[1].configure(variable=self.stateObj.chPrimaryInputRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[1].var = self.stateObj.chPrimaryInputRedChannel
+        self.controlBoxCheckbuttons[2].configure(variable=self.stateObj.chPrimaryInputGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[2].var = self.stateObj.chPrimaryInputGreenChannel
+        self.controlBoxCheckbuttons[3].configure(variable=self.stateObj.chPrimaryInputBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[3].var = self.stateObj.chPrimaryInputBlueChannel
+        self.controlBoxCheckbuttons[4].configure(variable=self.stateObj.chSecondaryInputRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[4].var = self.stateObj.chSecondaryInputRedChannel
+        self.controlBoxCheckbuttons[5].configure(variable=self.stateObj.chSecondaryInputGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[5].var = self.stateObj.chSecondaryInputGreenChannel
+        self.controlBoxCheckbuttons[6].configure(variable=self.stateObj.chSecondaryInputBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[6].var = self.stateObj.chSecondaryInputBlueChannel
+        self.controlBoxCheckbuttons[7].configure(variable=self.stateObj.chTertiaryInputRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[7].var = self.stateObj.chTertiaryInputRedChannel
+        self.controlBoxCheckbuttons[8].configure(variable=self.stateObj.chTertiaryInputGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[8].var = self.stateObj.chTertiaryInputGreenChannel
+        self.controlBoxCheckbuttons[9].configure(variable=self.stateObj.chTertiaryInputBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[9].var = self.stateObj.chTertiaryInputBlueChannel
+        self.controlBoxCheckbuttons[10].configure(variable=self.stateObj.chRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[10].var = self.stateObj.chRedChannel
+        self.controlBoxCheckbuttons[11].configure(variable=self.stateObj.chGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[11].var = self.stateObj.chGreenChannel
+        self.controlBoxCheckbuttons[12].configure(variable=self.stateObj.chBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[12].var = self.stateObj.chBlueChannel
 
     # Defines Comboboxes for each controlBox within centerContent
     def fillControlBoxComboboxes(self):

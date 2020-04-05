@@ -110,8 +110,9 @@ class StyleContainer():
             self.frameStyles.append(styleName)
 
         # COMBOBOX STYLES
-        # TODO: Custom combobox style to save space when dealing with single-character Comboboxes
-        self.ttkStyleObj.configure("singleChar.TCombobox")
+        # NOTE: Custom combobox style to save space when dealing with single-character Comboboxes
+        #    TODO: DETERMINE WHY THIS ISN'T EFFECTING TCOMBOBOXes AND FIX IT
+        self.ttkStyleObj.configure("TCombobox", postoffset=(0, 0, 20, 0), background="#37A")
 
     # SET / GET METHODS
     # Good practice for use when modifying StyleContainer variables from externally (like from the HypnicGUI instance)

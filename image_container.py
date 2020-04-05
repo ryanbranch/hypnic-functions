@@ -36,10 +36,15 @@ class ImageContainer():
 
         # Member variables related to output
         # NOTE: The idea of this (FLAG) being hard-coded is temporary. TODO: Switch to a more user-friendly approach
-        self.outputImagePathStrings = ["media/output0.jpg",
-                                       "media/output1.jpg",
-                                       "media/output2.jpg",
-                                       "media/output3.jpg"]
+        self.outputImagePathStrings = ["media/outputA.jpg",
+                                       "media/outputB.jpg",
+                                       "media/outputC.jpg",
+                                       "media/outputD.jpg",
+                                       "media/outputE.jpg",
+                                       "media/outputF.jpg",
+                                       "media/outputG.jpg",
+                                       "media/outputH.jpg",
+                                       "media/outputI.jpg"]
         # TODO: store the file extension (".jpg") part in a separate variable so that a "count suffix" can be appended
 
         # Object Storage
