@@ -32,6 +32,7 @@ from tkinter import CENTER, ttk
 from functools import partial
 
 # Local Inputs
+import timing_container
 import dimension_container
 import state_container
 import image_container
@@ -50,6 +51,7 @@ class HypnicGUI(tkinter.Tk):
 
     # Constructor has a wrapper_ argument for the program's HypnicWrapper instance
     def __init__(self, wrapper_, *args, **kwargs):
+
 
         # The HypnicGUI instance can refer to the HypnicWrapper instance
         # TODO: Since I'm writing all of these classes for use as single instances, it amy make the most
@@ -179,6 +181,16 @@ class HypnicGUI(tkinter.Tk):
         self.fillGrid()
         # The following must be done before calling styleWidgets():
         self.styleWidgets()
+
+
+        # T I M I N G - R E L A T E D
+
+        # TODO: TimingContainer SHOULD BE initialized first, and right at the beginning of the function
+        #   A. However, due to the fact that it currently loads its own image (a legacy of when it was a standalone
+        #      program as hypnic7.py
+        #   B. Need to edit normal_math_timing.py and timing_container.py to not use its own images on initialization
+        self.time = timing_container.TimingContainer()
+
 
     # Defines the GUI layout using tkinter's grid() and Frame() modules
     def defineGrid(self):

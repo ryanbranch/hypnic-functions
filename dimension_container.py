@@ -88,8 +88,8 @@ class DimensionContainer():
         # PHOTO BOXES ([0,0], [0,1], [1,0], [1,1] OF LEFT CONTENT)
         # Each photo box has some equivalent fraction of the width and height of leftContent
         # Sets the number of rows and columns into which the CENTER CONTENT frame should be divided (evenly)
-        self.numPhotoBoxRows = 3  # FLAG: Hard-coded GUI parameter!
-        self.numPhotoBoxCols = 3  # FLAG: Hard-coded GUI parameter!
+        self.numPhotoBoxRows = 2  # FLAG: Hard-coded GUI parameter!
+        self.numPhotoBoxCols = 2  # FLAG: Hard-coded GUI parameter!
         # They are arranged in a 2 x 2 square grid layout
         self.photoBoxPadX = self.defaultInternalPaddingGrid
         self.photoBoxPadY = self.defaultInternalPaddingGrid

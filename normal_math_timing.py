@@ -5,7 +5,7 @@
 #    2. https://github.com/numba/numba/blob/master/examples/gaussian-blur/gaussian-blur.py
 #  B. Go through and remove any local variables that have become deprecated and are now unused
 
-# Library Inputs
+# Library Imports
 from timeit import default_timer
 import tkinter
 import PIL
