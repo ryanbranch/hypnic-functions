@@ -11,6 +11,7 @@
 __name__ = "style_container"
 
 # Library Imports
+from timeit import default_timer
 import random
 import tkinter
 from tkinter import ttk
@@ -27,6 +28,16 @@ class StyleContainer():
 
     # Constructor has a gui_ parameter which is saved in self.gui in order to access the HypnicGUI members
     def __init__(self, gui_):
+
+        # M E M B E R     V A R I A B L E S
+
+        # INITIALIZATION TIMER
+        # Timer beginning upon initialization of this object
+        self.initTimer = default_timer()
+
+        # OTHER TIMERS
+        # List of all timers, initialized as containing only self.initTimer
+        self.timers = [self.initTimer]
 
         # So that the StyleContainer instance can refer to the HypnicGUI instance
         self.gui = gui_

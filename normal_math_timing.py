@@ -20,18 +20,22 @@ INPUT_IMAGE_PATHS_FILE = "hypnic7/hypnic7_images.txt"  # FLAG: Hard-coded GUI pa
 
 class NormalMathTiming():
 
-    def __init__(self):
+    def __init__(self, gui_, tc_):
 
         # M E M B E R     V A R I A B L E S
 
-        # TIMERS
-        # Timer beginning upon initialization of ni object
+        # INITIALIZATION TIMER
+        # Timer beginning upon initialization of this object
         self.initTimer = default_timer()
+
+        # GUI Reference
+        self.gui = gui_
+        # TimingContainer Reference
+        self.tc = tc_
+
+        # OTHER TIMERS
         # List of all timers, initialized as containing only self.initTimer
         self.timers = [self.initTimer]
-
-        # IMAGE-RELATED
-        self.tkObj = tkinter.Tk()
 
         self.imagesTxtPath = INPUT_IMAGE_PATHS_FILE
         self.inputImagePathStrings = []

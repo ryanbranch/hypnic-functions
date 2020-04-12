@@ -1,6 +1,8 @@
 # TODO:
 #  ==============================================================================
-#  S. Placeholder for the MOST IMPORTANT/URGENT TASK
+#  S. Immediately after adding initialization timers to all of the major classes in this project, I noticed a change
+#     in load times. I can't tell whether the overall time from launch to END of GUI display has been affected,
+#     but there is noticeable increase in lag time between launch and when the GUI window first appears
 #  ==============================================================================
 #  A. PLACEHOLDER
 
@@ -16,19 +18,24 @@ import numba_math_timing
 
 class TimingContainer():
 
-    def __init__(self):
+    def __init__(self, gui_):
 
         # M E M B E R     V A R I A B L E S
 
-        # TIMERS
-        # Timer beginning upon initialization of ni object
+        # INITIALIZATION TIMER
+        # Timer beginning upon initialization of this object
         self.initTimer = default_timer()
+
+        # GUI Reference
+        self.gui = gui_
+
+        # OTHER TIMERS
         # List of all timers, initialized as containing only self.initTimer
         self.timers = [self.initTimer]
 
         # Timing Test Objects
-        norm = normal_math_timing.NormalMathTiming()
-        numb = numba_math_timing.NumbaMathTiming()
+        norm = normal_math_timing.NormalMathTiming(self.gui, self)
+        numb = numba_math_timing.NumbaMathTiming(self.gui, self)
 
         # End-of-Function calls
 

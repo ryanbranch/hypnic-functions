@@ -9,6 +9,7 @@
 __name__ = "image_container"
 
 # Library Inputs
+from timeit import default_timer
 import PIL
 from PIL import Image, ImageTk
 from pathlib import Path
@@ -22,6 +23,16 @@ class ImageContainer():
     # Constructor has a gui_ parameter which is saved in self.gui in order to access the HypnicGUI members
     # Also has an imagesTxtPath parameter. Replacing this with runtime user input is a TODO with low priority
     def __init__(self, gui_, imagesTxtPath_):
+
+        # M E M B E R     V A R I A B L E S
+
+        # INITIALIZATION TIMER
+        # Timer beginning upon initialization of this object
+        self.initTimer = default_timer()
+
+        # OTHER TIMERS
+        # List of all timers, initialized as containing only self.initTimer
+        self.timers = [self.initTimer]
 
         # So that the StyleContainer instance can refer to the HypnicGUI instance
         self.gui = gui_

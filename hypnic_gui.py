@@ -22,6 +22,7 @@
 __name__ = "hypnic_gui"
 
 # Library Inputs
+from timeit import default_timer
 import tkinter
 from tkinter import CENTER, ttk
 # The partial() module can be used to allow widgets like Buttons to pass arguments along with their commands
@@ -52,6 +53,13 @@ class HypnicGUI(tkinter.Tk):
     # Constructor has a wrapper_ argument for the program's HypnicWrapper instance
     def __init__(self, wrapper_, *args, **kwargs):
 
+        # INITIALIZATION TIMER
+        # Timer beginning upon initialization of this object
+        self.initTimer = default_timer()
+
+        # OTHER TIMERS
+        # List of all timers, initialized as containing only self.initTimer
+        self.timers = [self.initTimer]
 
         # The HypnicGUI instance can refer to the HypnicWrapper instance
         # TODO: Since I'm writing all of these classes for use as single instances, it amy make the most
@@ -189,7 +197,7 @@ class HypnicGUI(tkinter.Tk):
         #   A. However, due to the fact that it currently loads its own image (a legacy of when it was a standalone
         #      program as hypnic7.py
         #   B. Need to edit normal_math_timing.py and timing_container.py to not use its own images on initialization
-        self.time = timing_container.TimingContainer()
+        self.time = timing_container.TimingContainer(self)
 
 
     # Defines the GUI layout using tkinter's grid() and Frame() modules

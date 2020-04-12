@@ -15,6 +15,7 @@
 __name__ = "dimension_container"
 
 # Library Inputs
+from timeit import default_timer
 import math
 from tkinter import CENTER
 
@@ -23,6 +24,14 @@ class DimensionContainer():
 
     # Constructor has a gui_ parameter which is saved in self.gui in order to access the HypnicGUI members
     def __init__(self, gui_):
+
+        # INITIALIZATION TIMER
+        # Timer beginning upon initialization of this object
+        self.initTimer = default_timer()
+
+        # OTHER TIMERS
+        # List of all timers, initialized as containing only self.initTimer
+        self.timers = [self.initTimer]
 
         # So that the DimensionContainer instance can refer to the HypnicGUI instance
         self.gui = gui_
