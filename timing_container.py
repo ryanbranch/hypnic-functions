@@ -29,3 +29,14 @@ class TimingContainer():
         # Timing Test Objects
         norm = normal_math_timing.NormalMathTiming()
         numb = numba_math_timing.NumbaMathTiming()
+
+        # End-of-Function calls
+
+        norm.defineCurrentImage(0)  # F FLAG: Hard-coded parameter
+
+        # Subimage-Related
+        norm.subImageCoordinates = [[100, 100], [110, 110]]
+        norm.createNewSubImage()
+        norm.modifySubImage((102, 97), (115, 106))
+        norm.modifySubImage((103, 98), (114, 105))
+        norm.modifySubImage((102, 97), (115, 106))

@@ -36,13 +36,12 @@ class NormalMathTiming():
         self.imagesTxtPath = INPUT_IMAGE_PATHS_FILE
         self.inputImagePathStrings = []
 
-        # pilImages/tkImages[0] are the images loaded from files
-        # pilImages/tkImages[1] are the images created manually
-        self.pilImages = [[], []]
-        self.tkImages = [[], []]
+        # Lists of all PIL Image and ImageTk Image objects
+        self.pilImages = []
+        self.tkImages = []
 
         # index within self.pilImages of the image to manipulate
-        self.currentImageIndex = [-1, -1]
+        self.currentImageIndex = -1
         # Defines the X and Y resolutions of this image
         self.xResCurrent = -1
         self.yResCurrent = -1
@@ -70,18 +69,17 @@ class NormalMathTiming():
 
 
 
-    def defineCurrentImage(self, imageType, imageIndex):
+    def defineCurrentImage(self, imageIndex):
 
         # Defines the currentImageIndex variable
-        self.currentImageIndex[0] = imageType
-        self.currentImageIndex[1] = imageIndex
+        self.currentImageIndex = imageIndex
 
         # Determines the X and Y resolutions of this image
-        self.xResCurrent = self.pilImages[self.currentImageIndex[0]][self.currentImageIndex[1]].size[0]
-        self.yResCurrent = self.pilImages[self.currentImageIndex[0]][self.currentImageIndex[1]].size[1]
+        self.xResCurrent = self.pilImages[self.currentImageIndex].size[0]
+        self.yResCurrent = self.pilImages[self.currentImageIndex].size[1]
 
         # Loads the image as a PIL PixelAccess object
-        self.allPixels = self.pilImages[self.currentImageIndex[0]][self.currentImageIndex[1]].load()
+        self.allPixels = self.pilImages[self.currentImageIndex].load()
 
 
 
@@ -190,9 +188,9 @@ class NormalMathTiming():
                 # Otherwise, the file can be treated normally
                 else:
                     timeBeforeImageOpen = default_timer()
-                    self.pilImages[0].append(PIL.Image.open(str(fileObject)))
+                    self.pilImages.append(PIL.Image.open(str(fileObject)))
                     timeAfterImageOpen = default_timer()
-                    self.tkImages[0].append(PIL.ImageTk.PhotoImage(image=self.pilImages[0][-1]))
+                    self.tkImages.append(PIL.ImageTk.PhotoImage(image=self.pilImages[-1]))
                     timeAfterPhotoImageInit = default_timer()
                     # Console output for user
                     print("================================================================")
@@ -402,18 +400,3 @@ class NormalMathTiming():
 
     def testFunc(self):
         return(1)
-
-
-def main():
-    norm = NormalMathTiming()
-
-    norm.defineCurrentImage(0, 0)  # F FLAG: Hard-coded parameter
-
-    # Subimage-Related
-    norm.subImageCoordinates = [[100, 100], [110, 110]]
-    norm.createNewSubImage()
-    norm.modifySubImage((102, 97), (115, 106))
-    norm.modifySubImage((103, 98), (114, 105))
-    norm.modifySubImage((102, 97), (115, 106))
-
-main()
