@@ -200,6 +200,7 @@ class HypnicGUI(tkinter.Tk):
         self.time = timing_container.TimingContainer(self)
 
 
+
     # Defines the GUI layout using tkinter's grid() and Frame() modules
     def defineGrid(self):
 

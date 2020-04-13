@@ -12,6 +12,8 @@ import PIL
 from PIL import Image, ImageTk
 from pathlib import Path
 import math
+import numpy
+import numba
 
 # GLOBAL VARIABLES
 # Path to the text document which lists the paths to all input images
@@ -45,11 +47,20 @@ class NormalMathTiming():
 
         # Holds a single PIL image (pixel Access object) at a time
         self.allPixels = []
+        # Holds a PIL sequence object containing pixel values, for allDataList1D creation
+        self.allData = None
         # Holds a single PIL image (standard python list of tuples, 1D array) at a time
         self.allDataList1D = []
         # Holds a single PIL image (standard python 2D list of lists of tuples, 2D array) at a time
         # Each inner list is a row of all pixels, of length equal to image width, and number of rows equal to height
         self.allDataList2D = []
+        # Same as allDataList1D but a Numpy array
+        self.allDataNumpyList1D = None
+        # Same as allDataList2D but a 2D Numpy array
+        self.allDataNumpyList2D = None
+
+
+
         # Holds a 2D list of 3-elt tuples with dimensions and positions matching f
         self.subImagePixels = []
         # self.subImageCoordinates is a list of 2 sub-lists which each contain 2 elements,
@@ -60,9 +71,7 @@ class NormalMathTiming():
         # [1][1] is the Y (row) value for the bottom right vertex
         self.subImageCoordinates = [[], []]
 
-
-
-    def defineCurrentImage(self, imageIndex):
+    def defineCurrentImage(self):
 
         self.currentImageIndex = self.gui.controlBoxComboboxes[0].current()
 
@@ -72,8 +81,11 @@ class NormalMathTiming():
 
         # Loads the image as a PIL PixelAccess object
         self.allPixels = self.gui.img.pilImages[self.currentImageIndex].load()
-
-
+        # Loads the image as a PIL sequence object
+        self.allData = self.gui.img.pilImages[self.currentImageIndex].getdata()
+        # Loads the image as a standard 1D list
+        self.allDataList1D = list(self.allData)
+        [self.allDataList2D.append([self.allDataList1D[(r * self.xResCurrent) + i] for i in list(range(self.xResCurrent))]) for r in list(range(self.yResCurrent))]
 
 
     # Returns a (ROW, COLUMN) tuple representing the location of the n_th element  of a rectangular grid
@@ -155,13 +167,6 @@ class NormalMathTiming():
     #   1. Necessitates the use of lists because tuples are immutable
     def modifySubImage(self, newTopLeft, newBottomRight):
 
-        # The number of rows and columns in the previous and new subimages
-        # Since rows and columns are discretely numbered, 1 is added to the end of each to get the correct count
-        numPrevCols = self.subImageCoordinates[1][0] - self.subImageCoordinates[0][0] + 1
-        numPrevRows = self.subImageCoordinates[1][1] - self.subImageCoordinates[0][1] + 1
-        numNewCols = newBottomRight[0] - newTopLeft[0] + 1
-        numNewRows = newBottomRight[1] - newTopLeft[1] + 1
-
         # TODO: Ensure that I picked the right coordinate indices
         # If the "ToRemove" variables are greater than zero, it implies that rows/columns are being removed
         #  - A value equal to 0 is also processed as removal, since list(range(0)) simply returns an empty list
@@ -219,10 +224,6 @@ class NormalMathTiming():
         # If self.rowsToAddFront is not empty, then must add 1 or more rows to the top edge so the index to use is the previous top edge (higher valued, lower physically than the new top edge)
         lowestExistingRowIndex = max(newTopLeft[0], self.subImageCoordinates[0][0])
 
-        # TODO: Probably remove these local vars, no need to calculate if they're not used
-        lowestExistingColIndex = max(newTopLeft[1], self.subImageCoordinates[0][1])
-        highestExistingColIndex = min(newBottomRight[1], self.subImageCoordinates[1][1])
-
         # NOTE: References to rows within these column-related operations are valid as they simply bound the applicable rows
         # NOTE: Enumeration is initialized at lowestExistingRowIndex
         [r.insert(0, self.allPixels[c, n]) for c in colsToAddFront for n, r in enumerate(self.subImagePixels, lowestExistingRowIndex)]
@@ -233,40 +234,19 @@ class NormalMathTiming():
         [r.append(self.allPixels[c, n]) for c in colsToAddBack for n, r in enumerate(self.subImagePixels, lowestExistingRowIndex)]
 
 
-
         # NOTE: At and below this line, column indices and values are representative of the new subimage.
         #       This means that newTopLeft[0] and newBottomRight[0] are the inclusive bounds for subimage column span.
         subImageCols = list(range(newTopLeft[0], newBottomRight[0] + 1))
         # HOWEVER, rows are entirely missing from the top and bottom
 
 
-
         # Adds the necessary rows to the front (top) of the new subimage
         # ATTEMPT 3: (PRESUMED SUCCESS)
         [self.subImagePixels.insert(0, [self.allPixels[c, r] for c in subImageCols]) for r in rowsToAddFront]
-        # TODO: Remove these comments
-        # ATTEMPT 2:
-        #[self.subImagePixels.insert(0, [color for color in self.allPixels]) for n, r in enumerate(rowsToAddFront)]
-        # ATTEMPT 1:
-        #[self.subImagePixels.insert(0, []) for i in list(range(len(rowsToAddFront)))]
 
         # Adds the necessary rows to the back (bottom) of the new subimage
         # USES APPEND() AND NOT INSERT()
         [self.subImagePixels.append([self.allPixels[c, r] for c in subImageCols]) for r in rowsToAddBack]
-
-
-        # TODO: REMOVE THE OLD CODE COMMENTED BELOW
-        # Adds the necessary number of empty rows to the front (top) of the new subimage
-        #[self.subImagePixels.insert(0, []) for i in list(range(len(rowsToAddFront)))]
-        # Adds the necessary number of empty rows to the back (bottom) of the new subimage
-        # USES APPEND() AND NOT INSERT()
-        #[self.subImagePixels.append([]) for i in list(range(len(rowsToAddFront)))]
-
-        # Fills new rows at the front (top) of the new subimage
-        # Fills entire rows
-        #[r.append(self.allPixels[c, n]) for c in range(newTopLeft[0], newBottomRight[0] + 1) for n, r in enumerate(rowsToAddFront)]
-        # Fills new rows at the back (bottom) of the new subimage
-
 
 
         # Updates self.subImageCoordinates to the newTopLeft and newBottomRight coordinates
@@ -282,8 +262,6 @@ class NormalMathTiming():
         print(self.subImagePixels)
         print("=================================================")
 
-
-        # TODO HERE: Now that row/col removal has been performed, add new rows/cols as needed
 
 
     # Sets all of the pixels in an image to black

@@ -34,16 +34,16 @@ class TimingContainer():
         self.timers = [self.initTimer]
 
         # Timing Test Objects
-        norm = normal_math_timing.NormalMathTiming(self.gui, self)
-        numb = numba_math_timing.NumbaMathTiming(self.gui, self)
+        self.norm = normal_math_timing.NormalMathTiming(self.gui, self)
+        self.numb = numba_math_timing.NumbaMathTiming(self.gui, self)
 
         # End-of-Function calls
 
-        norm.defineCurrentImage(0)  # F FLAG: Hard-coded parameter
+        self.norm.defineCurrentImage()  # F FLAG: Hard-coded parameter
 
         # Subimage-Related
-        norm.subImageCoordinates = [[100, 100], [110, 110]]
-        norm.createNewSubImage()
-        norm.modifySubImage((102, 97), (115, 106))
-        norm.modifySubImage((103, 98), (114, 105))
-        norm.modifySubImage((102, 97), (115, 106))
+        self.norm.subImageCoordinates = [[1, 1], [8, 8]]
+        self.norm.createNewSubImage()
+        self.norm.modifySubImage((0, 0), (9, 9))
+        self.norm.modifySubImage((4, 4), (4, 4))
+        self.norm.modifySubImage((1, 4), (6, 4))
