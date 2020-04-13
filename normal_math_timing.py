@@ -37,14 +37,7 @@ class NormalMathTiming():
         # List of all timers, initialized as containing only self.initTimer
         self.timers = [self.initTimer]
 
-        self.imagesTxtPath = INPUT_IMAGE_PATHS_FILE
-        self.inputImagePathStrings = []
-
-        # Lists of all PIL Image and ImageTk Image objects
-        self.pilImages = []
-        self.tkImages = []
-
-        # index within self.pilImages of the image to manipulate
+        # index within pilImages of the image to manipulate
         self.currentImageIndex = -1
         # Defines the X and Y resolutions of this image
         self.xResCurrent = -1
@@ -68,22 +61,17 @@ class NormalMathTiming():
         self.subImageCoordinates = [[], []]
 
 
-        # M E M B E R     F U N C T I O N     C A L L S
-        self.loadImages()
-
-
 
     def defineCurrentImage(self, imageIndex):
 
-        # Defines the currentImageIndex variable
-        self.currentImageIndex = imageIndex
+        self.currentImageIndex = self.gui.controlBoxComboboxes[0].current()
 
         # Determines the X and Y resolutions of this image
-        self.xResCurrent = self.pilImages[self.currentImageIndex].size[0]
-        self.yResCurrent = self.pilImages[self.currentImageIndex].size[1]
+        self.xResCurrent = self.gui.img.pilImages[self.currentImageIndex].size[0]
+        self.yResCurrent = self.gui.img.pilImages[self.currentImageIndex].size[1]
 
         # Loads the image as a PIL PixelAccess object
-        self.allPixels = self.pilImages[self.currentImageIndex].load()
+        self.allPixels = self.gui.img.pilImages[self.currentImageIndex].load()
 
 
 
@@ -121,92 +109,6 @@ class NormalMathTiming():
         r = math.ceil((n_ + 1) / w_) - 1
         c = n_ % w_
         return (r, c)
-
-
-    # Builds the relevant lists of image objects and related data, based on a text file
-    # Text file is defined by INPUT_IMAGE_PATHS_FILE, a global variable
-    #   A low priority but easy TODO: remove the global and allow this to be user-defined at runtime
-    # The formatting for the input text file is straightforward and its entire implementation is temporary, so I'm
-    #   unworried about making this function too rigorous. However, file-parsing functionality will likely be useful in
-    #   the future so I'm ensuring that the function can handle simple formatting discrepancies
-    def loadImages(self):
-        timeStartLoadImages = default_timer()
-        # Exception handling ensures that the text file actually exists and can be opened
-        try:
-            # Opens the text file containing a list of images
-            with open(self.imagesTxtPath) as f:
-                # Creates and iterates through a list of strings (lines) from the document at self.imagesTxtPath
-                for path in f.read().splitlines():
-                    # Ignoring blank lines, appends each specified path to the self.inputImagePathStrings list
-                    if path:
-                        self.inputImagePathStrings.append(path)
-        # Triggers when the open() operation fails
-        except:
-            # Console output for user
-            print("================================================================")
-            print("Failed to open text file list of input images.")
-            print("Relevant Python file:                           hypnic7.py")
-            print("Relevant function:                              normalMathTiming.loadImages()")
-            print("Value of ImageContainer.imagesTxtPath variable: " + str(self.imagesTxtPath))
-            print()
-            exit(333)
-
-        # Triggers if the file has been closed and no images were obtained
-        if not self.inputImagePathStrings:
-            # Console output for user
-            print("================================================================")
-            print("System could not parse any file paths from the image path definition text document.")
-            print("Please ensure that the text document contains one file path per line.")
-            print("Relevant Python file:                           hypnic7.py")
-            print("Relevant function:                              normalMathTiming.loadImages()")
-            print("Value of ImageContainer.imagesTxtPath variable: " + str(self.imagesTxtPath))
-            print()
-            exit(334)
-        # Otherwise, can proceed normally and populate the relevant lists
-        else:
-
-            timeStartForP = default_timer()
-            # Console output for user
-            print("================================================================")
-            print("Time until start for loop:                      " + str(timeStartForP - timeStartLoadImages))
-
-            # Iterates through all file paths identified from the image path definition text document
-            for p in self.inputImagePathStrings:
-                timeStartNewPath = default_timer()
-                # Creates a Path object instance based on the current p value
-                fileObject = Path(p)
-                # Makes the path absolute, and in doing so checks whether the file exists
-                try:
-                    fileObject.resolve(strict=True)
-                # If the file does not exist, we exit
-                except FileNotFoundError:
-                    # Console output for user
-                    print("================================================================")
-                    print("System could not open a file specified within the image path definition text document.")
-                    print("The path shown below may point to a file which does not actually exist.")
-                    print("Relevant Python file:                           image_container.py")
-                    print("Relevant function:                              ImageContainer.getImages()")
-                    print("Value of fileObject variable:                   " + str(fileObject))
-                    print()
-                    exit(335)
-                # Otherwise, the file can be treated normally
-                else:
-                    timeBeforeImageOpen = default_timer()
-                    self.pilImages.append(PIL.Image.open(str(fileObject)))
-                    timeAfterImageOpen = default_timer()
-                    self.tkImages.append(PIL.ImageTk.PhotoImage(image=self.pilImages[-1]))
-                    timeAfterPhotoImageInit = default_timer()
-                    # Console output for user
-                    print("================================================================")
-                    print("Image file path:                                " + str(fileObject))
-                    print("Time until open:                                " + str(timeBeforeImageOpen - timeStartNewPath))
-                    print("Time to open:                                   " + str(timeAfterImageOpen - timeBeforeImageOpen))
-                    print("Time to make ImageTk PhotoImage:                " + str(timeAfterPhotoImageInit - timeAfterImageOpen))
-                    print()
-        print("================================================================")
-        print("I M A G E     L O A D I N G     C O M P L E T E")
-        print("================================================================\n\n\n\n\n")
-
 
     def sumColors(self, colorsIn):
         redResult = 0
@@ -385,7 +287,7 @@ class NormalMathTiming():
 
 
     # Sets all of the pixels in an image to black
-    # i refers to the index of the image within self.pilImages
+    # i refers to the index of the image within self.gui.img.pilImages
     # This is version 1 of the function, which operates on the following algorithm:
     # 1. PLACEHOLDER
     # 3. PLACEHOLDER
@@ -394,7 +296,7 @@ class NormalMathTiming():
         print()
 
     # Sets all of the pixels in an image to black
-    # i refers to the index of the image within self.pilImages
+    # i refers to the index of the image within self.gui.img.pilImages
     # This is version 2 of the function, which operates on the following algorithm:
     # 1. PLACEHOLDER
     # 3. PLACEHOLDER
