@@ -1,7 +1,7 @@
 
 # hypnic-functions
 
-**hypnic-functions** code that I've written for the manipulation of images using custom user-defined operations. The project started from a conversation I had with a friend who creates digital glitch-art; being familiar with Python's PIL library it led me to wonder about the ways that I could manipulate an image's pixels programmatically. This code has a wide range of applications, but the specific focus in development is to simply explore and define "interesting" approaches for the creation of digital art. 
+**hypnic-functions** is code that I've written for the manipulation of images using custom user-defined operations. The project started from a conversation I had with a friend who creates digital glitch-art; being familiar with Python's PIL library it led me to wonder about the ways that I could manipulate an image's pixels programmatically. This code has a wide range of applications, but the specific focus in development is to simply explore and define "interesting" approaches for the creation of digital art. 
 
 # A Note
 
