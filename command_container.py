@@ -97,10 +97,18 @@ class CommandContainer():
 
     # Called when the "Save" button is pressed
     # i represents the index of the image within self.gui.img.pilImages to be scaled
+    # NOTE: Unlike LOAD, this depends on the PRIMARY controlBoxCombobox selection and not the button press itself
+    #   TODO: Consider changing this when I revamp the layout
+    #     - Specifically, SAVE/LOAD buttons can go ON TOP OF each image's PhotoBox
     def cmdButtonSave(self, i=0):
         print("Executing CommandContainer.cmdButtonSave() with i = " + str(i))
-        self.gui.img.pilImages[self.gui.controlBoxComboboxes[0].current()].save(
-            Path(self.gui.img.outputImagePathStrings[self.gui.controlBoxComboboxes[0].current()]))
+        iPhotoBox = self.gui.controlBoxComboboxes[0].current()
+        self.gui.img.pilImages[iPhotoBox].save(Path(self.gui.img.outputImagePathStrings[iPhotoBox] +
+                                                    "-" +
+                                                    str(self.gui.img.outputImagePathCounts[iPhotoBox]) +
+                                                    self.gui.img.outputImageExtension))
+        # Increments the relevant outputImagePathCounts value
+        self.gui.img.outputImagePathCounts[iPhotoBox] += 1
         return i
 
     # Called when the "Undo" button is pressed
@@ -138,9 +146,9 @@ class CommandContainer():
     def cmdButtonApply(self, i):
         print("Executing CommandContainer.cmdButtonApply() with i = " + str(i))
         manipType = self.gui.stateObj.raManipType.get()
-        # "Snow" Radiobutton
+        # "Fill" Radiobutton
         if manipType == 0:
-            self.gui.edit.fill(i)
+            self.gui.edit.fill(self.gui.controlBoxComboboxes[0].current())
         # "Grayscale" Radiobutton
         elif manipType == 1:
             self.gui.edit.grayscalePixels(self.gui.controlBoxComboboxes[0].current(),

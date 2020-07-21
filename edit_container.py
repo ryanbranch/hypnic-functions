@@ -136,9 +136,9 @@ class EditContainer():
     def fill(self, o):
         # Defines the fill color based on checkbutton selections
         # TODO: Update this to take text input into account
-        color = (255 * self.gui.stateObj.chRedChannel.get(),
-                 255 * self.gui.stateObj.chGreenChannel.get(),
-                 255 * self.gui.stateObj.chBlueChannel.get())
+        color = (255 * self.gui.stateObj.chPrimaryOutputRedChannel.get(),
+                 255 * self.gui.stateObj.chPrimaryOutputGreenChannel.get(),
+                 255 * self.gui.stateObj.chPrimaryOutputBlueChannel.get())
 
         self.gui.img.pilImages[o] = Image.new("RGB", self.gui.img.pilImages[o].size, color)
         self.gui.img.tkImages[o] = PIL.ImageTk.PhotoImage(image=self.gui.img.pilImages[o])
@@ -182,11 +182,11 @@ class EditContainer():
                                 math.floor(colorIn[2] + ratio * (luminosityVal - colorIn[2]))]
 
                 # Excludes channels if necessary, based on the ch[Red/GreenBlue]Channel state variables
-                if not self.gui.stateObj.chRedChannel.get():
+                if not self.gui.stateObj.chPrimaryOutputRedChannel.get():
                     colorOut[0] = colorIn[0]
-                if not self.gui.stateObj.chGreenChannel.get():
+                if not self.gui.stateObj.chPrimaryOutputGreenChannel.get():
                     colorOut[1] = colorIn[1]
-                if not self.gui.stateObj.chBlueChannel.get():
+                if not self.gui.stateObj.chPrimaryOutputBlueChannel.get():
                     colorOut[2] = colorIn[2]
 
                 # Updates the pixel color
@@ -259,11 +259,11 @@ class EditContainer():
                 colorOut = list(color1)
 
                 # Excludes channels if necessary, based on the ch[Red/GreenBlue]Channel state variables
-                if self.gui.stateObj.chRedChannel.get():
+                if self.gui.stateObj.chPrimaryOutputRedChannel.get():
                     colorOut[0] += color2[0]
-                if self.gui.stateObj.chGreenChannel.get():
+                if self.gui.stateObj.chPrimaryOutputGreenChannel.get():
                     colorOut[1] += color2[1]
-                if self.gui.stateObj.chBlueChannel.get():
+                if self.gui.stateObj.chPrimaryOutputBlueChannel.get():
                     colorOut[2] += color2[2]
                 # uses fixOutOfRangeColors() from hypnic_helpers to ensure all values are between 0 and 255 inclusive
                 pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors(tuple(colorOut), wrapBool)
@@ -304,11 +304,11 @@ class EditContainer():
                 colorOut = list(color1)
 
                 # Excludes channels if necessary, based on the ch[Red/GreenBlue]Channel state variables
-                if self.gui.stateObj.chRedChannel.get():
+                if self.gui.stateObj.chPrimaryOutputRedChannel.get():
                     colorOut[0] -= color2[0]
-                if self.gui.stateObj.chGreenChannel.get():
+                if self.gui.stateObj.chPrimaryOutputGreenChannel.get():
                     colorOut[1] -= color2[1]
-                if self.gui.stateObj.chBlueChannel.get():
+                if self.gui.stateObj.chPrimaryOutputBlueChannel.get():
                     colorOut[2] -= color2[2]
                 # uses fixOutOfRangeColors() from hypnic_helpers to ensure all values are between 0 and 255 inclusive
                 pixelsEdit[col, row] = hypnic_helpers.fixOutOfRangeColors(tuple(colorOut), wrapBool)

@@ -47,16 +47,18 @@ class ImageContainer():
 
         # Member variables related to output
         # NOTE: The idea of this (FLAG) being hard-coded is temporary. TODO: Switch to a more user-friendly approach
-        self.outputImagePathStrings = ["media/outputA.jpg",
-                                       "media/outputB.jpg",
-                                       "media/outputC.jpg",
-                                       "media/outputD.jpg",
-                                       "media/outputE.jpg",
-                                       "media/outputF.jpg",
-                                       "media/outputG.jpg",
-                                       "media/outputH.jpg",
-                                       "media/outputI.jpg"]
-        # TODO: store the file extension (".jpg") part in a separate variable so that a "count suffix" can be appended
+        self.outputImagePathStrings = ["media/outputA",
+                                       "media/outputB",
+                                       "media/outputC",
+                                       "media/outputD",
+                                       "media/outputE",
+                                       "media/outputF",
+                                       "media/outputG",
+                                       "media/outputH",
+                                       "media/outputI"]
+        self.outputImageExtension = ".jpg"
+        # Stores the number of times that an output image has been generated for a given Photo Box
+        self.outputImagePathCounts = [0] * len(self.outputImagePathStrings)
 
         # Object Storage
         # Array of PIL Image objects directly corresponding to the path strings in self.inputImagePathStrings

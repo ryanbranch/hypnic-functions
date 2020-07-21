@@ -34,29 +34,6 @@ class StateContainer():
         # Variables beginning with "ch" signify a variable controlled by a checkbox
         # Variables beginning with "co" signify a variable controlled by a combobox
 
-        # Temporary variables being used for test purposes TODO: REMOVE THESE (Everything in this block until END TODO)
-        self.chIntVar0 = tkinter.IntVar()
-        self.chIntVar1 = tkinter.IntVar()
-        self.chIntVar2 = tkinter.IntVar()
-        self.chIntVar3 = tkinter.IntVar()
-        self.chIntVar4 = tkinter.IntVar()
-        self.chIntVar5 = tkinter.IntVar()
-        self.chIntVar6 = tkinter.IntVar()
-        self.chIntVar7 = tkinter.IntVar()
-        self.chIntVar8 = tkinter.IntVar()
-        self.chIntVar9 = tkinter.IntVar()
-
-        self.chIntVars = []
-        self.numChIntVars = 30  # FLAG: Hard-coded GUI parameter!
-        for i in range(self.numChIntVars):
-            self.chIntVars.append(tkinter.IntVar())
-            self.chIntVars[-1].set(i)
-
-        # END TODO: Above this is the content that needs to be removed
-
-
-
-        # Variables with actual planned functionality (anything below this line)
         self.raOutputImage = tkinter.IntVar()
         self.raOutputImage.set(0)
         self.raPrimaryInputImage = tkinter.IntVar()
@@ -69,12 +46,12 @@ class StateContainer():
         self.raManipType.set(-1)
         self.chWrapColors = tkinter.IntVar()
         self.chWrapColors.set(1)
-        self.chRedChannel = tkinter.IntVar()
-        self.chRedChannel.set(1)
-        self.chGreenChannel = tkinter.IntVar()
-        self.chGreenChannel.set(1)
-        self.chBlueChannel = tkinter.IntVar()
-        self.chBlueChannel.set(1)
+        self.chPrimaryOutputRedChannel = tkinter.IntVar()
+        self.chPrimaryOutputRedChannel.set(1)
+        self.chPrimaryOutputGreenChannel = tkinter.IntVar()
+        self.chPrimaryOutputGreenChannel.set(1)
+        self.chPrimaryOutputBlueChannel = tkinter.IntVar()
+        self.chPrimaryOutputBlueChannel.set(1)
 
         self.chPrimaryInputRedChannel = tkinter.IntVar()
         self.chPrimaryInputRedChannel.set(1)

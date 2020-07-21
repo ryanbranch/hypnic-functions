@@ -168,9 +168,9 @@ class DimensionContainer():
         # Sets the default number of Checkbuttons to use within each control box, unless otherwise specified
         self.defaultControlBoxCheckbuttonCount = 0  # FLAG: Hard-coded GUI parameter!
         # Sets the number of Checkbuttons within each control box cell, from left to right then top to bottom
-        self.controlBoxCheckbuttonCounts = [1, 3, 3, 3,
+        self.controlBoxCheckbuttonCounts = [3, 3, 3, 3,
                                             0, 0, 0, 0,
-                                            3, 0, 0, 0,
+                                            1, 0, 0, 0,
                                             0, 0, 0, 0,
                                             0, 0, 4, 4,
                                             0, 0, 4, 4,

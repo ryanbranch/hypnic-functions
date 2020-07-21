@@ -609,65 +609,65 @@ class HypnicGUI(tkinter.Tk):
                 self.controlBoxCheckbuttonStrings[i] = "Check " + str(i)
 
         # Custom Checkbutton String definitions
-        self.controlBoxCheckbuttonStrings[0] = "Wrap Colors"
-        self.controlBoxCheckbuttonStrings[1] = "Red Channel"
-        self.controlBoxCheckbuttonStrings[2] = "Green Channel"
-        self.controlBoxCheckbuttonStrings[3] = "Blue Channel"
-        self.controlBoxCheckbuttonStrings[4] = "Red Channel"
-        self.controlBoxCheckbuttonStrings[5] = "Green Channel"
-        self.controlBoxCheckbuttonStrings[6] = "Blue Channel"
-        self.controlBoxCheckbuttonStrings[7] = "Red Channel"
-        self.controlBoxCheckbuttonStrings[8] = "Green Channel"
-        self.controlBoxCheckbuttonStrings[9] = "Blue Channel"
-        self.controlBoxCheckbuttonStrings[10] = "LEGACY Red Channel"
-        self.controlBoxCheckbuttonStrings[11] = "LEGACY Green Channel"
-        self.controlBoxCheckbuttonStrings[12] = "LEGACY Blue Channel"
+        self.controlBoxCheckbuttonStrings[0] = "Output Red Channel"
+        self.controlBoxCheckbuttonStrings[1] = "Output Green Channel"
+        self.controlBoxCheckbuttonStrings[2] = "Output Blue Channel"
+        self.controlBoxCheckbuttonStrings[3] = "Red Channel In"
+        self.controlBoxCheckbuttonStrings[4] = "Green Channel In"
+        self.controlBoxCheckbuttonStrings[5] = "Blue Channel In"
+        self.controlBoxCheckbuttonStrings[6] = "Red Channel In"
+        self.controlBoxCheckbuttonStrings[7] = "Green Channel In"
+        self.controlBoxCheckbuttonStrings[8] = "Blue Channel In"
+        self.controlBoxCheckbuttonStrings[9] = "Red Channel In"
+        self.controlBoxCheckbuttonStrings[10] = "Green Channel In"
+        self.controlBoxCheckbuttonStrings[11] = "Blue Channel In"
+        self.controlBoxCheckbuttonStrings[12] = "Wrap Colors"
 
         # Uses the newly-completed list of strings to configure text for each item in self.controlBoxCheckbuttons
         for i, b in enumerate(self.controlBoxCheckbuttons):
             b.configure(text=self.controlBoxCheckbuttonStrings[i])
 
+
         # Configures state variables for some of the checkbuttons
         # Also attaches the variables to the widget reference objects, as described in the following reference:
         # http://effbot.org/tkinterbook/checkbutton.htm
         #     NOTE: Be sure to use the get() method
-        for i in range(10):
-            self.controlBoxCheckbuttons[i].configure(variable=self.stateObj.chIntVars[i], onvalue=(2 ** i), offvalue=0)
-            self.controlBoxCheckbuttons[i].var = self.stateObj.chIntVars[i]
 
         # CONFIGURING COMMANDS for each CHECKBUTTON in self.controlBoxCheckbuttons
         for i, b in enumerate(self.controlBoxCheckbuttons):
             b.configure(command=partial(self.cmd.cmdCheckbuttonDefault, i))
 
         # Custom Checkbutton Configurations
-        self.controlBoxCheckbuttons[0].configure(variable=self.stateObj.chWrapColors, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[0].configure(variable=self.stateObj.chPrimaryOutputRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[0].var = self.stateObj.chPrimaryOutputRedChannel
+        self.controlBoxCheckbuttons[1].configure(variable=self.stateObj.chPrimaryOutputGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[1].var = self.stateObj.chPrimaryOutputGreenChannel
+        self.controlBoxCheckbuttons[2].configure(variable=self.stateObj.chPrimaryOutputBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[2].var = self.stateObj.chPrimaryOutputBlueChannel
+        self.controlBoxCheckbuttons[3].configure(variable=self.stateObj.chPrimaryInputRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[3].var = self.stateObj.chPrimaryInputRedChannel
+        self.controlBoxCheckbuttons[4].configure(variable=self.stateObj.chPrimaryInputGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[4].var = self.stateObj.chPrimaryInputGreenChannel
+        self.controlBoxCheckbuttons[5].configure(variable=self.stateObj.chPrimaryInputBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[5].var = self.stateObj.chPrimaryInputBlueChannel
+        self.controlBoxCheckbuttons[6].configure(variable=self.stateObj.chSecondaryInputRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[6].var = self.stateObj.chSecondaryInputRedChannel
+        self.controlBoxCheckbuttons[7].configure(variable=self.stateObj.chSecondaryInputGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[7].var = self.stateObj.chSecondaryInputGreenChannel
+        self.controlBoxCheckbuttons[8].configure(variable=self.stateObj.chSecondaryInputBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[8].var = self.stateObj.chSecondaryInputBlueChannel
+        self.controlBoxCheckbuttons[9].configure(variable=self.stateObj.chTertiaryInputRedChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[9].var = self.stateObj.chTertiaryInputRedChannel
+        self.controlBoxCheckbuttons[10].configure(variable=self.stateObj.chTertiaryInputGreenChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[10].var = self.stateObj.chTertiaryInputGreenChannel
+        self.controlBoxCheckbuttons[11].configure(variable=self.stateObj.chTertiaryInputBlueChannel, onvalue=1, offvalue=0)
+        self.controlBoxCheckbuttons[11].var = self.stateObj.chTertiaryInputBlueChannel
+        self.controlBoxCheckbuttons[12].configure(variable=self.stateObj.chWrapColors, onvalue=1, offvalue=0)
         # NOTE: The line directly below serves no current purpose other than to maintain that ch commands are possible
-        self.controlBoxCheckbuttons[0].configure(command=partial(self.cmd.cmdCheckbuttonWrapColors, 333))  # FLAG: Hard-coded GUI parameter!
-        self.controlBoxCheckbuttons[0].var = self.stateObj.chWrapColors
-        self.controlBoxCheckbuttons[1].configure(variable=self.stateObj.chPrimaryInputRedChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[1].var = self.stateObj.chPrimaryInputRedChannel
-        self.controlBoxCheckbuttons[2].configure(variable=self.stateObj.chPrimaryInputGreenChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[2].var = self.stateObj.chPrimaryInputGreenChannel
-        self.controlBoxCheckbuttons[3].configure(variable=self.stateObj.chPrimaryInputBlueChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[3].var = self.stateObj.chPrimaryInputBlueChannel
-        self.controlBoxCheckbuttons[4].configure(variable=self.stateObj.chSecondaryInputRedChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[4].var = self.stateObj.chSecondaryInputRedChannel
-        self.controlBoxCheckbuttons[5].configure(variable=self.stateObj.chSecondaryInputGreenChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[5].var = self.stateObj.chSecondaryInputGreenChannel
-        self.controlBoxCheckbuttons[6].configure(variable=self.stateObj.chSecondaryInputBlueChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[6].var = self.stateObj.chSecondaryInputBlueChannel
-        self.controlBoxCheckbuttons[7].configure(variable=self.stateObj.chTertiaryInputRedChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[7].var = self.stateObj.chTertiaryInputRedChannel
-        self.controlBoxCheckbuttons[8].configure(variable=self.stateObj.chTertiaryInputGreenChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[8].var = self.stateObj.chTertiaryInputGreenChannel
-        self.controlBoxCheckbuttons[9].configure(variable=self.stateObj.chTertiaryInputBlueChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[9].var = self.stateObj.chTertiaryInputBlueChannel
-        self.controlBoxCheckbuttons[10].configure(variable=self.stateObj.chRedChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[10].var = self.stateObj.chRedChannel
-        self.controlBoxCheckbuttons[11].configure(variable=self.stateObj.chGreenChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[11].var = self.stateObj.chGreenChannel
-        self.controlBoxCheckbuttons[12].configure(variable=self.stateObj.chBlueChannel, onvalue=1, offvalue=0)
-        self.controlBoxCheckbuttons[12].var = self.stateObj.chBlueChannel
+        self.controlBoxCheckbuttons[12].configure(
+            command=partial(self.cmd.cmdCheckbuttonWrapColors, 333))  # FLAG: Hard-coded GUI parameter!
+        self.controlBoxCheckbuttons[12].var = self.stateObj.chWrapColors
+
 
     # Defines Comboboxes for each controlBox within centerContent
     def fillControlBoxComboboxes(self):
