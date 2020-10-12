@@ -221,7 +221,9 @@ class EditContainer():
         for row in range(yRes):
             for col in range(xRes):
                 if random.random() <= ratio:
-                    pixelsEdit[col, row] = hypnic_helpers.getRandomRGB()
+                    pixelsEdit[col, row] = hypnic_helpers.getRandomRGB(self.gui.stateObj.chPrimaryOutputRedChannel.get(),
+                                                                       self.gui.stateObj.chPrimaryOutputGreenChannel.get(),
+                                                                       self.gui.stateObj.chPrimaryOutputBlueChannel.get())
 
         # Updates the relevant ImageTk PhotoImage and GUI Image Label
         self.gui.img.updateImageLabel(o)

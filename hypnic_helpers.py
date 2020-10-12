@@ -20,10 +20,11 @@ __name__ = "hypnic_helpers"
 # TODO: Really doesn't make sense to define these here... Probably best to do it within each function not only for
 #       comprehensibility but to get better results
 # The minimum value (integer from 0 to 255) for the high-value components when generating a random specific shade
-MIN_HIGH_VAL = 191 # FLAG: Hard-coded GUI parameter!
-MAX_LOW_VAL = 63 # FLAG: Hard-coded GUI parameter!
-# The minimum value (integer from 0 to 255) for the low-value components when generating a random specific shade
+MIN_HIGH_VAL = 191  # FLAG: Hard-coded GUI parameter!
+MAX_LOW_VAL = 63  # FLAG: Hard-coded GUI parameter!
 
+
+# The minimum value (integer from 0 to 255) for the low-value components when generating a random specific shade
 
 
 # H E L P E R   F U N C T I O N S
@@ -33,6 +34,7 @@ MAX_LOW_VAL = 63 # FLAG: Hard-coded GUI parameter!
 # Returns True if n_ is an even number, or False if it is an odd number
 def isEven(n_):
     return (n_ % 2) == 0
+
 
 # Returns a (ROW, COLUMN) tuple representing the location of the n_th element  of a rectangular grid
 #   with a width of w_ and a height of h_
@@ -68,9 +70,11 @@ def getGridPos(n_, w_, h_):
     c = n_ % w_
     return (r, c)
 
+
 # Returns the nearest integer to the distance between two X/Y coordinate pairs
 def calcDist(x1, y1, x2, y2):
     return round(math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2))
+
 
 # Defines an algebraic function on the cartesian plane
 # Takes an X value as input and returns the Y value at X on that algebraic function
@@ -81,7 +85,6 @@ def calcCartesianFunc(xIn, slope, yIntercept):
     return yOut
 
 
-
 # COLOR CONVERSION AND MATH
 
 # Takes a 3-element tuple as input
@@ -90,6 +93,7 @@ def calcCartesianFunc(xIn, slope, yIntercept):
 def rgbToHex(rgb_):
     return '#%02x%02x%02x' % rgb_
 
+
 # Takes a color "hex code" as input, specifically a string of format "#FFFFFF"
 # hex_ must be a 7-digit string consisting of a "#" character followed by 6 digits where each is between 0-9 or A-F
 def hexToRGB(hex_):
@@ -97,7 +101,8 @@ def hexToRGB(hex_):
     # The answer can be viewed at https://stackoverflow.com/a/29643643
     # The manipulated value of hex is assigned to a second string to prevent unwanted interactions
     hexStripped = hex_.lstrip("#")
-    return tuple(int(hexStripped[i:i+2], 16) for i in (0, 2, 4))
+    return tuple(int(hexStripped[i:i + 2], 16) for i in (0, 2, 4))
+
 
 # Converts an RGB color value to an HSV color value
 # Based on algorithm (with modified domain) from:
@@ -111,7 +116,6 @@ def hexToRGB(hex_):
 #   V represents brightness, where 0 is fully dark and 1 is fully bright
 #   If V is 0, then the color is always black, regardless of H or S
 def fromRGBtoHSV(rgb):
-
     minRGB = float(min(rgb))
     maxRGB = float(max(rgb))
     deltaRGB = maxRGB - minRGB
@@ -143,6 +147,7 @@ def fromRGBtoHSV(rgb):
 
     return (h, s, v)
 
+
 # Converts an HSV color value to an RGB color value
 # Based on algorithm (with modified domain) from:
 #     https://www.rapidtables.com/convert/color/hsv-to-rgb.html
@@ -151,7 +156,6 @@ def fromRGBtoHSV(rgb):
 # H is measured in degrees on the domain of 0 <= H < 360
 # S and V range from 0 to 1 inclusive
 def fromHSVtoRGB(hsv):
-
     c = hsv[1] * hsv[2]
     x = c * (1 - abs((hsv[0] / 60.0) % 2 - 1))
     m = hsv[2] - c
@@ -185,12 +189,12 @@ def fromHSVtoRGB(hsv):
     rgb[2] = int(round(255 * (rgb[2] + m)))
     return tuple(rgb)
 
+
 # Takes a 3-element RGB tuple as input and returns the luminosity, which also has a magnitude of 0 to 255
 # Luminosity is usually considered the best approach for turning images to grayscale
 # Based on the explanation from https://www.johndcook.com/blog/2009/08/24/algorithms-convert-color-grayscale/
 def getLuminosity(rgb):
     return math.floor((0.21 * rgb[0]) + (0.72 * rgb[1]) + (0.07 * rgb[2]))
-
 
 
 # COLOR GENERATION
@@ -204,7 +208,22 @@ def getLuminosity(rgb):
 
 # Returns a 3-element tuple where each element is a random integer between 0 and 255
 def getRandomRGB():
-    return (random.randrange(0,256), random.randrange(0,256), random.randrange(0,256))
+    return (random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256))
+
+
+# getRandomRGB but with color channel control
+def getRandomRGB(r, g, b):
+    redOut = 0
+    greenOut = 0
+    blueOut = 0
+    if r == 1:
+        redOut = random.randrange(0, 256)
+    if g == 1:
+        greenOut = random.randrange(0, 256)
+    if b == 1:
+        blueOut = random.randrange(0, 256)
+    return (redOut, greenOut, blueOut)
+
 
 # Returns a 7-digit string consisting of a "#" character followed a random 6-digit hexadecimal number
 def getRandomHex():
@@ -215,35 +234,41 @@ def getRandomHex():
     print(x[0])
     return x
 
+
 # Returns a shade of red as an RGB tuple
 def getRandomRed():
-    return (random.randrange(0,MIN_HIGH_VAL), random.randrange(0,MAX_LOW_VAL), random.randrange(0,MAX_LOW_VAL))
+    return (random.randrange(0, MIN_HIGH_VAL), random.randrange(0, MAX_LOW_VAL), random.randrange(0, MAX_LOW_VAL))
+
 
 # Returns a shade of yellow as an RGB tuple
 def getRandomYellow():
-    return (random.randrange(0,MIN_HIGH_VAL), random.randrange(0,MIN_HIGH_VAL), random.randrange(0,MAX_LOW_VAL))
+    return (random.randrange(0, MIN_HIGH_VAL), random.randrange(0, MIN_HIGH_VAL), random.randrange(0, MAX_LOW_VAL))
+
 
 # Returns a shade of green as an RGB tuple
 def getRandomGreen():
-    return (random.randrange(0,MAX_LOW_VAL), random.randrange(0,MIN_HIGH_VAL), random.randrange(0,MAX_LOW_VAL))
+    return (random.randrange(0, MAX_LOW_VAL), random.randrange(0, MIN_HIGH_VAL), random.randrange(0, MAX_LOW_VAL))
+
 
 # Returns a shade of Blue-Green as an RGB tuple
 def getRandomBluegreen():
-    return (random.randrange(0,MAX_LOW_VAL), random.randrange(0,MIN_HIGH_VAL), random.randrange(0,MIN_HIGH_VAL))
+    return (random.randrange(0, MAX_LOW_VAL), random.randrange(0, MIN_HIGH_VAL), random.randrange(0, MIN_HIGH_VAL))
+
 
 # Returns a shade of blue as an RGB tuple
 def getRandomBlue():
-    return (random.randrange(0,MAX_LOW_VAL), random.randrange(0,MAX_LOW_VAL), random.randrange(0,MIN_HIGH_VAL))
+    return (random.randrange(0, MAX_LOW_VAL), random.randrange(0, MAX_LOW_VAL), random.randrange(0, MIN_HIGH_VAL))
+
 
 # Returns a shade of purple as an RGB tuple
 def getRandomPurple():
-    return (random.randrange(0,MIN_HIGH_VAL), random.randrange(0,MAX_LOW_VAL), random.randrange(0,MIN_HIGH_VAL))
+    return (random.randrange(0, MIN_HIGH_VAL), random.randrange(0, MAX_LOW_VAL), random.randrange(0, MIN_HIGH_VAL))
+
 
 # Returns a shade of gray as an RGB tuple
 def getRandomGray():
-    brightness = random.randrange(0,255)
+    brightness = random.randrange(0, 255)
     return (brightness, brightness, brightness)
-
 
 
 # COLOR MANIPULATION
