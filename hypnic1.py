@@ -55,7 +55,7 @@ MANIPULATE_IMAGE = True
 # If it is set to a positive integer then no manipulation with a higher index than STOP_MANIPULATING_AFTER will be done
 STOP_MANIPULATING_AFTER = 2
 # Path to the image used as program input
-INPUT_IMG = "lean1in.jpg"
+INPUT_IMG = "github-profile-image.png"
 # Path at which the resulting image will be saved
 OUTPUT_IMG = "output\\outputLEAN1"
 OUTPUT_IMG_EXTENSION = ".jpg"
@@ -1578,15 +1578,15 @@ class ImageManipulator:
 
         print("PREPARING DIRECTORIES...")
         if MANIPULATE_IMAGE:
-            output_image_directory = os.path.dirname(OUTPUT_IMG)
+            output_image_directory = Path.cwd() / OUTPUT_IMG
             os.makedirs(output_image_directory, exist_ok=True)
 
         if CREATE_GIF:
-            gif_directory = os.path.dirname(GIF_PATH)
+            gif_directory = Path.cwd() / GIF_PATH
             os.makedirs(gif_directory, exist_ok=True)
 
         if CREATE_VIDEO:
-            video_directory = os.path.dirname(GIF_PATH)
+            video_directory = Path.cwd() / GIF_PATH
             os.makedirs(video_directory, exist_ok=True)
 
         print("ALL DIRECTORIES PREPARED SUCCESSFULLY.\n")
