@@ -33,7 +33,7 @@ This project has been and continues to be a learning experience for me, and I've
 * **Sentdex**, via the tutorials from his website [PythonProgramming.net](https://pythonprogramming.net/), especially the ["GUIs with Tkinter (intermediate)"](https://www.youtube.com/playlist?list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk) tutorial series
 * **Bryan Oakley** ([GitHub](https://github.com/boakley)) for a number of incredible answers on StackExchange
 * **GitHub user** [**PurpleBooth**](https://github.com/PurpleBooth) for the [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2) that I used in creating this README
-* **John W. Shipman** (contact unknown) for authoring the Tkinter 8.5 reference from the New Mexico Tech Computer Center, referenced in the list of resources acknowledged below
+* **John W. Shipman** (1949 - 2017) for authoring the Tkinter 8.5 reference from the New Mexico Tech Computer Center, referenced in the list of resources acknowledged below
 
 I'm also thankful to the following specific resources which were referenced during development
 
@@ -42,6 +42,7 @@ I'm also thankful to the following specific resources which were referenced duri
 * The [**kite.com**](https://kite.com/python/docs/) Python documentation search
 * The [**Tk Commands Documentation**](https://www.tcl.tk/man/tcl8.6/TkCmd/contents.htm) from tcl.tk
 * **The Tkinter 8.5 reference** written by John W. Shipman
+
   The document appears to have been originally hosted by NMT at [this broken link](http://infohost.nmt.edu/tcc/help/pubs/tkinter/index.html) but a [**cached version**](https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/index.html) is hosted on GitHub Pages by user [anzeljg](https://github.com/anzeljg)
     It was also originally distributed in PDF form, and a [download](http://reu.cct.lsu.edu/documents/Python_Course/tkinter.pdf) is available from Louisiana State University
   
